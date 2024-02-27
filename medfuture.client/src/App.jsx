@@ -59,7 +59,7 @@ function App() {
 
     async function getCustomToken() {
 
-        const response = await fetch('weatherforecast/set-custom-claims', {
+        const response = await fetch('auth/set-custom-claims', {
             headers: {
                 'Authorization': `Bearer ${idToken}`,
             },

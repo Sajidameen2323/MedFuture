@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.Database;
+using FirebaseAdmin.Auth;
+using Microsoft.AspNetCore.Authorization;
+using MedFuture.Server.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +21,7 @@ var fireApp = FirebaseApp.Create(new AppOptions
     Credential = GoogleCredential.FromFile(pathToJsonFile),
 });
 
-builder.Services.AddDbContext<UserDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -38,9 +41,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnlyPolicy", policy =>
+    {
+        policy.Requirements.Add(new AuthRoleRequirement("admin"));
+    });
+    options.AddPolicy("DoctorOnlyPolicy", policy =>
+    {
+        policy.Requirements.Add(new AuthRoleRequirement("doctor"));
+    });
+});
 
-// Firebase configuration
-
+builder.Services.AddSingleton<IAuthorizationHandler, AuthRoleHandler>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

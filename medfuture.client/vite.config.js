@@ -50,7 +50,7 @@ export default defineConfig({
                 target: 'https://localhost:7184/',
                 secure: false
             },
-            '^/weatherforecast/set-custom-claims': {
+            '^/auth/set-custom-claims': {
                 target: 'https://localhost:7184/',
                 secure: false
             }

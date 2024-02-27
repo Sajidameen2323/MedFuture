@@ -1,24 +1,41 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedFuture.Server.Models
 {
+    [Table("User")]
     public class UserM
     {
-        public int Id { get; set; }
-        public string? FullName { get; set; }
-        [DataType(DataType.Date)]
-        public DateTime Dob { get; set; }
-        public GenderType? Gender { get; set; }
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int UserID { get; set; }
+
+        [Required]
+        public string FirebaseID { get; set; }
+
+        [Required, StringLength(50)]
+        public string FirstName { get; set; }
+
+        [Required, StringLength(50)]
+        public string LastName { get; set; }
+
+        [Required, EmailAddress]
         public string Email { get; set; }
+
+        public string ProfilePic { get; set; }
+
+        [Required]
+        public UserRole Role { get; set; }
     }
 
-    public enum GenderType
+ 
+    public enum UserRole
     {
-        [Description("Male")]
-        Male = 1,
-        [Description("Female")]
-        Female = 2
-    
+        [Description("Admin")]
+        Admin =1,
+        [Description("Patient")]
+        Patient = 2,
+        [Description("Doctor")]
+        Doctor =3
     }
 }
