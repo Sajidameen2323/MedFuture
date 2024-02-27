@@ -1,0 +1,6 @@
+@MedFuture.Server_HostAddress = http://localhost:5044
+
+GET {{MedFuture.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
