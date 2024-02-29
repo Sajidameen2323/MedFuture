@@ -45,11 +45,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnlyPolicy", policy =>
     {
-        policy.Requirements.Add(new AuthRoleRequirement("admin"));
+        policy.Requirements.Add(new AuthRoleRequirement("Admin"));
     });
     options.AddPolicy("DoctorOnlyPolicy", policy =>
     {
-        policy.Requirements.Add(new AuthRoleRequirement("doctor"));
+        policy.Requirements.Add(new AuthRoleRequirement("Doctor"));
     });
 });
 

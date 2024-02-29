@@ -50,7 +50,7 @@ export default defineConfig({
                 target: 'https://localhost:7184/',
                 secure: false
             },
-            '^/auth/set-custom-claims': {
+            '^/auth/authorize-user': {
                 target: 'https://localhost:7184/',
                 secure: false
             }

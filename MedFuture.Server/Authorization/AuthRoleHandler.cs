@@ -39,17 +39,21 @@ namespace MedFuture.Server.Authorization
 
             var uid = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
-
-            var roleClaim = user.CustomClaims["role"];
-            
-            //Console.WriteLine("Role In Handler - "+ roleClaim);
-
-            if (roleClaim != null && (string)roleClaim == requirement.Role)
+            if (uid != null)
             {
-                Console.WriteLine("Succeeded");
-                context.Succeed(requirement);
+                UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+
+                var roleClaim = user.CustomClaims["role"];
+
+                //Console.WriteLine("Role In Handler - "+ roleClaim);
+
+                if (roleClaim != null && (string)roleClaim == requirement.Role)
+                {
+                    Console.WriteLine("Succeeded");
+                    context.Succeed(requirement);
+                }
             }
+
 
             return Task.CompletedTask;
         }

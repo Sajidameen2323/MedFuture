@@ -24,8 +24,8 @@ namespace MedFuture.Server.Controllers
         }
 
         [Authorize]
-        [HttpGet("set-custom-claims")]
-        public async Task<IActionResult> SetCustomClaims()
+        [HttpGet("authorize-user")]
+        public async Task<IActionResult> AuthorizeUser()
         {
             var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
             
@@ -42,31 +42,14 @@ namespace MedFuture.Server.Controllers
                  
                     if(user != null) 
                     {
-                        string definedRole = "";
-
-                        switch (user.Role)
-                        {
-                            case UserRole.Admin:
-                                definedRole = "admin";
-                                break;
-                            case UserRole.Patient:
-                                definedRole = "patient";
-                                break;
-                            case UserRole.Doctor:
-                                definedRole = "doctor";
-                                break;
-                            default:
-                                definedRole = "";
-                                break;
-
-                        }
-                    
+                        string definedRole = ((UserRole)user.Role).ToString();
+               
                         // Retrieve user ID from Firebase authentication token
                         var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                         // Set custom claims using Firebase Admin SDK
                         // (This requires Firebase Admin SDK to be configured in your .NET Core app)
-                        // Example:
+
                         var additionalClaims = new Dictionary<string, object> { 
                             
                             { "role", definedRole },
@@ -86,7 +69,7 @@ namespace MedFuture.Server.Controllers
                     else
                     {
                         Console.WriteLine("No user found");
-                        return BadRequest();
+                        return Unauthorized();
 
                     }
                    
@@ -102,7 +85,7 @@ namespace MedFuture.Server.Controllers
             else
             {
                 Console.WriteLine("Invalid Token");
-                return BadRequest();
+                return Unauthorized();
             }
 
         }
