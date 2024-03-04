@@ -9,21 +9,21 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import { Link } from "react-router-dom";
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Alert from '@mui/material/Alert';
-import PropTypes from 'prop-types';
 
-import { useSearchParams, redirect, Navigate } from "react-router-dom";
+import { useSearchParams, Navigate } from "react-router-dom";
 
 function Login() {
 
     const [searchParams] = useSearchParams();
     const fromValue = searchParams.get('from');
+    const emailValue = searchParams.get('email');
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -31,6 +31,14 @@ function Login() {
     const [processing, setProcessing] = useState(false);
 
     const { login, currentUser } = useContext(FirebaseAuthContext);
+
+    useEffect(() => {
+
+        if (emailValue) {
+            setEmail(emailValue)
+        }
+
+    },[])
 
     const handleInputChange = (event) => {
 
@@ -58,7 +66,7 @@ function Login() {
     return (
         <div className="login-container">
             {currentUser && (
-                <Navigate to={(fromValue || "/")} replace={true} />
+                <Navigate to={(fromValue || "/dashboard")} replace={true} />
             )}
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
@@ -87,6 +95,7 @@ function Login() {
                             name="email"
                             autoComplete="email"
                             autoFocus
+                            value={email }
                             onChange={handleInputChange}
                         />
                         <TextField
@@ -121,7 +130,7 @@ function Login() {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="#" variant="body2">
+                                <Link to="/signup" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>

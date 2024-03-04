@@ -11,6 +11,7 @@ import {
 import { FirebaseAuthContext } from "../context/FirebaseAuthProvider";
 import Login from "../pages/Authentication/Login";
 import Weather from "../pages/Weather";
+import SignUp from "../pages/Authentication/Signup";
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
@@ -31,7 +32,7 @@ function CustomRouterProvider() {
                     Component: Weather,
                 },
                 {
-                    path: "protected",
+                    path: "/pp/protected",
                     loader: protectedLoader,
                     Component: ProtectedPage,
                 },
@@ -47,21 +48,40 @@ function CustomRouterProvider() {
         },
         {
             id: "auth",
-            path: "/login",
-            loader: loginLoader,
-            Component: Login,
+            path: "/",
+            children: [
+                {
+                    path: 'login',
+                    loader: loginLoader,
+                    Component: Login
+                },
+                {
+                    path: 'signup',
+                    loader: loginLoader,
+                    Component: SignUp,
+                
+                }
+            ],
 
-        }
+
+        },
+        {
+            id: "dashboard",
+            path: '/dashboard',
+            loader: protectedLoader,
+            Component: GetUserDashboard
+
+        },
+
     ]);
 
     async function loginLoader() {
-
         if (currentUser) {
-            
-           // return redirect("/");
+            return redirect("/dashboard");
         }
         return null;
     }
+
     function protectedLoader({ request }) {
         // If the user is not logged in and tries to access `/protected`, we redirect
         // them to `/login` with a `from` parameter that allows login to redirect back
@@ -81,7 +101,7 @@ function CustomRouterProvider() {
 
 
 function Layout() {
-    const { logout } = useContext(FirebaseAuthContext);
+    const { logout, currentUser } = useContext(FirebaseAuthContext);
     return (
         <React.Fragment>
           <h4>Welcome!!</h4>
@@ -89,22 +109,60 @@ function Layout() {
                 <li>
                     <Link to="/">Public Page</Link>
                 </li>
-                <li>
-                    <Link to="/login">Login</Link>
-                </li>
+                {!currentUser && <>
+                    <li>
+                        <Link to="/login">Login</Link>
+                    </li>
+                    <li>
+                        <Link to="/signup">Sign Up</Link>
+                    </li>
+
+                </>}
+
                 <li>
                     <Link to="/protected">Protected Page</Link>
                 </li>
             </ul>
-            <button onClick={async()=>{
+            {currentUser && <button onClick={async () => {
                 await logout()
-            }}>Logout</button>
+            }}>Logout</button> }
+
 
             <Outlet />
         </React.Fragment>
     );
 }
 
+function GetUserDashboard() {
+    const { currentUser, logout } = useContext(FirebaseAuthContext);
+
+    if (currentUser && currentUser?.role === "Admin") {
+
+        return (<div>
+
+            <h5> Ayo, Admin Wassup Homie!!</h5>
+            {currentUser && <button onClick={async () => {
+                await logout()
+            }}>Logout</button>}
+        </div>)
+    }
+    else if (currentUser && currentUser?.role === "Patient") {
+
+        return (<div>
+
+            <h5> Ayo, Patine Whats Good Nyaggaa!!</h5>
+            {currentUser && <button onClick={async () => {
+                await logout()
+            }}>Logout</button>}
+        </div>)
+    }
+    else {
+        return (<div>
+
+            Dafuq Are ye Nyaggaaa!! {JSON.stringify(currentUser) }
+        </div>)
+    }
+}
 
 function ProtectedPage() {
     return <h3>Protected</h3>;

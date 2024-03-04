@@ -57,7 +57,7 @@ namespace MedFuture.Server.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FirebaseID")
                         .IsRequired()
@@ -74,13 +74,15 @@ namespace MedFuture.Server.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ProfilePic")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.HasKey("UserID");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.HasIndex("FirebaseID")
                         .IsUnique();

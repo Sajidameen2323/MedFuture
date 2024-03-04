@@ -53,6 +53,10 @@ export default defineConfig({
             '^/auth/authorize-user': {
                 target: 'https://localhost:7184/',
                 secure: false
+            },
+            '^/auth/create-patient': {
+                target: 'https://localhost:7184/',
+                secure: false
             }
         },
         port: 5173,

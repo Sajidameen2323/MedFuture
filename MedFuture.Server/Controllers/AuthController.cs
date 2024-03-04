@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using MedFuture.Server.Models;
+using MedFuture.Server.DataTransferObjects;
+using MedFuture.Server.Services;
+using FirebaseAdmin.Messaging;
+using Microsoft.Data.SqlClient;
+using FirebaseAdmin;
 
 namespace MedFuture.Server.Controllers
 {
@@ -15,12 +20,17 @@ namespace MedFuture.Server.Controllers
     [Route("[controller]")]
     public class AuthController : Controller
     {
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<AuthController> _logger;
         private readonly ApplicationDbContext _dbcontext;
+        private readonly IMyDependency _myDependency;
+        private readonly IUserService _userService;
 
-        public AuthController(ApplicationDbContext dbContext)
+        public AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger, IMyDependency myDependency, IUserService userService)
         {
             _dbcontext = dbContext;
+            _logger = logger;
+            _myDependency = myDependency;
+            _userService = userService;
         }
 
         [Authorize]
@@ -88,6 +98,52 @@ namespace MedFuture.Server.Controllers
                 return Unauthorized();
             }
 
+        }
+
+        [HttpPost("create-patient")]
+        public async Task<IActionResult> CreatePatient(PatientCreateDto patientCreateDto)
+        {
+            if (patientCreateDto == null)
+            {
+                return BadRequest("Invalid patient data");
+            }
+            try
+            {
+                PatientM patient = await _userService.CreatePatient(patientCreateDto);
+                
+                _myDependency.WriteMessage("Index2Model.OnGet");
+
+                return Ok(new CreateResponse<PatientM>
+                {
+                    Success = true,
+                    Message = "Entity created successfully",
+                    Data = patient
+                });
+
+            }
+            catch(FirebaseException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new CreateErrorResponse { Message = "Email is already registered"});
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new CreateErrorResponse { Message = ex.Message });
+            }
+
+        }
+        class CreateResponse<T>
+        {
+            public bool Success { get; set; }
+            public string Message { get; set; }
+            public T Data { get; set; }
+        }
+
+        class CreateErrorResponse
+        {
+            public bool Success { get; set; } = false;
+            public string Message { get; set; }
+           
         }
     }
 }

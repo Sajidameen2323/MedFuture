@@ -58,6 +58,12 @@ function FirebaseAuthProvider({ children }) {
                 'Authorization': `Bearer ${idToken}`,
             },
         });
+
+        if (!response.ok) {
+            setLoading(false)
+            return;
+        }
+
         const data = await response.json();
         const { newToken } = data;
         // setIdToken(newToken);
@@ -80,6 +86,7 @@ function FirebaseAuthProvider({ children }) {
                     email_verified
                 }
                 console.log(newUser)
+                setCurrentUser(newUser)
                 setLoading(false);
                 // ...
             })

@@ -20,6 +20,10 @@ namespace MedFuture.Server.Database
             modelBuilder.Entity<UserM>()
                 .HasIndex(u => u.FirebaseID)
                 .IsUnique();
+            modelBuilder.Entity<UserM>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
 
             //model building User table
             modelBuilder.Entity<PatientM>()

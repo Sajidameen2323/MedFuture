@@ -8,11 +8,9 @@ using MedFuture.Server.Database;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.Authorization;
+using MedFuture.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers();
-
 
 var pathToJsonFile = @".\firebase-auth.json";
 
@@ -54,6 +52,12 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, AuthRoleHandler>();
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMyDependency, MyDependency>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddControllers();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

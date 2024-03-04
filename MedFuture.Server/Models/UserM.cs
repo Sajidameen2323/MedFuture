@@ -22,7 +22,7 @@ namespace MedFuture.Server.Models
         [Required, EmailAddress]
         public string Email { get; set; }
 
-        public string ProfilePic { get; set; }
+        public string? ProfilePic { get; set; }
 
         [Required]
         public UserRole Role { get; set; }
