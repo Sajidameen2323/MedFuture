@@ -55,13 +55,13 @@ namespace MedFuture.Server.Services
 
                 var actionCodeSettings = new ActionCodeSettings()
                 {
-                    Url = "https://www.example.com/checkout?cartId=1234",
+                    Url = "https://localhost:5173/",
                     HandleCodeInApp = true,
-                    IosBundleId = "com.example.ios",
-                    AndroidPackageName = "com.example.android",
-                    AndroidInstallApp = true,
-                    AndroidMinimumVersion = "12",
-                    DynamicLinkDomain = "coolapp.page.link",
+                    //IosBundleId = "com.example.ios",
+                    //AndroidPackageName = "com.example.android",
+                    //AndroidInstallApp = true,
+                    //AndroidMinimumVersion = "12",
+                 
                 };
 
                 var email = userRecord.Email;
@@ -70,7 +70,7 @@ namespace MedFuture.Server.Services
                 // Construct email verification template, embed the link and send
                 // using custom SMTP server.
 
-                await _emailService.SendEmail(email, "MedFuture", link);
+                await _emailService.SendVerificationEmail(email, link);
 
             }
             catch (DbUpdateException ex)

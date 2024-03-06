@@ -9,6 +9,7 @@ using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.Authorization;
 using MedFuture.Server.Services;
+using MedFuture.Server.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ var fireApp = FirebaseApp.Create(new AppOptions
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+
+builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

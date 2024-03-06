@@ -57,6 +57,10 @@ export default defineConfig({
             '^/auth/create-patient': {
                 target: 'https://localhost:7184/',
                 secure: false
+            },
+            '^/auth/get-verification-mail': {
+                target: 'https://localhost:7184/',
+                secure: false
             }
         },
         port: 5173,

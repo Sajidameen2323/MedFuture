@@ -24,13 +24,15 @@ namespace MedFuture.Server.Controllers
         private readonly ApplicationDbContext _dbcontext;
         private readonly IMyDependency _myDependency;
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger, IMyDependency myDependency, IUserService userService)
+        public AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger, IMyDependency myDependency, IUserService userService, IEmailService emailService)
         {
             _dbcontext = dbContext;
             _logger = logger;
             _myDependency = myDependency;
             _userService = userService;
+            _emailService = emailService;
         }
 
         [Authorize]
@@ -113,7 +115,7 @@ namespace MedFuture.Server.Controllers
                 
                 _myDependency.WriteMessage("Index2Model.OnGet");
 
-                return Ok(new CreateResponse<PatientM>
+                return Ok(new CreatePatientResponse<PatientM>
                 {
                     Success = true,
                     Message = "Entity created successfully",
@@ -124,26 +126,61 @@ namespace MedFuture.Server.Controllers
             catch(FirebaseException ex)
             {
                 Console.WriteLine(ex.Message);
-                return BadRequest(new CreateErrorResponse { Message = "Email is already registered"});
+                return BadRequest(new CreatePatientResponse<PatientM> { Message = "Email is already registered"});
             }
             catch (Exception ex)
             {
-                return BadRequest(new CreateErrorResponse { Message = ex.Message });
+                return BadRequest(new CreatePatientResponse<PatientM> { Message = ex.Message });
             }
 
         }
-        class CreateResponse<T>
+        class CreatePatientResponse<T>
         {
-            public bool Success { get; set; }
+            public bool Success { get; set; } = false;
             public string Message { get; set; }
             public T Data { get; set; }
         }
 
-        class CreateErrorResponse
+
+
+
+        // Verification Email Sending Area
+        [Authorize]
+        [HttpGet("get-verification-mail")]
+        public async Task<IActionResult> GetVerificationEmail()
+        {
+            var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+            var actionCodeSettings = new ActionCodeSettings()
+            {
+                Url = "https://localhost:5173/",
+                HandleCodeInApp = true,
+                //IosBundleId = "com.example.ios",
+                //AndroidPackageName = "com.example.android",
+                //AndroidInstallApp = true,
+                //AndroidMinimumVersion = "12",
+
+            };
+            var link = await FirebaseAuth.DefaultInstance.GenerateEmailVerificationLinkAsync(
+                    userRecord.Email, actionCodeSettings);
+
+            bool emailSent = await _emailService.SendVerificationEmail(userRecord.Email, link);
+
+            if (emailSent)
+            {
+                return Ok(new VerficationMailResponse { Success=true, Message="Verification Email Sent!"});
+            }
+
+            return BadRequest(new VerficationMailResponse { Message="Something Went Wrong"});
+           
+        }
+
+        class VerficationMailResponse
         {
             public bool Success { get; set; } = false;
             public string Message { get; set; }
-           
+        
         }
+
     }
 }

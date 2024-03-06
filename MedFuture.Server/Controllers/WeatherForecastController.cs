@@ -1,4 +1,5 @@
 using FirebaseAdmin.Auth;
+using MedFuture.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -22,10 +23,12 @@ namespace MedFuture.Server.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IEmailService _emailService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService)
         {
             _logger = logger;
+            _emailService = emailService;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -43,6 +46,15 @@ namespace MedFuture.Server.Controllers
             .ToArray();
         }
 
+
+        [HttpGet("get-email-dummy")]
+        public async Task<IActionResult> GetEmailDummy()
+        {
+            await _emailService.SendVerificationEmail("slimshady0632@gmail.com", "Email Verification");
+
+            return Ok();
+           
+        }
 
 
     }

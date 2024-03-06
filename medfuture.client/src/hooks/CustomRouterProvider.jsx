@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useContext } from "react";
 import {
@@ -12,6 +13,8 @@ import { FirebaseAuthContext } from "../context/FirebaseAuthProvider";
 import Login from "../pages/Authentication/Login";
 import Weather from "../pages/Weather";
 import SignUp from "../pages/Authentication/Signup";
+import SendVerificationMail from "../pages/Authentication/SendVerficationMail";
+import { LoginLoader } from "../middlewares/RouteLoaders";
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
@@ -32,7 +35,7 @@ function CustomRouterProvider() {
                     Component: Weather,
                 },
                 {
-                    path: "/pp/protected",
+                    path: "protected",
                     loader: protectedLoader,
                     Component: ProtectedPage,
                 },
@@ -48,7 +51,7 @@ function CustomRouterProvider() {
         },
         {
             id: "auth",
-            path: "/",
+            path: "/auth",
             children: [
                 {
                     path: 'login',
@@ -60,10 +63,13 @@ function CustomRouterProvider() {
                     loader: loginLoader,
                     Component: SignUp,
                 
+                },
+                {
+                    path: 'verify-email',
+                    loader: VerificationMailLoader,
+                    Component: SendVerificationMail
                 }
             ],
-
-
         },
         {
             id: "dashboard",
@@ -76,22 +82,44 @@ function CustomRouterProvider() {
     ]);
 
     async function loginLoader() {
+
         if (currentUser) {
             return redirect("/dashboard");
         }
         return null;
     }
 
-    function protectedLoader({ request }) {
-        // If the user is not logged in and tries to access `/protected`, we redirect
-        // them to `/login` with a `from` parameter that allows login to redirect back
-        // to this page upon successful authentication
+    function protectedLoader({ request, params }) {
+
+        console.log(request);
+        console.log(params);
+
         if (!currentUser) {
             let params = new URLSearchParams();
             params.set("from", new URL(request.url).pathname);
-            return redirect("/login?" + params.toString());
+            return redirect("/auth/login?" + params.toString());
+        }
+        else if (currentUser && !currentUser.email_verified) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/verify-email?" + params.toString());
         }
         return null;
+    }
+
+    function VerificationMailLoader({ request }) {
+
+        if (!currentUser) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/login?" + params.toString());
+        }
+        else if (currentUser && currentUser.email_verified) {
+
+            return redirect("/dashboard");
+        }
+        return null;
+
     }
 
     return (
@@ -111,10 +139,10 @@ function Layout() {
                 </li>
                 {!currentUser && <>
                     <li>
-                        <Link to="/login">Login</Link>
+                        <Link to="/auth/login">Login</Link>
                     </li>
                     <li>
-                        <Link to="/signup">Sign Up</Link>
+                        <Link to="/auth/signup">Sign Up</Link>
                     </li>
 
                 </>}
