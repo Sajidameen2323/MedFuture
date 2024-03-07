@@ -16,29 +16,26 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
+import GoogleIcon from '@mui/icons-material/Google';
 
-import { useSearchParams, Navigate } from "react-router-dom";
+import { useSearchParams, Navigate, useLocation } from "react-router-dom";
 
 function Login() {
 
+    const location = useLocation();
+    const { successMessage, loginEmail } = location.state || {};
+
     const [searchParams] = useSearchParams();
     const fromValue = searchParams.get('from');
-    const emailValue = searchParams.get('email');
 
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState((loginEmail || ""));
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [processing, setProcessing] = useState(false);
+    const [googleProcessing, setGoogleProcessing] = useState(false);
 
-    const { login, currentUser } = useContext(FirebaseAuthContext);
-
-    useEffect(() => {
-
-        if (emailValue) {
-            setEmail(emailValue)
-        }
-
-    },[])
+    const { login, googleLogin, currentUser } = useContext(FirebaseAuthContext);
 
     const handleInputChange = (event) => {
 
@@ -63,6 +60,20 @@ function Login() {
         setProcessing(false)
     };
 
+    const loginByGoogle = async (event) => {
+        event.preventDefault();
+        setGoogleProcessing(true)
+        // Simulate API call with delay and potential error
+        try {
+            await googleLogin();
+        } catch (error) {
+            console.error('Google Auth Error:', error);
+            setGoogleProcessing(false)
+           // setErrorMessage("Wrong Credentials")
+        }
+        setGoogleProcessing(false)
+    };
+
     return (
         <div className="login-container">
             {currentUser && (
@@ -82,10 +93,14 @@ function Login() {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        Sign in 
                     </Typography>
+                   
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                         {errorMessage && errorMessage.length > 0 && <Alert severity="error">{errorMessage}</Alert>}
+
+                        {successMessage && <Alert severity="success">{successMessage}</Alert> }
+                        
                         <TextField
                             margin="normal"
                             required
@@ -123,18 +138,33 @@ function Login() {
                                 Sign In
                             </Button>
                         }
-                        <Grid container>
+
+                        <Grid sx={{ my:4 }} container>
                             <Grid item xs>
                                 <Link href="#" variant="body2">
                                     Forgot password?
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link to="/signup" variant="body2">
+                                <Link to="/auth/signup" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>
                         </Grid>
+                        <Divider>OR</Divider>
+                        {googleProcessing ? <h5>Logging In..</h5> :
+                            <Button
+                                startIcon={<GoogleIcon />}
+                                onClick={loginByGoogle}
+                                fullWidth
+                                variant="contained"
+
+                                sx={{ mt: 3, mb: 2 }}
+                                color="success"
+                            >
+                                Continue with Google
+                            </Button>
+                        }
                     </Box>
                 </Box>
                 <Copyright sx={{ mt: 8, mb: 4 }} />

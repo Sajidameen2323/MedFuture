@@ -14,6 +14,7 @@ using FirebaseAdmin.Messaging;
 using Microsoft.Data.SqlClient;
 using FirebaseAdmin;
 
+
 namespace MedFuture.Server.Controllers
 {
     [ApiController]
@@ -22,15 +23,13 @@ namespace MedFuture.Server.Controllers
     {
         private readonly ILogger<AuthController> _logger;
         private readonly ApplicationDbContext _dbcontext;
-        private readonly IMyDependency _myDependency;
         private readonly IUserService _userService;
         private readonly IEmailService _emailService;
 
-        public AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger, IMyDependency myDependency, IUserService userService, IEmailService emailService)
+        public AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger, IUserService userService, IEmailService emailService)
         {
             _dbcontext = dbContext;
             _logger = logger;
-            _myDependency = myDependency;
             _userService = userService;
             _emailService = emailService;
         }
@@ -42,41 +41,52 @@ namespace MedFuture.Server.Controllers
             var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
             
             FirebaseToken decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(accessToken);
+    
 
             object userId;
             if (decoded.Claims.TryGetValue("user_id", out userId))
             {
+                UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync((string)userId);
+
+                string? signInMethod = "password";
+
+                var firstProviderInfo = userRecord.ProviderData[0];
+
+                signInMethod = firstProviderInfo.ProviderId;
+
                 try
                 {
-                    UserM user = _dbcontext.Users
-                        .Where(u => u.FirebaseID == (string)userId)
-                        .First();
-                 
-                    if(user != null) 
+                    UserM user = await _userService.GetUser((string)userId);
+
+                    if (user != null) 
                     {
-                        string definedRole = ((UserRole)user.Role).ToString();
-               
+                                    
                         // Retrieve user ID from Firebase authentication token
                         var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                        // Set custom claims using Firebase Admin SDK
-                        // (This requires Firebase Admin SDK to be configured in your .NET Core app)
-
-                        var additionalClaims = new Dictionary<string, object> { 
-                            
-                            { "role", definedRole },
-                            
-                        
-                        };
-
-                        string customToken = await FirebaseAuth.DefaultInstance
-                                                          .CreateCustomTokenAsync(uid, additionalClaims);
-
-                        await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(uid, additionalClaims);
-
+                        string customToken = await _userService.GetCustomToken(user, (string)uid);
 
                         return Ok(new { Message = "Custom claims set successfully", newToken = customToken });
 
+                    }
+                    else if (user == null && signInMethod == "google.com")
+                    {
+                        Console.WriteLine("No user found, Creating user from google sign in");
+
+                        PatientCreateFromGoogleAuthDto patientCreateFromGoogleAuth = new PatientCreateFromGoogleAuthDto();
+                        patientCreateFromGoogleAuth.FirebaseID = userRecord.Uid;
+                        patientCreateFromGoogleAuth.FirstName = firstProviderInfo.DisplayName.Split(" ")[0];
+                        patientCreateFromGoogleAuth.LastName = firstProviderInfo.DisplayName.Split(" ")[1];
+                        patientCreateFromGoogleAuth.Email = firstProviderInfo.Email;
+                        patientCreateFromGoogleAuth.ProfilePic = firstProviderInfo.PhotoUrl;
+                        patientCreateFromGoogleAuth.Role = UserRole.Patient;
+
+                        UserM dbUser = await _userService.CreateUserFromGoogleAuth(patientCreateFromGoogleAuth);
+                        var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                        string customToken = await _userService.GetCustomToken(dbUser, (string)uid);
+
+                        return Ok(new { Message = "Custom claims set successfully", newToken = customToken });
                     }
                     else
                     {
@@ -111,9 +121,7 @@ namespace MedFuture.Server.Controllers
             }
             try
             {
-                PatientM patient = await _userService.CreatePatient(patientCreateDto);
-                
-                _myDependency.WriteMessage("Index2Model.OnGet");
+                PatientM patient = await _userService.CreatePatient(patientCreateDto);                     
 
                 return Ok(new CreatePatientResponse<PatientM>
                 {

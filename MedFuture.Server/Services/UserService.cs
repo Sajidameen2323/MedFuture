@@ -3,8 +3,9 @@ using FirebaseAdmin.Auth;
 using MedFuture.Server.Database;
 using MedFuture.Server.DataTransferObjects;
 using MedFuture.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using FirebaseAdmin.Messaging;
+using System.Security.Claims;
 
 
 namespace MedFuture.Server.Services
@@ -13,13 +14,71 @@ namespace MedFuture.Server.Services
     {
         private readonly ApplicationDbContext _dbcontext;
         private readonly IEmailService _emailService;
-
+   
         public UserService(ApplicationDbContext dbcontext, IEmailService emailService) { 
         
             _dbcontext = dbcontext;
             _emailService = emailService;
-    
+
         }
+
+        public async Task<UserM?> GetUser(string firebaseId)
+        {
+            try
+            {
+                UserM user = _dbcontext.Users
+                     .Where(u => u.FirebaseID == (string)firebaseId)
+                     .First();
+                return user;
+            }
+            catch (Exception ex) {
+                return null;
+            }
+            
+        }
+
+        public async Task<string> GetCustomToken(UserM user, string uid)
+        {
+
+            string definedRole = ((UserRole)user.Role).ToString();
+            // Retrieve user ID from Firebase authentication token
+
+            // Set custom claims using Firebase Admin SDK
+            // (This requires Firebase Admin SDK to be configured in your .NET Core app)
+
+            var additionalClaims = new Dictionary<string, object> {
+
+                            { "role", definedRole },
+
+                        };
+
+            string customToken = await FirebaseAuth.DefaultInstance
+                                  .CreateCustomTokenAsync(uid, additionalClaims);
+
+            await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(uid, additionalClaims);
+
+            return customToken;
+
+        }
+
+        public async Task<UserM> CreateUserFromGoogleAuth(PatientCreateFromGoogleAuthDto patientData)
+        {
+
+       
+                UserM user = new UserM() { Email=patientData.Email, FirebaseID = patientData.FirebaseID, FirstName = patientData.FirstName,
+                LastName = patientData.LastName, ProfilePic= patientData.ProfilePic, Role=patientData.Role};
+
+                PatientM patient = new PatientM() { DOB = patientData.DOB, Gender = patientData.Gender, User=user, UserID=user.UserID };
+
+                _dbcontext.Add(user);
+                _dbcontext.Add(patient);
+                await _dbcontext.SaveChangesAsync();
+
+                return user;
+            
+
+        }
+
 
         public async Task<PatientM> CreatePatient( PatientCreateDto patientDto)
         {
@@ -52,25 +111,6 @@ namespace MedFuture.Server.Services
                 _dbcontext.Add(user);
                 _dbcontext.Add(patient);
                 await _dbcontext.SaveChangesAsync();
-
-                var actionCodeSettings = new ActionCodeSettings()
-                {
-                    Url = "https://localhost:5173/",
-                    HandleCodeInApp = true,
-                    //IosBundleId = "com.example.ios",
-                    //AndroidPackageName = "com.example.android",
-                    //AndroidInstallApp = true,
-                    //AndroidMinimumVersion = "12",
-                 
-                };
-
-                var email = userRecord.Email;
-                var link = await FirebaseAuth.DefaultInstance.GenerateEmailVerificationLinkAsync(
-                    email, actionCodeSettings);
-                // Construct email verification template, embed the link and send
-                // using custom SMTP server.
-
-                await _emailService.SendVerificationEmail(email, link);
 
             }
             catch (DbUpdateException ex)

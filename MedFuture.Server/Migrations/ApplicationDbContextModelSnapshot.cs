@@ -30,11 +30,14 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientID"));
 
-                    b.Property<DateTime>("DOB")
+                    b.Property<DateTime?>("DOB")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");
@@ -88,6 +91,17 @@ namespace MedFuture.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            UserID = 1,
+                            Email = "admin123@gmail.com",
+                            FirebaseID = "gTl85s5wAwZQPxfhIxlWqihtLWF3",
+                            FirstName = "Super",
+                            LastName = "Admin",
+                            Role = 1
+                        });
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>

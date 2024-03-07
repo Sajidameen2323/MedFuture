@@ -13,6 +13,13 @@ namespace MedFuture.Server.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //model building User table
+
+            modelBuilder.Entity<UserM>()
+                .HasData(
+                    new UserM{ FirebaseID= "gTl85s5wAwZQPxfhIxlWqihtLWF3", Email= "admin123@gmail.com", FirstName="Super", LastName="Admin",
+                    Role = UserRole.Admin, UserID = 1}
+                );
+
             modelBuilder.Entity<UserM>()
                 .Property(x => x.Role)
                 .HasConversion<int>();

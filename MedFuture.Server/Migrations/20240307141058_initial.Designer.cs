@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedFuture.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240227142857_firebaseID-unique")]
-    partial class firebaseIDunique
+    [Migration("20240307141058_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,11 +33,14 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientID"));
 
-                    b.Property<DateTime>("DOB")
+                    b.Property<DateTime?>("DOB")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");
@@ -60,7 +63,7 @@ namespace MedFuture.Server.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FirebaseID")
                         .IsRequired()
@@ -77,7 +80,6 @@ namespace MedFuture.Server.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ProfilePic")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
@@ -85,10 +87,24 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("UserID");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("FirebaseID")
                         .IsUnique();
 
                     b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            UserID = 1,
+                            Email = "admin123@gmail.com",
+                            FirebaseID = "gTl85s5wAwZQPxfhIxlWqihtLWF3",
+                            FirstName = "Super",
+                            LastName = "Admin",
+                            Role = 1
+                        });
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>

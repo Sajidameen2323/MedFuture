@@ -6,8 +6,10 @@ namespace MedFuture.Server.Services
 {
     public interface IUserService
     {
-
+        public Task<UserM?> GetUser(string firebaseId);
         public Task<PatientM> CreatePatient(PatientCreateDto patientDto);
+        public Task<UserM> CreateUserFromGoogleAuth(PatientCreateFromGoogleAuthDto patientData);
+        public Task<string> GetCustomToken(UserM user, string uid);
 
     }
 }

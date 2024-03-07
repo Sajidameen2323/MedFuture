@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { createContext, useState, useEffect } from "react";
-import { auth } from '../config/firebaseConfig';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
+import { auth, googleProvider } from '../config/firebaseConfig';
+import { signInWithEmailAndPassword, signInWithPopup ,signOut, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
 import Spinner from "../shared/components/Spinner/Spinner";
 
 const FirebaseAuthContext = createContext({
     currentUser: null,
     setUser: () => { },
     login: () => { },
+    googleLogin: () => { },
     logout: () => { },
     loading: false,
     idToken: "",
@@ -30,6 +31,7 @@ function FirebaseAuthProvider({ children }) {
             if (user) {
                 user.getIdToken(/* forceRefresh */ false).then(function (idToken) {
                     // Send token to your backend via HTTPS
+                    console.log(user);
                     setIdToken(idToken)
                     getCustomToken(idToken)
 
@@ -104,14 +106,19 @@ function FirebaseAuthProvider({ children }) {
     const login =  (email, password) => { 
            return  signInWithEmailAndPassword(auth, email, password);
     };
-        
+
+    const googleLogin = () => {
+
+        return signInWithPopup(auth, googleProvider);
+    }
+
     const logout = () => {
         return signOut(auth);
     };
 
     return (
         <FirebaseAuthContext.Provider
-            value={{ currentUser, idToken, login, logout, loading }}
+            value={{ currentUser, idToken, login, googleLogin, logout, loading }}
         >
             {loading? <Spinner />: children }
    

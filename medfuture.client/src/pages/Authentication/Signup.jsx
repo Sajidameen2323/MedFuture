@@ -26,7 +26,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 dayjs.extend(utc);
 
@@ -54,8 +54,10 @@ export default function SignUp() {
     const [termAccepted, setTermAccepted] = React.useState(false);
     const [processing, setProcessing] = React.useState(false);
     const [formErrors, setFormErrors] = React.useState({});
-    const [redirectLogin, setRedirectLogin] = React.useState(false);
-    const [redirectLink, setRedirectLink] = React.useState('/login');
+
+
+    const navigate = useNavigate();
+
 
     const handleInputChange = (event) => {
 
@@ -85,14 +87,14 @@ export default function SignUp() {
             "dob": dobValue.format()
         }
 
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-            dob: data.get('dob'),
-        });
+        //console.log({
+        //    email: data.get('email'),
+        //    password: data.get('password'),
+        //    dob: data.get('dob'),
+        //});
 
         setProcessing(true);
-        const response = await fetch('auth/create-patient', {
+        const response = await fetch('/auth/create-patient', {
 
             headers: {
                 "Content-Type": "application/json",
@@ -104,8 +106,11 @@ export default function SignUp() {
 
             const { data } = await response.json()
             console.log(data)
-            setRedirectLink("/login?email=" + (data?.user?.email ?? ""));
-            setRedirectLogin(true);
+
+            const successMessage = "Successfully Registered!";
+            navigate('/auth/login', { state: { successMessage, loginEmail: (data?.user?.email ?? "") } });
+
+
         }
         else {
             const { errors, message, success } = await response.json()
@@ -125,7 +130,6 @@ export default function SignUp() {
     return (
         <ThemeProvider theme={defaultTheme}>
             <Container component="main" maxWidth="xs">
-                {redirectLogin && <Navigate to={(redirectLink)} replace={true} /> }
                 <CssBaseline />
                 <Box
                     sx={{
@@ -264,9 +268,10 @@ export default function SignUp() {
                                 Sign Up
                             </Button>
                         }
+     
                         <Grid container justifyContent="flex-end">
                             <Grid item>
-                                <Link to="/login" >
+                                <Link to="/auth/login" >
                                     Already have an account? Sign in
                                 </Link>
                             </Grid>
