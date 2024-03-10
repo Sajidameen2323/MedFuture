@@ -11,8 +11,6 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import 'dayjs/locale/en-gb';
@@ -27,13 +25,14 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 import { useNavigate } from "react-router-dom";
+import { useTheme } from '@mui/material/styles';
 
 dayjs.extend(utc);
 
 function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
+            {'Copyright ï¿½ '}
             <Link color="inherit" href="https://mui.com/">
                 MedFuture
             </Link>{' '}
@@ -45,9 +44,10 @@ function Copyright(props) {
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
-const defaultTheme = createTheme();
-
 export default function SignUp() {
+
+
+    const theme = useTheme();
 
     const [dobValue, setDobValue] = React.useState(dayjs().subtract(1, 'day'));
     const [genderVal, setGenderVal] = React.useState(1);
@@ -63,7 +63,7 @@ export default function SignUp() {
 
         var elementId = event.currentTarget.getAttribute("id");
 
-        console.log(elementId)
+        //console.log(elementId)
         let newErrors = { ...formErrors }
         newErrors[elementId] = null;
 
@@ -128,8 +128,8 @@ export default function SignUp() {
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
-            <Container component="main" maxWidth="xs">
+
+            <Container component="main" maxWidth="xs" >
                 <CssBaseline />
                 <Box
                     sx={{
@@ -280,6 +280,6 @@ export default function SignUp() {
                 </Box>
                 <Copyright sx={{ mt: 5 }} />
             </Container>
-        </ThemeProvider>
+
     );
 }

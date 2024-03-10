@@ -12,6 +12,7 @@
     <Folder Include="config\" />
     <Folder Include="context\" />
     <Folder Include="hooks\" />
+    <Folder Include="src\hooks\" />
     <Folder Include="src\Shared\Components\" />
   </ItemGroup>
 </Project>

@@ -41,7 +41,15 @@ export default defineConfig({
     plugins: [plugin()],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            "components": path.resolve(__dirname, 'src/components'),
+            "utils": path.resolve(__dirname, 'src/utils'),
+            "assets": path.resolve(__dirname, 'src/assets'),
+            "config": path.resolve(__dirname, 'src/config/config'),
+            "store": path.resolve(__dirname, 'src/store'),
+            "themes": path.resolve(__dirname, 'src/styles/themes'),
+            "context": path.resolve(__dirname, 'src/context'),
+            "menu-items": path.resolve(__dirname, 'src/menu-items'),
         }
     },
     server: {

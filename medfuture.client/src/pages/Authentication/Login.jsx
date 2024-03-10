@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useContext, useEffect, useState } from "react";
 import { FirebaseAuthContext } from "../../context/FirebaseAuthProvider";
-
+import { useTheme } from '@mui/material/styles';
 // MUI imports
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -24,6 +24,9 @@ import { useSearchParams, Navigate, useLocation } from "react-router-dom";
 function Login() {
 
     const location = useLocation();
+
+    const theme = useTheme();
+
     const { successMessage, loginEmail } = location.state || {};
 
     const [searchParams] = useSearchParams();
@@ -79,7 +82,7 @@ function Login() {
             {currentUser && (
                 <Navigate to={(fromValue || "/dashboard")} replace={true} />
             )}
-            <Container component="main" maxWidth="xs">
+            <Container component="main" maxWidth="xs" >
                 <CssBaseline />
                 <Box
                     sx={{
@@ -157,9 +160,8 @@ function Login() {
                                 startIcon={<GoogleIcon />}
                                 onClick={loginByGoogle}
                                 fullWidth
-                                variant="contained"
-
-                                sx={{ mt: 3, mb: 2 }}
+                                variant="contained"                           
+                                sx={{ mt: 3, mb: 2, color: theme.palette.background.default }}
                                 color="success"
                             >
                                 Continue with Google

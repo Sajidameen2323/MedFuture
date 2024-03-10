@@ -2,15 +2,22 @@
 import { FirebaseAuthProvider } from './context/FirebaseAuthProvider';
 import './App.css';
 //import Dummy from './pages/Dummy';
-import CustomRouterProvider from './hooks/CustomRouterProvider';
+import CustomRouterProvider from './context/CustomRouterProvider';
+import CustomThemeProvider from './context/CustomThemeProvider';
+import { Provider as ReduxProvider } from 'react-redux';
+import { store } from 'store';
+import ThemeCustomization from 'themes';
 
 function App() {
 
     return (
-
+        <ReduxProvider store={store}>
         <FirebaseAuthProvider>
-            <CustomRouterProvider />
+            <ThemeCustomization>
+                <CustomRouterProvider />
+            </ThemeCustomization>
         </FirebaseAuthProvider>
+        </ReduxProvider>
     )
 }
 

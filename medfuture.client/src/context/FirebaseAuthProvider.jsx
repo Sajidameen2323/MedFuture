@@ -78,14 +78,16 @@ function FirebaseAuthProvider({ children }) {
                 console.log("Successfully logged in with cutom token");
                 var idTokenResult = await user.getIdTokenResult(true);
                 setCurrentUser(user);
-                const { role, email, user_id, email_verified } = idTokenResult.claims;
+                const { role, email, user_id, email_verified, name, picture } = idTokenResult.claims;
                 console.log(idTokenResult.claims)
 
                 var newUser = {
                     role,
                     email,
                     user_id,
-                    email_verified
+                    email_verified,
+                    name,
+                    picture
                 }
                 console.log(newUser)
                 setCurrentUser(newUser)
