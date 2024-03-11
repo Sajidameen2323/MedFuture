@@ -2,23 +2,20 @@
 /* eslint-disable no-unused-vars */
 import React, { useContext } from "react";
 import {
-    Link,
-    Outlet,
     RouterProvider,
     createBrowserRouter,
     redirect,
-
 } from "react-router-dom";
 import { FirebaseAuthContext } from "./FirebaseAuthProvider";
-import Login from "../pages/Authentication/Login";
-import Weather from "../pages/Weather";
-import SignUp from "../pages/Authentication/Signup";
-import SendVerificationMail from "../pages/Authentication/SendVerficationMail";
-import { LoginLoader } from "../middlewares/RouteLoaders";
-import { Box } from "@mui/material";
-import { useTheme } from '@mui/material/styles';
 import MainLayout from "../layout/MainLayout";
 import WelcomePage from "../pages/WelcomePage";
+
+import Login from '../pages/Authentication/Login';
+import Register from "../pages/Authentication/Register";
+import Weather from "../pages/Weather";
+
+import NotFound from "../pages/ErrorPages/NotFound";
+import EmailVerification from "../pages/Authentication/EmailVerification";
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
@@ -28,15 +25,13 @@ function CustomRouterProvider() {
         {
             id: "root",
             path: "/",
-            loader() {
-                // Our root route always provides the user, if logged in
-                return { user: currentUser };
-            },
-           
+            loader: () => { return 6 },
+            errorElement:<NotFound />,
             children: [
                 {
                     index: true,
-                    Component: WelcomePage
+                    Component: WelcomePage,
+                    loader: () => { return { currentUser } }
                 },
  
 
@@ -51,12 +46,12 @@ function CustomRouterProvider() {
                 {
                     index: true,
                     loader: protectedLoader,
-                    Component: Dummy,
+                    Component: Weather,
                 },
                 {
                     path: "overview",
                     loader: protectedLoader,
-                    Component: Dummy,
+                    Component: Weather,
                 }
 
             ]
@@ -81,17 +76,17 @@ function CustomRouterProvider() {
                 {
                     path: 'signup',
                     loader: loginLoader,
-                    Component: SignUp,
+                    Component: Register,
 
                 },
                 {
                     path: 'verify-email',
                     loader: VerificationMailLoader,
-                    Component: SendVerificationMail
+                    Component: EmailVerification
                 }
             ],
         },
-  
+
     ]);
 
     async function loginLoader() {

@@ -57,7 +57,7 @@ function a11yProps(index) {
 const Profile = () => {
 
   const theme = useTheme();
-    const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
+    const { currentUser, logout } = useContext(FirebaseAuthContext);
 
   const handleLogout = async () => {
       // logout
@@ -101,7 +101,7 @@ const Profile = () => {
         onClick={handleToggle}
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
-                  <Avatar alt="profile user" src={currentUser?.picture || Avatar} sx={{ width: 32, height: 32 }} />
+                  <Avatar alt="profile user" src={currentUser?.picture || avatar1} sx={{ width: 32, height: 32 }} />
                   <Typography variant="subtitle1">{ currentUser?.name }</Typography>
         </Stack>
       </ButtonBase>
@@ -143,11 +143,11 @@ const Profile = () => {
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
                           <Stack direction="row" spacing={1.25} alignItems="center">
-                            <Avatar alt="profile user" src={currentUser?.picture || Avatar} sx={{ width: 32, height: 32 }} />
+                            <Avatar alt="profile user" src={currentUser?.picture || avatar1} sx={{ width: 32, height: 32 }} />
                             <Stack>
                                                           <Typography variant="h6"> {currentUser?.name}</Typography>
                               <Typography variant="body2" color="textSecondary">
-                                                              {currentUser.email }
+                                                              {currentUser?.email }
                               </Typography>
                             </Stack>
                           </Stack>
