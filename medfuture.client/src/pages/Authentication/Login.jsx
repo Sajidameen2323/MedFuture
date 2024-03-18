@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-
+import { useEffect, useContext } from 'react';
 // material-ui
 import { Grid, Stack, Typography, Alert, Box } from '@mui/material';
 
@@ -7,13 +7,31 @@ import { Grid, Stack, Typography, Alert, Box } from '@mui/material';
 import AuthLogin from './auth-forms/AuthLogin';
 import AuthWrapper from './AuthWrapper';
 
-import { useSearchParams, Navigate, useLocation } from "react-router-dom";
+import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
+
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 // ================================|| LOGIN ||================================ //
 
 const Login = () => {
 
-  const location = useLocation();
-  const { successMessage } = location.state || {};
+    const [searchParams] = useSearchParams();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const { successMessage } = location.state || {};
+
+    const { currentUser } = useContext(FirebaseAuthContext);
+
+    useEffect(() => {
+
+        if (currentUser) {
+            let navigaetTo = searchParams.get('from');
+            console.log(navigaetTo);
+            return navigate(navigaetTo);
+        }
+
+
+    }, [currentUser]);
 
   return (
 

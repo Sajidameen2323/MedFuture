@@ -1,26 +1,28 @@
 // project import
-import pages from './admin/pages';
+import services from './admin/services';
 import adminDashboard from './admin/dashboard';
 import patientDashboard from './patient/dashboard';
+import doctorDashboard from './doctor/dashboard';
 import utilities from './admin/utilities';
 import support from './admin/support';
+import manageDoctors from './admin/manageDoctors';
 
 // ==============================|| MENU ITEMS ||============================== //
 
-const menuItems = {
-    items: [adminDashboard, pages, utilities, support]
+const items = {
+    items: [adminDashboard, services, manageDoctors, utilities, support, doctorDashboard]
 };
 
 const getMenuItems = (role) => {
 
     if (role === "Admin") {
         return {
-            items: [adminDashboard, pages, utilities, support]
+            items: [adminDashboard, services, manageDoctors, utilities, support]
         };
     }
     else if (role === "Doctor") {
         return {
-            items: [support]
+            items: [support, doctorDashboard]
         }
     }
     else {
@@ -32,4 +34,5 @@ const getMenuItems = (role) => {
 }
 
 export { getMenuItems }
-export default menuItems;
+
+export default items;

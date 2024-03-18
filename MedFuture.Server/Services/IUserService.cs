@@ -8,6 +8,7 @@ namespace MedFuture.Server.Services
     {
         public Task<UserM?> GetUser(string firebaseId);
         public Task<PatientM> CreatePatient(PatientCreateDto patientDto);
+        public Task<DoctorM> CreateDoctor(DoctorCreateDto doctorDto);
         public Task<UserM> CreateUserFromGoogleAuth(PatientCreateFromGoogleAuthDto patientData);
         public Task<string> GetCustomToken(UserM user, string uid);
 

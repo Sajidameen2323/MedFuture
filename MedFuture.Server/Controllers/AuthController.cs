@@ -56,7 +56,7 @@ namespace MedFuture.Server.Controllers
 
                 try
                 {
-                    UserM user = await _userService.GetUser((string)userId);
+                    UserM? user = await _userService.GetUser((string)userId);
 
                     if (user != null) 
                     {

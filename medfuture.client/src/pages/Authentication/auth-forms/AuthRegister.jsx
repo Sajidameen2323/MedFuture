@@ -112,7 +112,7 @@ const AuthRegister = () => {
                 "Content-Type": "application/json",
               },
               method: 'post',
-              body: JSON.stringify(jsonData),
+                body: JSON.stringify(jsonData),
             });
             if (response.ok) {
 
@@ -125,9 +125,14 @@ const AuthRegister = () => {
 
             }
             else {
-              const { errors, message, success } = await response.json()
-               console.log(errors)
-              setErrors({ email: "Provided email already exists" });
+              const { errors, message, success } = await response.json()    
+              console.log(errors)
+                setErrors({ email: errors?.Email?.join(""), firstName: errors?.FirstName?.join(""), lastName: errors?.LastName?.join(""), password: errors?.Password?.join(""), confirmPassword: errors?.ConfirmPassword?.join(""), });
+
+                if (success != undefined) {
+
+                    setErrors({email: message})
+                }
             }
 
             setStatus({ success: false });

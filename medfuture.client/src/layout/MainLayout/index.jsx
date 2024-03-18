@@ -19,7 +19,7 @@ import { openDrawer } from 'store/reducers/menu';
 
 const MainLayout = () => {
 
-  const { currentUser, loading } = useContext(FirebaseAuthContext);
+  const { currentUser } = useContext(FirebaseAuthContext);
 
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
@@ -54,14 +54,21 @@ const MainLayout = () => {
     }
 
   return (
-    <Box sx={{ display: 'flex', width: '100%' }}>
-      <Header open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-        <Toolbar />
-        <Breadcrumbs navigation={navigation} title />
-        <Outlet />
-      </Box>
+      <Box sx={{ display: 'flex', width: '100%' }}>
+        
+          <Header open={open} handleDrawerToggle={handleDrawerToggle} />
+
+          <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
+
+          <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 }}}>
+
+              <Toolbar />
+
+              <Breadcrumbs navigation={navigation} title />
+              <Box sx={{ overflowY: 'auto', height: 'calc(100vh - 64px)', maxHeight: 'calc(100vh - 64px)', maxWidth: '100%' }}> {/* Adjust height for Toolbar */}
+                  <Outlet />
+              </Box>          
+          </Box>
     </Box>
   );
 };

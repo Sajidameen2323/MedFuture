@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.Authorization;
 using MedFuture.Server.Services;
 using MedFuture.Server.Options;
+using MedFuture.Server.Database.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,12 @@ builder.Services.AddSingleton<IAuthorizationHandler, AuthRoleHandler>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMyDependency, MyDependency>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Registering datbase repositories
+
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+
+
 
 builder.Services.AddControllers();
 

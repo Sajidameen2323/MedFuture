@@ -43,7 +43,7 @@ const WelcomePage = () => {
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
-                                <Button component={RouterLink} to="/dashboard" variant="contained" size="large" color="primary">
+                                <Button component={RouterLink} to="/account" variant="contained" size="large" color="primary">
                                     Book Appointment
                                 </Button>
                             </Grid>

@@ -6,16 +6,25 @@ import CustomRouterProvider from './context/CustomRouterProvider';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from 'store';
 import ThemeCustomization from 'themes';
+import {
+    QueryClient,
+    QueryClientProvider,
+} from 'react-query';
+
+// Create a client
+const queryClient = new QueryClient()
 
 function App() {
 
     return (
         <ReduxProvider store={store}>
-            <FirebaseAuthProvider>
-                <ThemeCustomization>
-                    <CustomRouterProvider />
-                </ThemeCustomization>
-            </FirebaseAuthProvider>
+            <QueryClientProvider client={queryClient}>
+                <FirebaseAuthProvider>
+                    <ThemeCustomization>
+                        <CustomRouterProvider />
+                    </ThemeCustomization>
+                </FirebaseAuthProvider>
+            </QueryClientProvider>
         </ReduxProvider>
     )
 }

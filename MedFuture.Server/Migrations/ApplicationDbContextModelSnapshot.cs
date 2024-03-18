@@ -22,6 +22,88 @@ namespace MedFuture.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
+                {
+                    b.Property<int>("DoctorID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorID"));
+
+                    b.Property<DateTime?>("DOB")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DoctorID");
+
+                    b.HasIndex("UserID")
+                        .IsUnique();
+
+                    b.ToTable("Doctor");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorQualificationM", b =>
+                {
+                    b.Property<int>("QualificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QualificationId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DoctorID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("QualificationId");
+
+                    b.HasIndex("DoctorID");
+
+                    b.ToTable("DoctorQualifications");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
+                {
+                    b.Property<int>("SpecialtyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SpecialtyId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DoctorID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("SpecialtyId");
+
+                    b.HasIndex("DoctorID");
+
+                    b.ToTable("DoctorSpecialties");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
                 {
                     b.Property<int>("PatientID")
@@ -104,6 +186,39 @@ namespace MedFuture.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.UserM", "User")
+                        .WithOne("Doctor")
+                        .HasForeignKey("MedFuture.Server.Models.DoctorM", "UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorQualificationM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
+                        .WithMany("Qualifications")
+                        .HasForeignKey("DoctorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
+                        .WithMany("Specialties")
+                        .HasForeignKey("DoctorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.UserM", "User")
@@ -113,6 +228,19 @@ namespace MedFuture.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
+                {
+                    b.Navigation("Qualifications");
+
+                    b.Navigation("Specialties");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.UserM", b =>
+                {
+                    b.Navigation("Doctor")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

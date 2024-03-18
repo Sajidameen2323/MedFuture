@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -8,6 +8,15 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import errorPng from "assets/error-404.png";
 
 export default function NotFound() {
+    const navigate = useNavigate();
+
+    const goBack = () => {
+
+       
+        navigate(-1, { relative: "path" });
+       
+    };
+
     return (
         <Box component="main" sx={{ alignItems: 'center', display: 'flex', justifyContent: 'center', minHeight: '100%' }}>
             <Stack spacing={3} sx={{ alignItems: 'center', maxWidth: 'md' }}>
@@ -26,14 +35,13 @@ export default function NotFound() {
                     You either tried some shady route or you came here by mistake. Whichever it is, try using the navigation
                 </Typography>
                 <Button
-                    component={RouterLink}
-                    to={"/"}
+                    onClick={goBack}
                     startIcon={<ArrowLeftOutlined fontSize="var(--icon-fontSize-md)" />}
                     variant="contained"
                     color="primary"
                     
                 >
-                    Go back to home
+                    Go back
                 </Button>
             </Stack>
         </Box>

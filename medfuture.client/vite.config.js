@@ -50,6 +50,7 @@ export default defineConfig({
             "themes": path.resolve(__dirname, 'src/styles/themes'),
             "context": path.resolve(__dirname, 'src/context'),
             "menu-items": path.resolve(__dirname, 'src/menu-items'),
+            "pages": path.resolve(__dirname, 'src/pages'),
         }
     },
     server: {
@@ -69,7 +70,16 @@ export default defineConfig({
             '^/auth/get-verification-mail': {
                 target: 'https://localhost:7184/',
                 secure: false
-            }
+            },
+            '^/api/admin/create-doctor': {
+                target: 'https://localhost:7184/',
+                secure: false
+            },
+            '^/api/doctor/doctors': {
+                target: 'https://localhost:7184/',
+                secure: false
+            },
+ 
         },
         port: 5173,
         https: {

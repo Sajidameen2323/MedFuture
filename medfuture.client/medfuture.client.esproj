@@ -13,6 +13,8 @@
     <Folder Include="context\" />
     <Folder Include="hooks\" />
     <Folder Include="src\hooks\" />
+    <Folder Include="src\pages\Admin\Doctor\" />
+    <Folder Include="src\pages\Admin\Service\" />
     <Folder Include="src\pages\ErrorPages\" />
     <Folder Include="src\Shared\Components\" />
   </ItemGroup>

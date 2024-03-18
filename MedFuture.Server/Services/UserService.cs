@@ -4,6 +4,7 @@ using MedFuture.Server.Database;
 using MedFuture.Server.DataTransferObjects;
 using MedFuture.Server.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -26,15 +27,39 @@ namespace MedFuture.Server.Services
         {
             try
             {
-                UserM user = _dbcontext.Users
-                     .Where(u => u.FirebaseID == (string)firebaseId)
-                     .First();
-                return user;
+                // Use FirstOrDefault instead of First to handle the case where no user is found
+                UserM? user = _dbcontext.Users.Where(u => u.FirebaseID == (string)firebaseId).FirstOrDefault();
+
+                if (user == null)
+                {
+                    // User not found, return null
+                    return null;
+                }
+                else
+                {
+                    // User found, return the user
+                    return user;
+                }
             }
-            catch (Exception ex) {
-                return null;
+            catch (DbUpdateException ex) // Catch specific EF exceptions
+            {
+                // Handle potential database connection timeout or other EF-related issues
+                throw new Exception("An error occurred while retrieving the user. Please try again later.", ex); // Re-throw a more informative exception
             }
+            catch (SqlException ex) when (ex.Number == -2) // Check for timeout error code
+            {
+                // Handle timeout exception
             
+                throw new Exception(("Database timeout occurred: "+ ex.Message));
+                // You can retry the operation with increased timeout or provide a fallback behavior
+            }
+            catch (Exception ex) // Catch general exceptions
+            {
+                // Catch unexpected exceptions (not recommended for production)
+                throw new Exception("An unexpected error occurred. Please try again later.", ex);  // Re-throw a more informative exception
+            }
+
+
         }
 
         public async Task<string> GetCustomToken(UserM user, string uid)
@@ -122,6 +147,52 @@ namespace MedFuture.Server.Services
 
 
             return patient;
+        }
+
+        public async Task<DoctorM> CreateDoctor(DoctorCreateDto doctorDto)
+        {
+            var properties = typeof(DoctorCreateDto).GetProperties();
+            string output = string.Join(", ", properties.Select(p => $"{p.Name}: {p.GetValue(doctorDto)}"));
+
+            Console.WriteLine(output);
+
+            // Map DTO to UserM
+            UserM user = new UserM()
+            {
+                Email = doctorDto.Email,
+                FirstName = doctorDto.FirstName,
+                LastName = doctorDto.LastName,
+                ProfilePic = ""
+            };
+            DoctorM doctor = new DoctorM() { };
+
+            UserRecordArgs args = new UserRecordArgs()
+            {
+                Email = doctorDto.Email,
+                Password = doctorDto.Password,
+            };
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(args);
+            try
+            {
+                user.FirebaseID = userRecord.Uid;
+                user.Role = UserRole.Doctor;
+
+                doctor.User = user;
+                doctor.UserID = user.UserID;
+
+                _dbcontext.Add(user);
+                _dbcontext.Add(doctor);
+                await _dbcontext.SaveChangesAsync();
+
+            }
+            catch (DbUpdateException ex)
+            {
+                await FirebaseAuth.DefaultInstance.DeleteUserAsync(userRecord.Uid);
+                Console.WriteLine("Successfully deleted user.");
+                throw new Exception("Email might be already in use, Try logging in", ex);
+            }
+
+            return doctor;
         }
     }
 }

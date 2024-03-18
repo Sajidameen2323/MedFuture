@@ -32,7 +32,7 @@ namespace MedFuture.Server.Database
                 .IsUnique();
 
 
-            //model building User table
+            //model building Patient table
             modelBuilder.Entity<PatientM>()
                 .HasIndex(p => p.UserID)
                 .IsUnique();
@@ -40,9 +40,26 @@ namespace MedFuture.Server.Database
             modelBuilder.Entity<PatientM>()
                 .Property(p => p.Gender)
                 .HasConversion<int>();
+
+
+            //model building Doctor table
+            modelBuilder.Entity<DoctorM>()
+                .HasIndex(d => d.UserID)
+                .IsUnique();
+
+            modelBuilder.Entity<DoctorM>()
+                .Property(p => p.Gender)
+                .HasConversion<int>();
+
+            modelBuilder.Entity<DoctorM>()
+                .HasOne(d => d.User);
+
         }
 
         public DbSet<UserM> Users { get; set; }
         public DbSet<PatientM> Patients { get; set; }
+        public DbSet<DoctorM> Doctors { get; set; }
+        public DbSet<DoctorQualificationM> DoctorQualifications { get; set;}
+        public DbSet<DoctorSpecialtyM> DoctorSpecialties { get; set; }
     }
 }

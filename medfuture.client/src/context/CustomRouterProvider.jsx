@@ -1,25 +1,31 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useContext } from "react";
+import React, { useContext, lazy } from "react";
 import {
     RouterProvider,
     createBrowserRouter,
     redirect,
+    useSearchParams
 } from "react-router-dom";
 import { FirebaseAuthContext } from "./FirebaseAuthProvider";
+import Loadable from 'components/Loadable';
+
+// Import components and pages
+
 import MainLayout from "../layout/MainLayout";
-import WelcomePage from "../pages/WelcomePage";
 
-import Login from '../pages/Authentication/Login';
-import Register from "../pages/Authentication/Register";
-import Weather from "../pages/Weather";
-
-import NotFound from "../pages/ErrorPages/NotFound";
-import EmailVerification from "../pages/Authentication/EmailVerification";
+const WelcomePage = Loadable(lazy(() => import("pages/WelcomePage")));
+const Login = Loadable(lazy(() => import('pages/Authentication/Login')));
+const Register = Loadable(lazy(() => import("../pages/Authentication/Register")));
+const Weather = Loadable(lazy(() => import("../pages/Weather")));
+const NotFound = Loadable(lazy(() => import("../pages/ErrorPages/NotFound")));
+const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/EmailVerification")));
+const AddMedicalServiceForm = Loadable(lazy(() => import("../pages/Admin/Service/Add")));
+const AddDoctor = Loadable(lazy(() => import("../pages/Admin/Doctor/AddDoctor")));
+const ListDoctors = Loadable(lazy(() => import("pages/Admin/Doctor/ListDoctors")));
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
-
 
     const router = createBrowserRouter([
         {
@@ -38,9 +44,9 @@ function CustomRouterProvider() {
             ],
         },
         {
-            id: "dashboard",
-            path: '/dashboard',
-            loader: protectedLoader,
+            id: "account",
+            path: '/account',
+            //loader: protectedLoader,
             Component: MainLayout,
             children: [
                 {
@@ -48,11 +54,27 @@ function CustomRouterProvider() {
                     loader: protectedLoader,
                     Component: Weather,
                 },
+                // admin routes
                 {
                     path: "overview",
                     loader: protectedLoader,
                     Component: Weather,
-                }
+                },
+                {
+                    path: 'add-service',
+                    loader: protectedLoader,
+                    Component: AddMedicalServiceForm
+                },
+                {
+                    path: 'add-doctor',
+                    loader: protectedLoader,
+                    Component: AddDoctor
+                },
+                {
+                    path: 'doctors',
+                    //loader: adminOnlyLoader,
+                    Component: ListDoctors
+                },
 
             ]
         },
@@ -89,12 +111,26 @@ function CustomRouterProvider() {
 
     ]);
 
-    async function loginLoader() {
+    async function loginLoader({ request, params }) {
 
         if (currentUser) {
-            return redirect("/dashboard");
+
+            const fromValue = getQueryValue(window.location.href, "from");
+            //console.log(fromValue);
+            return redirect((fromValue || '/'));
+    
         }
         return null;
+    }
+    // Function to parse the query string
+    function getQueryValue(url, key) {
+        const queryString = url.split('?')[1];
+        if (!queryString) {
+            return null;
+        }
+
+        const params = new URLSearchParams(queryString);
+        return params.get(key);
     }
 
     function protectedLoader({ request, params }) {
@@ -112,6 +148,25 @@ function CustomRouterProvider() {
         return null;
     }
 
+    function adminOnlyLoader({ request, params }) {
+
+        if (!currentUser) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/login?" + params.toString());
+        }
+        else if (currentUser && !currentUser.email_verified) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/verify-email?" + params.toString());
+        }
+        else if (currentUser && currentUser?.role != "Admin") {
+
+            return redirect("/not-found")
+        }
+        return null;
+    }
+
     function VerificationMailLoader({ request }) {
 
         if (!currentUser) {
@@ -121,7 +176,9 @@ function CustomRouterProvider() {
         }
         else if (currentUser && currentUser.email_verified) {
 
-            return redirect("/dashboard");
+            const fromValue = getQueryValue(window.location.href, "from");
+            //console.log(fromValue);
+            return redirect((fromValue || '/'));
         }
         return null;
 
