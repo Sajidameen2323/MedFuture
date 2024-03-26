@@ -83,6 +83,7 @@ const AuthRegister = () => {
           password: '',
           confirmPassword: '',
           "dob": dobValue.format(),
+          gender:"",
           submit: null
 
         }}
@@ -92,6 +93,8 @@ const AuthRegister = () => {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required'),
           confirmPassword: Yup.string().required("Please re-type your password").oneOf([Yup.ref("password")], "Passwords does not match"),
+          gender: Yup.number().required("Please select a gender") 
+
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           
@@ -102,6 +105,7 @@ const AuthRegister = () => {
             "password": values['password'],
             "confirmPassword": values['confirmPassword'],
             "dob": dobValue.format(),
+            "gender": values["gender"]
         }
         console.log(jsonData)
           try {
@@ -218,9 +222,9 @@ const AuthRegister = () => {
                       autoWidth
                       labelId="gender-select-helper-label"
                       id="gender-select"
-                      value={genderVal}
-
-                      onChange={handleGenderValueChange}
+                      value={values.gender}
+                      name="gender"
+                      onChange={handleChange}
                     >
                       <MenuItem value="">
                         <em>None</em>
@@ -229,7 +233,11 @@ const AuthRegister = () => {
                       <MenuItem value={2}>Female</MenuItem>
 
                     </Select>
-                    {/*<FormHelperText error={formErrors?.Gender ? true : false }>With label + helper text</FormHelperText>*/}
+                                      {touched.gender && errors.gender && (
+                                          <FormHelperText error id="helper-text-gender-signup">
+                                              {errors.gender}
+                                          </FormHelperText>
+                                      )}
                   </FormControl>
                 </Stack>
 

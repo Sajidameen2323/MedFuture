@@ -75,10 +75,14 @@ export default defineConfig({
                 target: 'https://localhost:7184/',
                 secure: false
             },
-            '^/api/doctor/doctors': {
+            '^/api/doctor/*': {
                 target: 'https://localhost:7184/',
                 secure: false
             },
+            '^/api/service/*': {
+                target: 'https://localhost:7184/',
+                secure: false
+            }
  
         },
         port: 5173,

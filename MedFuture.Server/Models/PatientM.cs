@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace MedFuture.Server.Models
 {
     [Table("Patient")]
-    public class PatientM
+    public class PatientM: ISoftDeleteBase
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PatientID { get; set; }
@@ -22,6 +22,8 @@ namespace MedFuture.Server.Models
         [RegularExpression(@"^(0|[1-9]\d{9})$",
                            ErrorMessage = "Phone number must be 10 digits starting with 0 or 9 (without leading 0).")]
         public string? PhoneNumber { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 
     public enum GenderType

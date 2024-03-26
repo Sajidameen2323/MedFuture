@@ -36,6 +36,9 @@ namespace MedFuture.Server.Migrations
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -75,6 +78,27 @@ namespace MedFuture.Server.Migrations
                     b.HasIndex("DoctorID");
 
                     b.ToTable("DoctorQualifications");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorServiceM", b =>
+                {
+                    b.Property<int>("DoctorID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DoctorServiceID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorServiceID"));
+
+                    b.HasKey("DoctorID", "ServiceID");
+
+                    b.HasIndex("ServiceID");
+
+                    b.ToTable("DoctorService");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
@@ -118,6 +142,9 @@ namespace MedFuture.Server.Migrations
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -130,6 +157,33 @@ namespace MedFuture.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("Patient");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>
+                {
+                    b.Property<int>("ServiceID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceID"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("ServiceCharge")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ServiceID");
+
+                    b.ToTable("Service");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.UserM", b =>
@@ -152,6 +206,9 @@ namespace MedFuture.Server.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -178,9 +235,10 @@ namespace MedFuture.Server.Migrations
                         new
                         {
                             UserID = 1,
-                            Email = "admin123@gmail.com",
-                            FirebaseID = "gTl85s5wAwZQPxfhIxlWqihtLWF3",
+                            Email = "slimshady0632@gmail.com",
+                            FirebaseID = "xDxz86iwctc9hI95uReZYzqEdmv1",
                             FirstName = "Super",
+                            IsDeleted = false,
                             LastName = "Admin",
                             Role = 1
                         });
@@ -189,8 +247,8 @@ namespace MedFuture.Server.Migrations
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.UserM", "User")
-                        .WithOne("Doctor")
-                        .HasForeignKey("MedFuture.Server.Models.DoctorM", "UserID")
+                        .WithMany()
+                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -206,6 +264,25 @@ namespace MedFuture.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorServiceM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
+                        .WithMany("DoctorServices")
+                        .HasForeignKey("DoctorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MedFuture.Server.Models.ServiceM", "Service")
+                        .WithMany("DoctorServices")
+                        .HasForeignKey("ServiceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
@@ -232,15 +309,16 @@ namespace MedFuture.Server.Migrations
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
                 {
+                    b.Navigation("DoctorServices");
+
                     b.Navigation("Qualifications");
 
                     b.Navigation("Specialties");
                 });
 
-            modelBuilder.Entity("MedFuture.Server.Models.UserM", b =>
+            modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>
                 {
-                    b.Navigation("Doctor")
-                        .IsRequired();
+                    b.Navigation("DoctorServices");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,6 @@
 using FirebaseAdmin.Auth;
+using MedFuture.Server.Database.Interfaces;
+using MedFuture.Server.DataTransferObjects.Service;
 using MedFuture.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,11 +26,13 @@ namespace MedFuture.Server.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IEmailService _emailService;
+        private readonly IServiceRepository _serviceRepository;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService, IServiceRepository serviceRepository)
         {
             _logger = logger;
             _emailService = emailService;
+            _serviceRepository = serviceRepository;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -56,6 +60,38 @@ namespace MedFuture.Server.Controllers
            
         }
 
+        [HttpGet("get-services")]
+        public async Task<IActionResult> GetServices()
+        {
+            var obj = await _serviceRepository.GetAllServices();
 
+            return Ok(obj);
+
+        }
+        [HttpGet("get-doctors-for-service/{id}")]
+        public async Task<IActionResult> GetDoctorsForService(int id)
+        {
+            var obj = await _serviceRepository.GetDoctorsForService(id);
+
+            return Ok(obj);
+
+        }
+
+        [HttpPost("add-service")]
+        public async Task<IActionResult> AddService(ServiceDto serviceDto)
+        {
+            var obj = await _serviceRepository.AddService(serviceDto);
+
+            return Ok(obj);
+
+        }
+        [HttpPost("add-doctor-to-service")]
+        public async Task<IActionResult> AddDoctorToService(AddDoctorToServiceDto addDoctorToService)
+        {
+            await _serviceRepository.AddDoctorToService(addDoctorToService.DoctorId, addDoctorToService.ServiceId);
+
+            return Ok(new { status="success" });
+
+        }
     }
 }

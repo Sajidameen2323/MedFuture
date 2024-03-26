@@ -222,7 +222,7 @@ export default function DataTable() {
     }
 
     return (
-        <div style={{ height: 'auto', width: '1100px' }}>
+        <div style={{ height: '100%', width: '1100px', overflow:'hidden' }}>
             <DataGrid
                 slots={{
                     noRowsOverlay: ()=> <h5>No Data</h5>,

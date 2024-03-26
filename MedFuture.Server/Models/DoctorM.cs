@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace MedFuture.Server.Models
 {
     [Table("Doctor")]
-    public class DoctorM
+    public class DoctorM : ISoftDeleteBase
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DoctorID { get; set; }
@@ -28,6 +28,11 @@ namespace MedFuture.Server.Models
 
         public List<DoctorQualificationM>? Qualifications { get; set;}
 
+        // Navigation property for the relationship with Doctor
+      //  public ICollection<DoctorServiceM> DoctorServices { get; set; }
+
+
+        public bool IsDeleted { get; set; } = false;
 
     }
 }

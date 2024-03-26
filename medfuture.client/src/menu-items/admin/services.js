@@ -1,11 +1,12 @@
 // assets
-import { LoginOutlined, ProfileOutlined } from '@ant-design/icons';
+import { LoginOutlined, ProfileOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 // icons
 const icons = {
   LoginOutlined,
     ProfileOutlined,
-    MedicalServicesIcon
+    MedicalServicesIcon,
+    UnorderedListOutlined
 };
 
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
@@ -17,10 +18,10 @@ const pages = {
   children: [
     {
       id: 'service_add',
-      title: 'Add Service',
+      title: 'Manage Services',
       type: 'item',
           url: '/account/add-service',
-      icon: icons.LoginOutlined,
+          icon: icons.MedicalServicesIcon,
       target: false  
     },
     {
@@ -28,7 +29,7 @@ const pages = {
       title: 'List Services',
       type: 'item',
         url: '/account/services',
-        icon: icons.MedicalServicesIcon,
+        icon: icons.UnorderedListOutlined,
       target: false
     }
   ]

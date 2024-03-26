@@ -1,5 +1,6 @@
 ﻿using MedFuture.Server.Database;
-using MedFuture.Server.DataTransferObjects;
+using MedFuture.Server.DataTransferObjects.Docotor;
+using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
 
 namespace MedFuture.Server.Services

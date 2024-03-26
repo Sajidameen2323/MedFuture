@@ -1,7 +1,8 @@
 ﻿
 using FirebaseAdmin.Auth;
 using MedFuture.Server.Database;
-using MedFuture.Server.DataTransferObjects;
+using MedFuture.Server.DataTransferObjects.Docotor;
+using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;

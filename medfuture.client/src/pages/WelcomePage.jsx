@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
     Container,
     Grid,
@@ -16,12 +16,13 @@ import DocumentScannerOutlinedIcon from '@mui/icons-material/DocumentScannerOutl
 
 import { useTheme } from '@mui/material/styles';
 import { Link as RouterLink, useLoaderData } from 'react-router-dom';
+import { FirebaseAuthContext } from '../context/FirebaseAuthProvider';
 
 
 const WelcomePage = () => {
     const theme = useTheme();
     const { currentUser } = useLoaderData();
-
+    const { logout } = useContext(FirebaseAuthContext);
     return (
         <>
            <NewFunction theme={theme} />
@@ -117,6 +118,12 @@ const WelcomePage = () => {
                             {/* Added signup link */}
                             <Link component={RouterLink} to="/auth/signup" variant="body2" sx={{ ml: 2 }}>
                                 New user? Sign Up
+                            </Link>
+                        </Grid>}
+                        {currentUser && <Grid item xs={12}>
+      
+                            <Link component={Button} onClick={logout } variant="body2" sx={{ ml: 2 }}>
+                                Logout
                             </Link>
                         </Grid>}
 

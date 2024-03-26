@@ -3,9 +3,9 @@ using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
 using MedFuture.Server.Services;
 using MedFuture.Server.Database;
-using MedFuture.Server.DataTransferObjects;
 using MedFuture.Server.Models;
 using FirebaseAdmin;
+using MedFuture.Server.DataTransferObjects.Docotor;
 
 namespace MedFuture.Server.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿using MedFuture.Server.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedFuture.Server.DataTransferObjects
+namespace MedFuture.Server.DataTransferObjects.Patient
 {
     public class PatientCreateFromGoogleAuthDto
     {
@@ -17,9 +17,9 @@ namespace MedFuture.Server.DataTransferObjects
         [Required]
         [EmailAddress]
         public string Email { get; set; }
-     
+
         public GenderType? Gender { get; set; }
-    
+
         [DataType(DataType.Date)]
         public DateTime? DOB { get; set; }
 

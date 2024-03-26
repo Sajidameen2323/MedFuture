@@ -11,6 +11,7 @@ using MedFuture.Server.Authorization;
 using MedFuture.Server.Services;
 using MedFuture.Server.Options;
 using MedFuture.Server.Database.Interfaces;
+using MedFuture.Server.Database.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,7 +65,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Registering datbase repositories
 
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 
 
 builder.Services.AddControllers();

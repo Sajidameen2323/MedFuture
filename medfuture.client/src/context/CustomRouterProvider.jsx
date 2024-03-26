@@ -23,6 +23,7 @@ const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/Em
 const AddMedicalServiceForm = Loadable(lazy(() => import("../pages/Admin/Service/Add")));
 const AddDoctor = Loadable(lazy(() => import("../pages/Admin/Doctor/AddDoctor")));
 const ListDoctors = Loadable(lazy(() => import("pages/Admin/Doctor/ListDoctors")));
+const ListServices = Loadable(lazy(() => import("pages/Admin/Service/List")));
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
@@ -66,13 +67,18 @@ function CustomRouterProvider() {
                     Component: AddMedicalServiceForm
                 },
                 {
+                    path: 'services',
+                    loader: protectedLoader,
+                    Component: ListServices
+                },
+                {
                     path: 'add-doctor',
                     loader: protectedLoader,
                     Component: AddDoctor
                 },
                 {
                     path: 'doctors',
-                    //loader: adminOnlyLoader,
+                    loader: adminOnlyLoader,
                     Component: ListDoctors
                 },
 

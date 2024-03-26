@@ -1,7 +1,7 @@
 ﻿using MedFuture.Server.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace MedFuture.Server.DataTransferObjects
+namespace MedFuture.Server.DataTransferObjects.Docotor
 {
     public class DoctorCreateDto
     {

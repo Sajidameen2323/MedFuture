@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 
 // material-ui
 import {
@@ -28,8 +27,6 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
-
-import { useNavigate } from "react-router-dom";
 // ============================|| FIREBASE - REGISTER ||============================ //
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
@@ -42,8 +39,6 @@ const AddDoctor = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const [formMessage, setFormMessage] = useState({});
-
-    const navigate = useNavigate();
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
@@ -87,7 +82,7 @@ const AddDoctor = () => {
                         password: Yup.string().max(255).required('Password is required'),
                         confirmPassword: Yup.string().required("Please re-type your password").oneOf([Yup.ref("password")], "Passwords does not match"),
                     })}
-                    onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+                    onSubmit={async (values, { setErrors, setStatus, setSubmitting, resetForm }) => {
 
                         const jsonData = {
                             "firstName": values['firstName'],
@@ -114,7 +109,7 @@ const AddDoctor = () => {
                                 console.log(data)
                                 console.log(message)
                                 setFormMessage({ success: true, message })
-
+                                resetForm();
 
                             }
                             else {

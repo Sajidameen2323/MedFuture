@@ -21,7 +21,7 @@ namespace MedFuture.Server.Controllers
             _doctorRepository = doctorRepository;
         }
 
-        //[Authorize("AdminOnlyPolicy")]
+        [Authorize("AdminOnlyPolicy")]
         [HttpGet("doctor/{id}")]
         public async Task<IActionResult> GetDoctor(int id)
         {
@@ -38,15 +38,18 @@ namespace MedFuture.Server.Controllers
         public async Task<IActionResult> GetAllDoctors()
         {
             IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
-            foreach (DoctorM doctor in docList)
-            {
-                // Access properties and methods of each DoctorM instance here
-                Console.WriteLine(doctor.User.FirstName);
-                // ...
-            }
-
 
             return Ok(docList);
+        }
+
+        [HttpGet("doctors-for-form")]
+        public async Task<IActionResult> GetAllDoctorsForForm()
+        {
+            IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
+
+            var doctorDtoList = docList.Select(doctor => new { doctorID = doctor.DoctorID, name = doctor.User.FirstName + " " + doctor.User.LastName });
+
+            return Ok(doctorDtoList);
         }
 
 

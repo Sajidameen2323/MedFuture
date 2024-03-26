@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MedFuture.Server.Models
 {
     [Table("User")]
-    public class UserM
+    public class UserM : ISoftDeleteBase
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserID { get; set; }
@@ -27,6 +27,8 @@ namespace MedFuture.Server.Models
 
         [Required]
         public UserRole Role { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
 
     }
 
