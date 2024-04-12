@@ -27,7 +27,7 @@ const getAppointmentSchedule = async () => {
 
 function App({ setSelectedDateTime }) {
 
-    const { isLoading, isError, data: scheduleData, error } = useQuery('appointmentSchedule', getAppointmentSchedule, {
+    const { isLoading, isError, data: scheduleData, error } = useQuery('appointmentScheduleApi', getAppointmentSchedule, {
         // Optional configuration options for useQuery
         staleTime: 0, // Fetch data again if it's older than 0 seconds
         refetchInterval: 60 * 60 * 1000, // Refetch data every hour (optional)

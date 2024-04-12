@@ -1,26 +1,29 @@
 // AppointmentStepper.js
 
-import React, { useState, useContext } from 'react';
-import { Stepper, Step, StepLabel, Button, Container, Box, Typography } from '@mui/material';
+import { useState, useContext } from 'react';
+import { Stepper, Step, StepLabel, Button, Container, Box, Typography, Link } from '@mui/material';
 import SelectServiceForm from "./SelectServiceForm";
 import SelectDoctorForm from "./SelectDoctorForm";
 import BookingPage from './BookingPage';
+import SuccessPage from './SuccessPage';
 import Logo from 'components/Logo';
-
+import { useQueryClient } from 'react-query';
 import { FirebaseAuthContext } from "context/FirebaseAuthProvider";
+import { Link as RouterLink } from 'react-router-dom';
 
-
-const steps = ['Service', 'Doctor', 'Date & Time'];
+const steps = ['Service', 'Doctor', 'Date & Time', 'Success'];
 
 const AppointmentStepper = () => {
 
     const { idToken } = useContext(FirebaseAuthContext);
+    const queryClient = useQueryClient();
 
     const [activeStep, setActiveStep] = useState(0);
     const [formError, setFormError] = useState(null);
     const [selectedService, setSelectedService] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState('');
     const [selectedDateTime, setSelectedDateTime] = useState('');
+    const [appointmentDetails, setAppointmentDetails] = useState(null);
 
     const handleNext = () => {
 
@@ -37,7 +40,14 @@ const AppointmentStepper = () => {
         }
         setActiveStep((prevStep) => prevStep + 1);
     };
+    const handleReset = () => {
 
+        setFormError(null)
+        setSelectedDateTime('');
+        setSelectedDoctor('');
+        setSelectedService('');
+        setActiveStep(0);
+    };
     const handleFinish = async() => {
 
         setFormError(null);
@@ -70,15 +80,17 @@ const AppointmentStepper = () => {
                 const { data, message } = await response.json()
                 console.log(data)
                 console.log(message)
-                
-                //queryClient.invalidateQueries('servicesFetchApi');
+                setAppointmentDetails(data);
+                queryClient.invalidateQueries('appointmentScheduleApi');
+                setActiveStep((prevStep) => prevStep + 1);
             }
             else {
-                const { errors } = await response.json()
-                console.log(errors)
+                const { error, message } = await response.json()
+                if (error) {
+                    console.log(message)
+                }
                
             }
-
         
         } catch (err) {
             console.error(err);
@@ -102,7 +114,7 @@ const AppointmentStepper = () => {
                 display: 'flex', flexDirection: 'column', justifyContent: 'center', width: {md:'80vw'}, mx: { md: '10px' } }}>
             <Stepper activeStep={activeStep} alternativeLabel>
                 {steps.map((label) => (
-                    <Step key={label}>
+                    <Step key={label} >
                         <StepLabel>{label}</StepLabel>
                     </Step>
                 ))}
@@ -113,6 +125,8 @@ const AppointmentStepper = () => {
                 {activeStep === 0 && <SelectServiceForm selectedService={selectedService} setSelectedService={ setSelectedService } />}
                 {activeStep === 1 && <SelectDoctorForm doctors={selectedService.doctorNames} setSelectedDoctor={setSelectedDoctor} selectedDoctor={selectedDoctor } />}
                 {activeStep === 2 && <BookingPage setSelectedDateTime={setSelectedDateTime} />}
+                {activeStep === 3 && <SuccessPage selectedService={selectedService} selectedDoctor={selectedDoctor} appointmentDetails={ appointmentDetails } />}
+            
 
                 {/* Navigation buttons */}
 
@@ -121,13 +135,28 @@ const AppointmentStepper = () => {
                 </Typography> }
 
             <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
-                <Button disabled={activeStep === 0} onClick={handleBack}>
-                    Back
-                    </Button>
 
-                    {activeStep === steps.length - 1 ? <Button variant="contained" color="primary" onClick={handleFinish}>
+                    {activeStep <= steps.length - 2 && <Button disabled={activeStep === 0} onClick={handleBack}>
+                        Back
+                    </Button>}
+
+                    {activeStep == steps.length - 1 && 
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: { sm: '90%', md: '50%' } } } >
+                            <Button onClick={handleReset} >
+                                Book Again
+                            </Button>
+                            <Link component={RouterLink} to="/" variant="body2" sx={{ ml: 2 }}>
+                                Home
+                            </Link>
+                        </Box>    
+                    
+                    }
+
+                    {activeStep === steps.length - 2 && <Button variant="contained" color="primary" onClick={handleFinish}>
                         Finish
-                    </Button> : <Button variant="contained" color="primary" onClick={handleNext}>
+                    </Button>}
+
+                    {activeStep < steps.length - 2 && <Button variant="contained" color="primary" onClick={handleNext}>
                       Next
                     </Button>}
 

@@ -69,12 +69,12 @@ namespace MedFuture.Server.Controllers
 
                 AppointmentM appointment = await _appointmentRepository.CreateAppointment(createAppointmentDto);
 
-                return Ok(appointment);
+                return Ok(new { data = appointment, message="Successfully Booked Appointment!" });
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return BadRequest(ex.Message);
+                return BadRequest(new { error=true, message = "Something Went Wrong" });
             }
         }
 
