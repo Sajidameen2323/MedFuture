@@ -25,7 +25,7 @@ namespace MedFuture.Server.DataTransferObjects.Service
 
     public class DoctorNameDto
     {
-
+        public int DoctorID { get; set; }
         public string FullName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

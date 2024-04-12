@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace MedFuture.Server.Controllers
@@ -77,21 +78,54 @@ namespace MedFuture.Server.Controllers
 
         }
 
-        [HttpPost("add-service")]
-        public async Task<IActionResult> AddService(ServiceDto serviceDto)
+        [HttpGet("get-time-slots")]
+        public async Task<ObjectResult> GetTimeSlots()
         {
-            var obj = await _serviceRepository.AddService(serviceDto);
+            DateTime startTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0); // 9 am
+            DateTime endTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 17, 0, 0); // 5 pm
 
-            return Ok(obj);
+            List<string> timeSlots = new List<string>();
+
+            DateTime currentTime = startTime;
+
+            TimeSpan interval = TimeSpan.FromMinutes(30);
+
+            // Define booked time slots
+            List<(DateTime, DateTime)> bookedTimeSlots = new List<(DateTime, DateTime)>();
+            bookedTimeSlots.Add((new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 30, 0), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 10, 0, 0))); // 9:30 am - 10 am
+            bookedTimeSlots.Add((new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 14, 0, 0), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 14, 30, 0)));
+
+            // Loop through time slots
+            while (currentTime < endTime)
+            {
+                bool isBooked = false;
+
+                // Check if the current time slot falls within any booked range
+                foreach (var bookedSlot in bookedTimeSlots)
+                {
+                    if (currentTime >= bookedSlot.Item1 && currentTime < bookedSlot.Item2)
+                    {
+                        isBooked = true;
+                        break;
+                    }
+                }
+
+                // If the current time slot is not booked, add it to the list of available slots
+                if (!isBooked)
+                {
+                    //timeSlots.Add(currentTime.ToString("hh:mm tt"));
+                    DateTime endTimeSlot = currentTime.Add(interval);
+                    timeSlots.Add($"{currentTime.ToString("hh:mm tt")} - {endTimeSlot.ToString("hh:mm tt")}");
+
+                }
+
+                currentTime = currentTime.Add(interval);
+            }
+
+
+            return Ok(timeSlots);
 
         }
-        [HttpPost("add-doctor-to-service")]
-        public async Task<IActionResult> AddDoctorToService(AddDoctorToServiceDto addDoctorToService)
-        {
-            await _serviceRepository.AddDoctorToService(addDoctorToService.DoctorId, addDoctorToService.ServiceId);
 
-            return Ok(new { status="success" });
-
-        }
     }
 }

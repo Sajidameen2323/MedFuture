@@ -41,7 +41,7 @@ function Weather() {
 
     async function populateWeatherData() {
 
-        const response = await fetch('weatherforecast', {
+        const response = await fetch('/weatherforecast', {
             headers: {
                 'Authorization': `Bearer ${idToken}`,
             },

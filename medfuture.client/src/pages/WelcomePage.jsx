@@ -44,7 +44,7 @@ const WelcomePage = () => {
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
-                                <Button component={RouterLink} to="/account" variant="contained" size="large" color="primary">
+                                <Button component={RouterLink} to="/book-now" variant="contained" size="large" color="primary">
                                     Book Appointment
                                 </Button>
                             </Grid>
@@ -121,10 +121,13 @@ const WelcomePage = () => {
                             </Link>
                         </Grid>}
                         {currentUser && <Grid item xs={12}>
-      
+                            <Link component={RouterLink} to="/account" variant="body2" sx={{ ml: 2 }}>
+                                Account
+                            </Link>
                             <Link component={Button} onClick={logout } variant="body2" sx={{ ml: 2 }}>
                                 Logout
                             </Link>
+
                         </Grid>}
 
                     </Grid>

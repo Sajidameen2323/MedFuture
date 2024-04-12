@@ -59,7 +59,7 @@ const AddServiceForm = () => {
     const onSubmit = async (values, { setSubmitting, resetForm, setErrors, setStatus }) => {
         // Simulate form submission (replace with your logic)
         console.log('Submitting form data:', values);
-
+        setFormMessage({})
         const jsonData = {
 
             "name": values['serviceName'],

@@ -22,6 +22,46 @@ namespace MedFuture.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
+                {
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("AppointmentDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("AppointmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"));
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("StartDateTime", "EndDateTime");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("Appointments");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
                 {
                     b.Property<int>("DoctorID")
@@ -244,6 +284,33 @@ namespace MedFuture.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MedFuture.Server.Models.PatientM", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MedFuture.Server.Models.ServiceM", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Service");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.UserM", "User")
@@ -269,20 +336,18 @@ namespace MedFuture.Server.Migrations
             modelBuilder.Entity("MedFuture.Server.Models.DoctorServiceM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
-                        .WithMany("DoctorServices")
+                        .WithMany()
                         .HasForeignKey("DoctorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MedFuture.Server.Models.ServiceM", "Service")
+                    b.HasOne("MedFuture.Server.Models.ServiceM", null)
                         .WithMany("DoctorServices")
                         .HasForeignKey("ServiceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Doctor");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
@@ -309,8 +374,6 @@ namespace MedFuture.Server.Migrations
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
                 {
-                    b.Navigation("DoctorServices");
-
                     b.Navigation("Qualifications");
 
                     b.Navigation("Specialties");

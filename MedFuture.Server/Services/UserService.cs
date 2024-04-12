@@ -62,7 +62,44 @@ namespace MedFuture.Server.Services
 
 
         }
+        public async Task<PatientM?> GetPatient(int userId)
+        {
+            try
+            {
+                // Use FirstOrDefault instead of First to handle the case where no user is found
+                PatientM? patient = _dbcontext.Patients.Where(p => p.UserID == userId).FirstOrDefault();
 
+                if (patient == null)
+                {
+                    // User not found, return null
+                    return null;
+                }
+                else
+                {
+                    // User found, return the user
+                    return patient;
+                }
+            }
+            catch (DbUpdateException ex) // Catch specific EF exceptions
+            {
+                // Handle potential database connection timeout or other EF-related issues
+                throw new Exception("An error occurred while retrieving the user. Please try again later.", ex); // Re-throw a more informative exception
+            }
+            catch (SqlException ex) when (ex.Number == -2) // Check for timeout error code
+            {
+                // Handle timeout exception
+
+                throw new Exception(("Database timeout occurred: " + ex.Message));
+                // You can retry the operation with increased timeout or provide a fallback behavior
+            }
+            catch (Exception ex) // Catch general exceptions
+            {
+                // Catch unexpected exceptions (not recommended for production)
+                throw new Exception("An unexpected error occurred. Please try again later.", ex);  // Re-throw a more informative exception
+            }
+
+
+        }
         public async Task<string> GetCustomToken(UserM user, string uid)
         {
 
@@ -75,6 +112,7 @@ namespace MedFuture.Server.Services
             var additionalClaims = new Dictionary<string, object> {
 
                             { "role", definedRole },
+                            { "userIdDb", (int)user.UserID },
 
                         };
 

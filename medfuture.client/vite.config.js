@@ -82,6 +82,10 @@ export default defineConfig({
             '^/api/service/*': {
                 target: 'https://localhost:7184/',
                 secure: false
+            },
+            '^/api/appointment/*': {
+                target: 'https://localhost:7184/',
+                secure: false
             }
  
         },

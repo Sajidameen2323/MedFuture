@@ -13,28 +13,24 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { useEffect } from 'react';
-import { useQuery } from 'react-query';
+import { useEffect, useContext } from 'react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Stack from '@mui/material/Stack';
+import EditIcon from '@mui/icons-material/Edit';
 
-function createData(id,name, description, duration, fee) {
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+
+import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
+
+function createData(id,name, description, duration, fee, doctorNames) {
     return {
         id,
         name,
         description,
         duration,
         fee,
-        history: [
-            {
-                date: '2020-01-05',
-                customerId: '11091700',
-                amount: 3,
-            },
-            {
-                date: '2020-01-02',
-                customerId: 'Anonymous',
-                amount: 1,
-            },
-        ],
+        doctorNames
     };
 }
 
@@ -60,33 +56,46 @@ function Row(props) {
                 <TableCell >{row.description}</TableCell>
                 <TableCell align="right">{row.duration}</TableCell>
                 <TableCell align="right">{row.fee}</TableCell>
+                <TableCell>
+                    <Stack direction="row" spacing={1}>
+                        <IconButton aria-label="edit" color="secondary">
+                            <EditIcon />
+                        </IconButton>
+                        <IconButton aria-label="delete" color="error">
+                            <DeleteIcon onClick={() => props.handleDeleteOpen(row.id)} />
+                        </IconButton>
+
+                    </Stack>
+
+                </TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
                             <Typography variant="h6" gutterBottom component="div">
-                                Doctors Associated
+                                Doctors Associated ({ row?.doctorNames ? row.doctorNames.length : 0 })
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Date</TableCell>
-                                        <TableCell>Customer</TableCell>
-                                        <TableCell align="right">Amount</TableCell>
-                                        <TableCell align="right">Total price ($)</TableCell>
+                                        <TableCell>ID</TableCell>
+                                        <TableCell>First Name</TableCell>
+                                        <TableCell >Last Name</TableCell>
+                                        <TableCell align="right"></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {row.history.map((historyRow) => (
-                                        <TableRow key={historyRow.date}>
+                                    {row.doctorNames.map((doctorRow) => (
+                                        <TableRow key={doctorRow.doctorID}>
                                             <TableCell component="th" scope="row">
-                                                {historyRow.date}
+                                                {doctorRow.doctorID}
                                             </TableCell>
-                                            <TableCell>{historyRow.customerId}</TableCell>
-                                            <TableCell align="right">{historyRow.amount}</TableCell>
-                                            <TableCell align="right">
-                                                {Math.round(historyRow.amount * row.fee * 100) / 100}
+                                            <TableCell>{doctorRow.firstName}</TableCell>
+                                            <TableCell >{doctorRow.lastName}</TableCell>
+                                            <TableCell>
+                                                <DeleteIcon variant="error" color="error" />
+
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -105,16 +114,19 @@ Row.propTypes = {
         id: PropTypes.number.isRequired,
         fee: PropTypes.number.isRequired,
         duration: PropTypes.number.isRequired,
-        history: PropTypes.arrayOf(
+        doctorNames: PropTypes.arrayOf(
             PropTypes.shape({
-                amount: PropTypes.number.isRequired,
-                customerId: PropTypes.string.isRequired,
-                date: PropTypes.string.isRequired,
+                doctorID: PropTypes.number.isRequired,
+                firstName: PropTypes.string.isRequired,
+                lastName: PropTypes.string.isRequired,
+                fullName: PropTypes.string.isRequired,
             }),
-        ).isRequired,
+        ),
         name: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
+
     }).isRequired,
+    handleDeleteOpen: PropTypes.func.isRequired
 };
 
 
@@ -139,6 +151,38 @@ export default function CollapsibleTable() {
 
     const { isLoading: serviceLoading, error: serviceError, data: serviceData } = useQuery('servicesFetchApi', servicesResponse);
     const [rows, setRows] = React.useState([]);
+    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+    const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
+    const queryClient = useQueryClient();
+    const { idToken } = useContext(FirebaseAuthContext);
+
+    const deleteService = async (id) => {
+
+        const response = await fetch(`/api/service/service-delete/${id}`, {
+            method: 'DELETE', headers: {
+                'Authorization': `Bearer ${idToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete user');
+        }
+        return true // You might not need a response here
+    };
+    const { mutate: deleteUserMutation, isLoading: isDeleting, error: deleteError } = useMutation(
+        deleteService,
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries('servicesFetchApi'); // Invalidate user list query
+                // onUserDeleted(deletedUser); // Callback for successful deletion
+            },
+            onError: (error) => {
+                console.error('Delete service error:', error);
+                // Handle deletion error (e.g., show error message)
+            },
+        }
+    )
+
 
     useEffect(() => {
 
@@ -148,13 +192,30 @@ export default function CollapsibleTable() {
 
             serviceData.forEach((el) => {
 
-                tempArr.push(createData(el.serviceID ,el.name, el.description, el.duration, el.serviceCharge))
+                tempArr.push(createData(el.serviceID, el.name, el.description, el.duration, el.serviceCharge, el.doctorNames))
 
             });
             setRows(tempArr);
         }
 
     },[serviceData, serviceLoading])
+
+    const handleDeleteOpen = (id) => {
+        setOpenDeleteDialog(true);
+        setDoctorToDeleteId(id);
+    };
+
+    const handleDeleteClose = () => {
+        setOpenDeleteDialog(false);
+        setDoctorToDeleteId(null);
+    };
+
+    const handleDeleteConfirm = () => {
+        // Implement your logic to delete the doctor with doctorToDeleteId
+        console.log('Deleting service with ID:', doctorToDeleteId);
+        deleteUserMutation(doctorToDeleteId);
+        handleDeleteClose(); // Close the dialog after deletion
+    };
 
     if (serviceError) {
 
@@ -165,27 +226,60 @@ export default function CollapsibleTable() {
             </>
         )
     }
+    if (isDeleting) {
 
+        return (
+            <>
+                <Typography variant="warning"> Refetching </Typography>
+
+            </>
+        )
+    }
     return (
-         
-        <TableContainer component={Paper} sx={{ width: {md: 1100}, height:'100%' } }>
-            <Table aria-label="collapsible table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell />
-                        <TableCell>Service Name</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell align="right">Duration&nbsp;(min)</TableCell>
-                        <TableCell align="right">Fee&nbsp;(Rs)</TableCell>
-        
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {rows.map((row) => (
-                        <Row key={row.id} row={row} />
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+        <>
+            <DeleteConfirmationDialog
+                open={openDeleteDialog}
+                onClose={handleDeleteClose}
+                onDeleteConfirm={handleDeleteConfirm}
+            />
+            <TableContainer component={Paper} sx={{ width: { md: 1100 }, height: '100%' }}>
+                <Table aria-label="collapsible table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell />
+                            <TableCell>Service Name</TableCell>
+                            <TableCell>Description</TableCell>
+                            <TableCell align="right">Duration&nbsp;(min)</TableCell>
+                            <TableCell align="right">Fee&nbsp;(Rs)</TableCell>
+                            <TableCell align="right"></TableCell>
+
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rows.map((row) => (
+                            <Row key={row.id} row={row} handleDeleteOpen={handleDeleteOpen} />
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </>
+
+    );
+}
+// eslint-disable-next-line react/prop-types
+function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {
+    return (
+        <Dialog open={open} onClose={onClose}>
+            <DialogTitle>Confirm Service Deletion</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">Are you sure you want to delete this service?</Typography>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Cancel</Button>
+                <Button variant="contained" color="error" onClick={onDeleteConfirm}>
+                    Delete
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 }

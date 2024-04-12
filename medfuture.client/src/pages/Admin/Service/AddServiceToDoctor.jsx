@@ -90,7 +90,7 @@ const MyForm = ({ services, doctors }) => {
             onSubmit={async (values, { setSubmitting, resetForm, setErrors, setStatus }) => {
                 // Submit form data to your backend (replace with your logic)
                 console.log(values);
-
+                setFormMessage({})
                 try {
 
                     const response = await fetch('/api/service/add-doctor-to-service', {

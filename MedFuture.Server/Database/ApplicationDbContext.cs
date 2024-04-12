@@ -86,6 +86,24 @@ namespace MedFuture.Server.Database
             //    .HasForeignKey(ds => ds.ServiceID)
             //    .OnDelete(DeleteBehavior.Cascade);
 
+            //model building for appointment table
+
+            modelBuilder.Entity<AppointmentM>()
+                .HasKey(a => new { a.StartDateTime, a.EndDateTime });
+
+            modelBuilder.Entity<AppointmentM>()
+                .HasOne<ServiceM>(a => a.Service);
+               
+            modelBuilder.Entity<AppointmentM>()
+                .Property(a=> a.Status)
+                .HasConversion<int>();
+            modelBuilder.Entity<AppointmentM>()
+                .HasOne<PatientM>(a=> a.Patient);
+
+            modelBuilder.Entity<AppointmentM>()
+                .HasOne<DoctorM>(a => a.Doctor);
+
+
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -111,5 +129,6 @@ namespace MedFuture.Server.Database
         public DbSet<DoctorSpecialtyM> DoctorSpecialties { get; set; }
         public DbSet<ServiceM> Services { get; set; }
         public DbSet<DoctorServiceM> DoctorServices { get; set; }
+        public DbSet<AppointmentM> Appointments { get; set; }
     }
 }

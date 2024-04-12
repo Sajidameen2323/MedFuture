@@ -15,10 +15,10 @@ namespace MedFuture.Server.Controllers
     public class ServiceController : ControllerBase
     {
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<ServiceController> _logger;
         private readonly IServiceRepository _serviceRepository;
 
-        public ServiceController(ILogger<WeatherForecastController> logger, IServiceRepository serviceRepository)
+        public ServiceController(ILogger<ServiceController> logger, IServiceRepository serviceRepository)
         {
             _logger = logger;
             _serviceRepository = serviceRepository;
@@ -37,7 +37,7 @@ namespace MedFuture.Server.Controllers
                 Duration = service.Duration,
                 ServiceCharge = service.ServiceCharge,
                 DoctorNames = service.DoctorServices
-                              .Select(ds => new DoctorNameDto { FullName= $"{ds.Doctor.User.FirstName} {ds.Doctor.User.LastName}", FirstName = ds.Doctor.User.FirstName, LastName = ds.Doctor.User.LastName })
+                              .Select(ds => new DoctorNameDto { DoctorID=ds.DoctorID ,FullName= $"{ds.Doctor.User.FirstName} {ds.Doctor.User.LastName}", FirstName = ds.Doctor.User.FirstName, LastName = ds.Doctor.User.LastName })
                               .ToList()
             }).ToList();
 
@@ -75,6 +75,22 @@ namespace MedFuture.Server.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Message = ex.Message });
+            }
+
+        }
+
+        [HttpDelete("service-delete/{id}")]
+        public async Task<IActionResult> DeleteService(int id)
+        {
+            try
+            {
+                await _serviceRepository.DeleteService(id);
+                return Ok();
+
+            }
+            catch(Exception ex)
+            {
+               return BadRequest(ex.Message);
             }
 
         }

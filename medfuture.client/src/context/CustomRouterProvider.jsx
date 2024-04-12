@@ -25,6 +25,8 @@ const AddDoctor = Loadable(lazy(() => import("../pages/Admin/Doctor/AddDoctor"))
 const ListDoctors = Loadable(lazy(() => import("pages/Admin/Doctor/ListDoctors")));
 const ListServices = Loadable(lazy(() => import("pages/Admin/Service/List")));
 
+const BookingPage = Loadable(lazy(() => import("pages/Booking")));
+
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
 
@@ -114,6 +116,13 @@ function CustomRouterProvider() {
                 }
             ],
         },
+        {
+            id: 'book',
+            path: '/book-now',
+            loader: protectedLoader,
+            Component: BookingPage
+
+        }
 
     ]);
 

@@ -84,5 +84,16 @@ namespace MedFuture.Server.Database.Repositories
             return serviceM;
 
         }
+
+        public async Task DeleteService(int serviceId)
+        {
+            ServiceM? service = await GetService(serviceId);
+            if(service != null)
+            {
+
+                _context.Set<ServiceM>().Remove(service);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

@@ -54,6 +54,10 @@ builder.Services.AddAuthorization(options =>
     {
         policy.Requirements.Add(new AuthRoleRequirement("Doctor"));
     });
+    options.AddPolicy("PatientOnlyPolicy", policy =>
+    {
+        policy.Requirements.Add(new AuthRoleRequirement("Patient"));
+    });
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, AuthRoleHandler>();
@@ -66,6 +70,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 
 builder.Services.AddControllers();
