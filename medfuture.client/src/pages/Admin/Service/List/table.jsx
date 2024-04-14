@@ -23,6 +23,8 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
+import { useNavigate } from "react-router-dom";
+
 function createData(id,name, description, duration, fee, doctorNames) {
     return {
         id,
@@ -37,6 +39,7 @@ function createData(id,name, description, duration, fee, doctorNames) {
 function Row(props) {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
+      const navigate = useNavigate();
 
     return (
         <React.Fragment>
@@ -58,11 +61,11 @@ function Row(props) {
                 <TableCell align="right">{row.fee}</TableCell>
                 <TableCell>
                     <Stack direction="row" spacing={1}>
-                        <IconButton aria-label="edit" color="secondary">
+                        <IconButton aria-label="edit" color="secondary" onClick={() => { navigate('/account/edit-service', { state: { serviceId: row.id } }) }} >
                             <EditIcon />
                         </IconButton>
-                        <IconButton aria-label="delete" color="error">
-                            <DeleteIcon onClick={() => props.handleDeleteOpen(row.id)} />
+                        <IconButton aria-label="delete" color="error" onClick={() => props.handleDeleteOpen(row.id)} >
+                            <DeleteIcon  />
                         </IconButton>
 
                     </Stack>

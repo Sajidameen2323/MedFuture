@@ -45,7 +45,7 @@ export default defineConfig({
             "components": path.resolve(__dirname, 'src/components'),
             "utils": path.resolve(__dirname, 'src/utils'),
             "assets": path.resolve(__dirname, 'src/assets'),
-            "config": path.resolve(__dirname, 'src/config/config'),
+            "config": path.resolve(__dirname, 'src/config'),
             "store": path.resolve(__dirname, 'src/store'),
             "themes": path.resolve(__dirname, 'src/styles/themes'),
             "context": path.resolve(__dirname, 'src/context'),

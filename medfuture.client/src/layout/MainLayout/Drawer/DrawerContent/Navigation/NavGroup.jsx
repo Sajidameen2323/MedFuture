@@ -13,7 +13,12 @@ const NavGroup = ({ item }) => {
   const menu = useSelector((state) => state.menu);
   const { drawerOpen } = menu;
 
-  const navCollapse = item.children?.map((menuItem) => {
+    const navCollapse = item.children?.map((menuItem) => {
+
+        if (menuItem?.hidden) {
+            return;
+        }
+
     switch (menuItem.type) {
       case 'collapse':
         return (

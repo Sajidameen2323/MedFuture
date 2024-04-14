@@ -44,6 +44,30 @@ namespace MedFuture.Server.Controllers
             return Ok(listServiceDto);
 
         }
+        [HttpGet("get-service/{id}")]
+        public async Task<IActionResult> GetService(int id)
+        {
+            try
+            {
+                ServiceM? service = await _serviceRepository.GetService(id);
+               
+                if(service != null)
+                {
+                    var obj = new { ServiceID = service.ServiceID, Description = service.Description, Name = service.Name, ServiceCharge = service.ServiceCharge, Duration = service.Duration };
+
+                    return Ok(new { success = true, data = obj });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "No such service found!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
         [HttpPost("add-service")]
         public async Task<IActionResult> AddService(ServiceDto serviceDto)
         {
@@ -59,6 +83,23 @@ namespace MedFuture.Server.Controllers
             }
 
         }
+
+        [HttpPost("update-service")]
+        public async Task<IActionResult> UpdateService(ServiceDto serviceDto)
+        {
+            try
+            {
+                await _serviceRepository.UpdateService(serviceDto);
+
+                return Ok(new { success = true, Message = "Successfully Updated Service!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
         [HttpPost("add-doctor-to-service")]
         public async Task<IActionResult> AddDoctorToService(AddDoctorToServiceDto addDoctorToService)
         {

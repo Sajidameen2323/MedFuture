@@ -62,6 +62,26 @@ namespace MedFuture.Server.Database.Repositories
             return service;
         }
 
+        public Task UpdateService(ServiceDto serviceDto)
+        {
+            var existingService = _context.Services.FirstOrDefault(s => s.ServiceID == serviceDto.Id);
+
+            if (existingService == null)
+            {
+                // Handle the case where the service with the given ID is not found
+                throw new ArgumentException($"Service with ID {serviceDto.Id} not found.");
+            }
+            existingService.Name = serviceDto.Name;
+            existingService.Description = serviceDto.Description;
+            existingService.Duration = serviceDto.Duration;
+            existingService.ServiceCharge = serviceDto.ServiceCharge;
+
+            _context.SaveChanges();
+
+            return Task.CompletedTask;
+        }
+
+
         public Task RemoveDoctorFromService(int doctorId, int serviceId)
         {
             var doctorService = _context.DoctorServices

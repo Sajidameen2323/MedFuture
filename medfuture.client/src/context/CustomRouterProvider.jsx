@@ -4,8 +4,7 @@ import React, { useContext, lazy } from "react";
 import {
     RouterProvider,
     createBrowserRouter,
-    redirect,
-    useSearchParams
+    redirect  
 } from "react-router-dom";
 import { FirebaseAuthContext } from "./FirebaseAuthProvider";
 import Loadable from 'components/Loadable';
@@ -20,12 +19,12 @@ const Register = Loadable(lazy(() => import("../pages/Authentication/Register"))
 const Weather = Loadable(lazy(() => import("../pages/Weather")));
 const NotFound = Loadable(lazy(() => import("../pages/ErrorPages/NotFound")));
 const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/EmailVerification")));
-const AddMedicalServiceForm = Loadable(lazy(() => import("../pages/Admin/Service/Add")));
-const AddDoctor = Loadable(lazy(() => import("../pages/Admin/Doctor/AddDoctor")));
-const ListDoctors = Loadable(lazy(() => import("pages/Admin/Doctor/ListDoctors")));
-const ListServices = Loadable(lazy(() => import("pages/Admin/Service/List")));
+
 
 const BookingPage = Loadable(lazy(() => import("pages/Booking")));
+
+import AdminRouteGenerator from 'config/AdminRoutesGenerator.js';
+
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
@@ -57,33 +56,7 @@ function CustomRouterProvider() {
                     loader: protectedLoader,
                     Component: Weather,
                 },
-                // admin routes
-                {
-                    path: "overview",
-                    loader: protectedLoader,
-                    Component: Weather,
-                },
-                {
-                    path: 'add-service',
-                    loader: protectedLoader,
-                    Component: AddMedicalServiceForm
-                },
-                {
-                    path: 'services',
-                    loader: protectedLoader,
-                    Component: ListServices
-                },
-                {
-                    path: 'add-doctor',
-                    loader: protectedLoader,
-                    Component: AddDoctor
-                },
-                {
-                    path: 'doctors',
-                    loader: adminOnlyLoader,
-                    Component: ListDoctors
-                },
-
+                ...AdminRouteGenerator({adminOnlyLoader, protectedLoader})
             ]
         },
         {
@@ -202,20 +175,6 @@ function CustomRouterProvider() {
     return (
         <RouterProvider router={router} />
     )
-}
-
-function Dummy() {
-
-
-    return (
-
-        <div>
-
-        <h5>Hello There!</h5>
-
-        </div>
-    )
-
 }
 
 function GetUserDashboard() {

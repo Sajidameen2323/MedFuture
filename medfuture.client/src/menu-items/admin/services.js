@@ -23,7 +23,16 @@ const pages = {
           url: '/account/add-service',
           icon: icons.MedicalServicesIcon,
       target: false  
-    },
+      },
+      {
+          id: 'service_edit',
+          title: 'Edit Service',
+          type: 'item',
+          url: '/account/edit-service',
+          icon: icons.MedicalServicesIcon,
+          target: false,
+          hidden: true
+      },
     {
       id: 'service_list',
       title: 'List Services',
