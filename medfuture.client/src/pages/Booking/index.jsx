@@ -124,8 +124,8 @@ const AppointmentStepper = () => {
 
                 {activeStep === 0 && <SelectServiceForm selectedService={selectedService} setSelectedService={ setSelectedService } />}
                 {activeStep === 1 && <SelectDoctorForm doctors={selectedService.doctorNames} setSelectedDoctor={setSelectedDoctor} selectedDoctor={selectedDoctor } />}
-                {activeStep === 2 && <BookingPage setSelectedDateTime={setSelectedDateTime} />}
-                {activeStep === 3 && <SuccessPage selectedService={selectedService} selectedDoctor={selectedDoctor} appointmentDetails={ appointmentDetails } />}
+                {activeStep === 2 && <BookingPage setSelectedDateTime={setSelectedDateTime} selectedService={selectedService} />}
+                {activeStep === 3 && <SuccessPage selectedService={selectedService} selectedDoctor={selectedDoctor} appointmentDetails={appointmentDetails} handleReset={ handleReset } />}
             
 
                 {/* Navigation buttons */}
@@ -141,10 +141,8 @@ const AppointmentStepper = () => {
                     </Button>}
 
                     {activeStep == steps.length - 1 && 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: { sm: '90%', md: '50%' } } } >
-                            <Button onClick={handleReset} >
-                                Book Again
-                            </Button>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', width: { sm: '90%', md: '50%' } } } >
+        
                             <Link component={RouterLink} to="/" variant="body2" sx={{ ml: 2 }}>
                                 Home
                             </Link>

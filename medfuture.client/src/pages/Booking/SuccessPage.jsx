@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import { Button, Typography, Card, CardContent, CardActions, Grid, Container } from '@mui/material';
+import { Button, Typography, Card, CardContent, CardActions, Grid, Container, Stack } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
+import { Result } from 'antd';
+import AnimateButton from 'components/@extended/AnimateButton';
 
-const SuccessfulBooking = ({ selectedService: service, selectedDoctor: doctor, appointmentDetails }) => {
+const SuccessfulBooking = ({ selectedService: service, selectedDoctor: doctor, appointmentDetails, handleReset }) => {
     const taxRate = 0.1; // Assuming a tax rate of 10%
     const fee = service.serviceCharge;
     const tax = fee * taxRate;
@@ -16,84 +17,132 @@ const SuccessfulBooking = ({ selectedService: service, selectedDoctor: doctor, a
     let formattedTime = new Date(appointmentDetails.startDateTime);
     formattedTime = `${formattedTime.getUTCHours()}:${formattedTime.getUTCMinutes()}`
     return (
-        <Container sx={{ display:'flex', justifyContent:'center', margin:2 }}>
-  
-            <Card style={{ maxWidth: { sm: '400px', md:'auto' } }}>
-            <CardContent>
-                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: '10px' }}>
-                    Appointment Booking Successful
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    Service: {service.name}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    Doctor: {doctor.fullName}
-                </Typography>
-                <Grid container spacing={2} style={{ marginTop: '10px', textAlign: 'left' }}>
+        <>
+          <Result
+    status="success"
+    title="Successfully Booked Appointment!"
+                subTitle={`Appointment ID: ${appointmentDetails.appointmentId}. Due to exceptionally high demand, the start time of your appointment may experience delays. Your patience is appreciated.`}
+    extra={[
+        <Container key="container" sx={{ display: 'flex', justifyContent: 'center', margin: 1 }}>
+            
+            <Card sx={{ width: { md: 'auto', sm: '400px' } }} disableElevation>
+                <CardContent>
+    
 
-                    <Grid item xs={6}>
-                        <Typography variant="body1">Date</Typography>
+                    <Grid container spacing={2} style={{ marginTop: '10px', textAlign: 'left' }}>
+
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Service</Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right' }}>
+                                {service.name}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Doctor</Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right' }}>
+                                {doctor.fullName}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Date</Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right' }}>
+                                {appointmentDetails.appointmentDate}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Time</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right' }}>
+                                {formattedTime}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Duration</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right' }}>
+                                {service.duration} min
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Fee:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right' }}>
+                                ${fee}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1">Total:</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" style={{ textAlign: 'right', fontWeight: 'bold' }}>
+                                ${total.toFixed(2)}
+                            </Typography>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1" style={{ textAlign: 'right' }}>
-                            {appointmentDetails.appointmentDate}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1">Time</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1" style={{ textAlign: 'right' }}>
-                            {formattedTime}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1">Duration</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1" style={{ textAlign: 'right' }}>
-                            {service.duration} min
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1">Fee:</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1" style={{ textAlign: 'right' }}>
-                            ${fee}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1">Tax (10%):</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1" style={{ textAlign: 'right' }}>
-                            ${tax.toFixed(2)}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1">Total:</Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body1" style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                            ${total.toFixed(2)}
-                        </Typography>
-                    </Grid>
-                </Grid>
-            </CardContent>
-            <CardActions style={{ justifyContent: 'flex-end', padding: '16px' }}>
+                </CardContent>
+
+            </Card>
+        </Container>,
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} key="action-btn" useFlexGap flexWrap="wrap" sx={{ display:'flex', justifyContent:'center'} }>
+            <AnimateButton >
                 <Button
+
+                    size="medium"
                     variant="contained"
-                    color="primary"
+                    color="info"
+                    disableElevation
+                    sx={{ borderRadius: '0px' }}
                     startIcon={<EventIcon />}
                     onClick={handleAddToCalendar}
-                    style={{ borderRadius: '8px' }}
+
                 >
                     Add to Calendar
                 </Button>
-            </CardActions>
-            </Card>
-        </Container>
+            </AnimateButton>
+            <AnimateButton >
+                <Button
+
+                    size="medium"
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    sx={{ borderRadius: '0px' }}
+                >
+                    Appointments
+                </Button>
+            </AnimateButton>
+            <AnimateButton >
+                <Button
+
+                    size="medium"
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    onClick={handleReset}
+                    sx={{ borderRadius: '0px' }}
+                >
+                    Book Again
+                </Button>
+            </AnimateButton>
+        </Stack>
+
+    ]}
+  />
+  </>
+
     );
 };
 

@@ -4,10 +4,14 @@ import Loadable from 'components/Loadable';
 
 const Weather = Loadable(lazy(() => import("../pages/Weather")));
 const AddMedicalServiceForm = Loadable(lazy(() => import("../pages/Admin/Service/Add")));
+
 const AddDoctor = Loadable(lazy(() => import("../pages/Admin/Doctor/AddDoctor")));
 const ListDoctors = Loadable(lazy(() => import("pages/Admin/Doctor/ListDoctors")));
+
 const ListServices = Loadable(lazy(() => import("pages/Admin/Service/List")));
-const EditService = Loadable(lazy(() => import("pages/Admin/Service/EditService") ));
+const EditService = Loadable(lazy(() => import("pages/Admin/Service/EditService")));
+
+const ListAppointments = Loadable(lazy(() => import("pages/Admin/Appointment/List")));
 
 export default function GetAdminRoutes(props) {
 
@@ -42,6 +46,11 @@ export default function GetAdminRoutes(props) {
             path: 'doctors',
             loader: props.adminOnlyLoader,
             Component: ListDoctors
+        },
+        {
+            path: 'appointments',
+            loader: props.adminOnlyLoader,
+            Component: ListAppointments
         },
     ]
 

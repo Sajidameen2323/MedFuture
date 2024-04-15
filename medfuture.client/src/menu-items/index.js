@@ -6,18 +6,18 @@ import doctorDashboard from './doctor/dashboard';
 import utilities from './admin/utilities';
 import support from './admin/support';
 import manageDoctors from './admin/manageDoctors';
-
+import manageAppointments from './admin/manageAppointments';
 // ==============================|| MENU ITEMS ||============================== //
 
 const items = {
-    items: [adminDashboard, services, manageDoctors, utilities, support, doctorDashboard]
+    items: [adminDashboard, services, manageDoctors, utilities, support, doctorDashboard, manageAppointments]
 };
 
 const getMenuItems = (role) => {
 
     if (role === "Admin") {
         return {
-            items: [adminDashboard, services, manageDoctors, utilities, support]
+            items: [adminDashboard, services, manageDoctors, manageAppointments, utilities, support]
         };
     }
     else if (role === "Doctor") {

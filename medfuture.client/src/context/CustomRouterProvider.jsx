@@ -24,6 +24,7 @@ const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/Em
 const BookingPage = Loadable(lazy(() => import("pages/Booking")));
 
 import AdminRouteGenerator from 'config/AdminRoutesGenerator.js';
+import NotAuthorized from "../pages/ErrorPages/NotAuthorized";
 
 
 function CustomRouterProvider() {
@@ -34,7 +35,7 @@ function CustomRouterProvider() {
             id: "root",
             path: "/",
             loader: () => { return 6 },
-            errorElement:<NotFound />,
+            errorElement: <NotFound />,
             children: [
                 {
                     index: true,
@@ -95,6 +96,21 @@ function CustomRouterProvider() {
             loader: protectedLoader,
             Component: BookingPage
 
+        },
+        {
+            id: 'error',
+            path: '/error',
+            children: [
+                {
+                    index: true,
+                    path: 'not-found',
+                    Component: NotFound
+                },
+                {
+                    path: 'not-authorized',
+                    Component: NotAuthorized
+                }
+            ]
         }
 
     ]);
@@ -150,7 +166,7 @@ function CustomRouterProvider() {
         }
         else if (currentUser && currentUser?.role != "Admin") {
 
-            return redirect("/not-found")
+            return redirect("/error/not-authorized")
         }
         return null;
     }

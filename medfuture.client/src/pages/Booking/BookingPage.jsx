@@ -25,7 +25,7 @@ const getAppointmentSchedule = async () => {
     return await response.json();
 };
 
-function App({ setSelectedDateTime }) {
+function App({ setSelectedDateTime, selectedService }) {
 
     const { isLoading, isError, data: scheduleData, error } = useQuery('appointmentScheduleApi', getAppointmentSchedule, {
         // Optional configuration options for useQuery
@@ -117,7 +117,7 @@ function App({ setSelectedDateTime }) {
                     max={max}
                     minTime="08:00"
                     maxTime="19:59"
-                    stepMinute={15}
+                    stepMinute={selectedService?.duration || 15}
                     width={null}
                     labels={datetimeLabels}
                     invalid={datetimeInvalid}
