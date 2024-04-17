@@ -14,7 +14,7 @@ namespace MedFuture.Server.Database.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<AppointmentM>> GetAppointmentsForNextTwoWeeks()
+        public async Task<IEnumerable<AppointmentM>> GetAppointmentsForNextTwoWeeks(int docId)
         {
 
             // Get today's date
@@ -27,7 +27,7 @@ namespace MedFuture.Server.Database.Repositories
             var endDate = today.AddDays(28);
 
             var appointments = _context.Appointments
-                .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate);
+                .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate && a.DoctorId == docId );
 
             return appointments;
         }
@@ -48,6 +48,16 @@ namespace MedFuture.Server.Database.Repositories
             await _context.SaveChangesAsync();
 
             return appointment;
+        }
+
+        public async Task<IEnumerable<AppointmentM>> GetAppointmentsForDateRange(DateTime startDate, DateTime endDate)
+        {
+            var appointments = _context.Appointments.Where(a => a.AppointmentDate >= DateOnly.FromDateTime(startDate) && a.AppointmentDate <= DateOnly.FromDateTime(endDate))
+                                       .Include(a => a.Doctor.User)
+                                       .Include(a => a.Patient.User)
+                                       .Include(a => a.Service);
+
+            return appointments;
         }
     }
 }

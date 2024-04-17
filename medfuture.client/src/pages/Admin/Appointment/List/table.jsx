@@ -1,15 +1,16 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 import * as React from 'react';
 import PropTypes from 'prop-types';
-
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { Button, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
+import { Button, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Stack, IconButton, Box } from '@mui/material';
 
-
-
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -20,77 +21,23 @@ import { useState, useContext } from 'react';
 import avatar1 from 'assets/images/users/avatar-1.png';
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
+import { Empty } from 'antd';
+import { useCallback } from 'react';
 
+import { Descriptions } from 'antd';
 
+import CloseIcon from '@mui/icons-material/Close';
 
-//const rows = [
-//    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-//    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42, email:'admin123@gmail.com' },
-//    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-//    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-//    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-//    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-//    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-//    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-//    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-//];
-
-export default function DataTable() {
+export default function DataTable({ props }) {
 
 
     const columns = [
         { field: 'id', headerName: 'ID', flex: 1 },
-        {
-            field: 'proPic', flex: 1, headerName: '', sortable: false, filterable: false,
-            renderCell: (params) => {
-
-                return <Avatar alt="profile user" src={params.value || avatar1} sx={{ width: 32, height: 32 }} />
-
-            }
-        },
-        { field: 'firstName', headerName: 'First name', flex: 1, },
-        { field: 'lastName', headerName: 'Last name', flex: 1, },
-        {
-            field: 'age',
-            headerName: 'Age',
-            type: 'number',
-            flex: 1,
-            valueGetter: (params) => { return params?.value ?? "N/A" }
-        },
-        {
-            field: 'fullName',
-            headerName: 'Full name',
-            description: 'This column has a value getter and is not sortable.',
-            sortable: false,
-            flex: 2,
-            valueGetter: (params) =>
-                `${params.row.firstName || ''} ${params.row.lastName || ''}`,
-        },
-        {
-            field: 'email',
-            headerName: 'Email',
-            type: 'string',
-            flex: 3,
-        },
-        {
-            field: 'gender',
-            headerName: 'Gender',
-            type: 'string',
-            flex: 1,
-            valueGetter: (params) => {
-
-                switch (params?.value) {
-                    case 1:
-                        return "Male"
-                    case 2:
-                        return "Female"
-                    default:
-                        return "N/A"
-
-                }
-
-            }
-        },
+        { field: 'patient', headerName: 'Patient', flex: 1, },
+        { field: 'doctor', headerName: 'Doctor', flex: 1, },
+        { field: 'service', headerName: 'Service', flex: 1, },
+        { field: 'date', headerName: 'Date', flex: 1, type: "date", valueGetter: (params) => { return new Date(params.value) ?? new Date() } },
+        { field: 'start_at', headerName: 'Start At', flex: 1, type: "string", valueGetter: (params) => { return dayjs(params.value).format('h:mm A') ?? dayjs().format('h:mm A') } },
         {
             field: 'status',
             headerName: 'Status',
@@ -106,18 +53,20 @@ export default function DataTable() {
                 <GridActionsCellItem
                     icon={<VisibilityIcon />}
                     label="View"
-                    onClick={() => { }}
+                    onClick={() => {
+                        let { outputObject } = data;
+
+                        let app = outputObject.filter((el) => el?.appointmentId === params.row.id)[0]
+
+                        console.log(app)
+
+                        setSelectedAppointment(app)
+                    }}
                 />
                 ,
                 <GridActionsCellItem
-                    icon={<DeleteIcon />}
-                    label="Delete"
-                    onClick={() => handleDeleteOpen(params.row.id)}
-                    showInMenu
-                />,
-                <GridActionsCellItem
                     icon={<SecurityIcon />}
-                    label="Toggle Status"
+                    label="Set Status"
                     onClick={() => { }}
                     showInMenu
                 />,
@@ -126,19 +75,52 @@ export default function DataTable() {
         },
     ];
 
-    // Replace with your API endpoint and data fetching logic
-    const fetchDoctors = async () => {
-        const response = await fetch('/api/doctor/doctors', {
 
-            headers: {
-                'Authorization': `Bearer ${idToken}`,
-                "Content-Type": "application/json"
-            },
-            method: 'GET',
 
-        });
-        return response.json();
-    };
+    const [rows, setRows] = useState([]);
+    const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+
+
+    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+    const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
+    const { idToken } = useContext(FirebaseAuthContext);
+    const { dateRange, statusFilter } = props;
+
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+    const queryClient = useQueryClient();
+
+
+
+
+    // data fetching logic
+    const fetchAppointmentsByRange = useCallback(async () => {
+  
+        console.log("logging inside api fetcher");
+
+        let startDate = dayjs(dateRange[0], "YYYY-MM-DD").format("YYYY-MM-DD");
+        let endDate = dayjs(dateRange[1], "YYYY-MM-DD").format("YYYY-MM-DD");
+
+        try {
+            const response = await fetch(`/api/appointment/get-appointments?startDate=${startDate}&endDate=${endDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                    "Content-Type": "application/json"
+                },
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            return response.json();
+        } catch (error) {
+            // Handle fetch errors
+            console.error('Fetch error:', error);
+            throw error; // Rethrow the error to be caught by React Query
+        }
+    }, [idToken, dateRange]);
 
     const deleteUser = async (userId) => {
 
@@ -155,13 +137,9 @@ export default function DataTable() {
     };
 
 
-    const [rows, setRows] = useState([]);
-    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
-    const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
-    const { idToken } = useContext(FirebaseAuthContext);
-
-    const queryClient = useQueryClient();
-    const { isLoading, isError, data, error } = useQuery('doctors', fetchDoctors);
+    const { isLoading, isError, data, error } = useQuery(['apiGetAppointmentsForRange', dateRange], () => fetchAppointmentsByRange(), {
+        enabled: true, 
+    });
 
     const { mutate: deleteUserMutation, isLoading: isDeleting, error: deleteError } = useMutation(
         deleteUser,
@@ -183,17 +161,36 @@ export default function DataTable() {
         // console.log(data);
         if (data) {
             let tempArr = [];
-            data.forEach((el) => {
+            let { outputObject } = data;
+            if (outputObject) {
 
-                tempArr.push({ id: el?.doctorID, firstName: el?.user?.firstName, lastName: el?.user?.lastName, age: el?.dob, email: el?.user?.email, status: 'active', firebaseId: el?.user?.firebaseID })
+                if (statusFilter != "All") {
+                   // console.log("filtering")
+                    outputObject = outputObject.filter(el => el.status === statusFilter)
+                  //  console.log(outputObject.length)
+                }
 
-            })
-            console.log(data)
+                outputObject.forEach((el) => {
+
+                    tempArr.push({
+                        id: el?.appointmentId,
+                        patient: el?.patient?.firstName + " " + el?.patient?.lastName,
+                        doctor: el?.doctor?.firstName + " " + el?.doctor?.lastName,
+                        service: el?.service?.name,
+                        date: el?.appointmentDate,
+                        start_at: el?.startDateTime,
+                        status: el?.status,
+                    })
+
+                })
+            }
+
+          //  console.log(outputObject)
             setRows(tempArr)
         }
 
 
-    }, [data]);
+    }, [data, statusFilter]);
 
     const handleDeleteOpen = (id) => {
         setOpenDeleteDialog(true);
@@ -218,38 +215,136 @@ export default function DataTable() {
     }
 
     if (isError) {
-        return <span>Error: {error.message}</span>
+        return (
+            <div>
+                   <span>Errors: {error.message}</span>
+            </div>
+        )
     }
 
     return (
-        <div style={{ height: '100%', width: '1100px', overflow: 'hidden' }}>
-            <DataGrid
-                slots={{
-                    noRowsOverlay: () => <h5>No Data</h5>,
-                }}
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 5 },
-                    },
-                    columns: {
-                        columnVisibilityModel: {
-                            id: false,
-                            fullName: false,
-                        },
-                    }
-                }}
-                pageSizeOptions={[5, 10]}
+        <>
+            <Stack spacing={2}>
 
-            />
-            <DeleteConfirmationDialog
-                open={openDeleteDialog}
-                onClose={handleDeleteClose}
-                onDeleteConfirm={handleDeleteConfirm}
-            />
-        </div>
+                {selectedAppointment && <DetailView selectedAppointment={selectedAppointment} setSelectedAppointment={ setSelectedAppointment } />}
+                <Box sx={{ margin:'100px' }}>
+                    <DataGrid
+                        sx={{ height: rows.length == 0 ? '300px' : '100%' }}
+                        slots={{
+                            noRowsOverlay: Empty,
+                        }}
+                        rows={rows}
+                        columns={columns}
+                        initialState={{
+                            pagination: {
+                                paginationModel: { page: 0, pageSize: 5 },
+                            },
+                            columns: {
+                                columnVisibilityModel: {
+                                    id: false,
+                                    fullName: false,
+                                },
+                            }
+                        }}
+                        pageSizeOptions={[5, 10]}
+                        checkboxSelection
+                        disableRowSelectionOnClick
+
+                        onRowSelectionModelChange={(newRowSelectionModel) => {
+                            console.log(newRowSelectionModel)
+                            setRowSelectionModel(newRowSelectionModel);
+                        }}
+                        rowSelectionModel={rowSelectionModel}
+
+                    />
+                </Box>
+
+                <DeleteConfirmationDialog
+                    open={openDeleteDialog}
+                    onClose={handleDeleteClose}
+                    onDeleteConfirm={handleDeleteConfirm}
+                />
+            </Stack>
+  
+        </>
     );
+}
+
+function DetailView({ selectedAppointment, setSelectedAppointment }) {
+
+    const items = [
+        {
+            key: '1',
+            label: 'Patient Name',
+            children: selectedAppointment?.patient?.firstName + " " + selectedAppointment?.patient?.lastName ,
+        },
+        {
+            key: '2',
+            label: 'Service',
+            children: selectedAppointment?.service?.name,
+        },
+        {
+            key: '3',
+            label: 'Doctor',
+            children: selectedAppointment?.doctor?.firstName + " " + selectedAppointment?.doctor?.lastName,
+        },
+        {
+            key: '4',
+            label: 'Date',
+            span: 1,
+            children: dayjs(selectedAppointment?.appointmentDate).format("YYYY-MM-DD"),
+        },
+        {
+            key: '5',
+            label: 'Start At',
+            children: dayjs(selectedAppointment?.startDateTime).format('h:mm A'),
+        },
+        {
+            key: '6',
+            label: 'Duration',
+            children: selectedAppointment?.service?.duration + " min",
+        },
+        {
+            key: '7',
+            label: 'Email',
+            span: 1,
+            children: selectedAppointment?.patient?.email ?? "N/A",
+        },
+        {
+            key: '8',
+            label: 'Phone',
+            span: 1,
+            children: selectedAppointment?.patient?.phoneNumber ?? "N/A",
+        },
+        {
+            key: '9',
+            label: 'Payment Status',
+            children: selectedAppointment?.paymentStatus ?? "N/A",
+        },
+        {
+            key: '10',
+            label: 'Payment Method',
+            children: "On-site",
+        },
+        {
+            key: '11',
+            label: 'Price',
+            children: "Rs. "+ (selectedAppointment?.price ?? "200.00"),
+        },
+    ];
+
+    return (
+        <>
+            <Descriptions title="Appointment Info" layout="vertical" items={items}
+                extra={
+                    <IconButton aria-label="delete" size="medium" onClick={() => { setSelectedAppointment(null) } } >
+                        <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                }
+            />
+        </>
+    )
+
 }
 
 function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {

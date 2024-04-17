@@ -17,7 +17,8 @@ const RootStyle = styled(BrowserView)({
 
 // scroll bar wrapper
 const SimpleBarStyle = styled(SimpleBar)(({ theme }) => ({
-  maxHeight: '100%',
+    maxHeight: '100vh',
+    overflowY:'scroll',
   '& .simplebar-scrollbar': {
     '&:before': {
       backgroundColor: alpha(theme.palette.grey[500], 0.48)
@@ -34,7 +35,9 @@ const SimpleBarStyle = styled(SimpleBar)(({ theme }) => ({
   },
   '& .simplebar-mask': {
     zIndex: 'inherit'
-  }
+    },
+    '&::-webkit-scrollbar': { display: 'none' }
+
 }));
 
 // ==============================|| SIMPLE SCROLL BAR  ||============================== //

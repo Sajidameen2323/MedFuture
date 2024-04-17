@@ -11,7 +11,8 @@ const DrawerContent = () => (
       '& .simplebar-content': {
         display: 'flex',
         flexDirection: 'column'
-      }
+            },
+
     }}
   >
     <Navigation />

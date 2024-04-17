@@ -17,17 +17,17 @@ setOptions({
     themeVariant: 'light'
 });
 
-const getAppointmentSchedule = async () => {
-    const response = await fetch('/api/appointment/get-appointment-schedule');
+const getAppointmentSchedule = async (docId) => {
+    const response = await fetch('/api/appointment/get-appointment-schedule?docId=' + docId);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
     return await response.json();
 };
 
-function App({ setSelectedDateTime, selectedService }) {
+function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
-    const { isLoading, isError, data: scheduleData, error } = useQuery('appointmentScheduleApi', getAppointmentSchedule, {
+    const { isLoading, isError, data: scheduleData, error } = useQuery(['appointmentScheduleApi', selectedDoctor.doctorID], () => getAppointmentSchedule(selectedDoctor.doctorID), {
         // Optional configuration options for useQuery
         staleTime: 0, // Fetch data again if it's older than 0 seconds
         refetchInterval: 60 * 60 * 1000, // Refetch data every hour (optional)

@@ -29,7 +29,7 @@ namespace MedFuture.Server.Models
         public List<DoctorQualificationM>? Qualifications { get; set;}
 
         // Navigation property for the relationship with Doctor
-      //  public ICollection<DoctorServiceM> DoctorServices { get; set; }
+        //  public ICollection<DoctorServiceM> DoctorServices { get; set; }
 
 
         public bool IsDeleted { get; set; } = false;

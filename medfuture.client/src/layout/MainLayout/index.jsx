@@ -65,7 +65,7 @@ const MainLayout = () => {
               <Toolbar />
 
               <Breadcrumbs navigation={navigation} title />
-              <Box sx={{ overflowY: 'auto', height: 'calc(100vh - 64px)', maxHeight: 'calc(100vh - 64px)', maxWidth: '100%' }}> {/* Adjust height for Toolbar */}
+              <Box sx={{ overflowY: 'auto', maxWidth: '100%' }}> {/* Adjust height for Toolbar  , height: 'calc(100vh - 64px)', maxHeight: 'calc(100vh - 64px)' */}
                   <Outlet />
               </Box>          
           </Box>

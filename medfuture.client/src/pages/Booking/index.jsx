@@ -124,7 +124,7 @@ const AppointmentStepper = () => {
 
                 {activeStep === 0 && <SelectServiceForm selectedService={selectedService} setSelectedService={ setSelectedService } />}
                 {activeStep === 1 && <SelectDoctorForm doctors={selectedService.doctorNames} setSelectedDoctor={setSelectedDoctor} selectedDoctor={selectedDoctor } />}
-                {activeStep === 2 && <BookingPage setSelectedDateTime={setSelectedDateTime} selectedService={selectedService} />}
+                {activeStep === 2 && <BookingPage setSelectedDateTime={setSelectedDateTime} selectedService={selectedService} selectedDoctor={selectedDoctor} />}
                 {activeStep === 3 && <SuccessPage selectedService={selectedService} selectedDoctor={selectedDoctor} appointmentDetails={appointmentDetails} handleReset={ handleReset } />}
             
 

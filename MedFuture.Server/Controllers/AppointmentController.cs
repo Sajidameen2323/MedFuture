@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.Services;
+using System.Globalization;
 
 namespace MedFuture.Server.Controllers
 {
@@ -79,11 +80,12 @@ namespace MedFuture.Server.Controllers
         }
 
         [HttpGet("get-appointment-schedule")]
-        public async Task<IActionResult> GetAppointmentSchedule()
+        public async Task<IActionResult> GetAppointmentSchedule(int docId)
         {
+
             try
             {
-                IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForNextTwoWeeks();
+                IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForNextTwoWeeks(docId);
 
                 Console.WriteLine("Appointments Count : ");
                 Console.WriteLine(appointments.Count());
@@ -125,6 +127,44 @@ namespace MedFuture.Server.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+
+        //Admin Only Routes ---------------------------------
+      //  [Authorize("AdminOnlyPolicy")]
+        [HttpGet("get-appointments")]
+        public async Task<IActionResult> GetAppointments(string startDate, string endDate)
+        {
+            // Parse start and end dates (assuming format is YYYY-MM-DD)
+            DateTime parsedStartDate;
+            if (!DateTime.TryParseExact(startDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedStartDate))
+            {
+                return BadRequest("Invalid start date format. Please use YYYY-MM-DD");
+            }
+
+            DateTime parsedEndDate;
+            if (!DateTime.TryParseExact(endDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedEndDate))
+            {
+                return BadRequest("Invalid end date format. Please use YYYY-MM-DD");
+            }
+
+            IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForDateRange(parsedStartDate, parsedEndDate);
+
+            var outputObject = appointments.Select(a => new { 
+
+                a.AppointmentId,
+                a.AppointmentDate,
+                a.StartDateTime,
+                a.EndDateTime,
+                service = new { a.Service.Name, a.Service.Duration  },
+                doctor = new { a.Doctor.User.FirstName, a.Doctor.User.LastName, a.Doctor.User.ProfilePic },
+                patient = new { a.Patient.User.FirstName, a.Patient.User.LastName, a.Patient.User.Email, a.Patient.PhoneNumber, a.Patient.User.ProfilePic },
+                status = Enum.GetName(typeof(AppointmentStatus), a.Status),
+                paymentStatus = "Pending"
+
+            }).ToList();
+
+            return Ok(value: new { outputObject });
         }
 
     }
