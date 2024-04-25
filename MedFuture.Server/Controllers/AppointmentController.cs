@@ -131,7 +131,7 @@ namespace MedFuture.Server.Controllers
 
 
         //Admin Only Routes ---------------------------------
-      //  [Authorize("AdminOnlyPolicy")]
+        [Authorize("AdminOnlyPolicy")]
         [HttpGet("get-appointments")]
         public async Task<IActionResult> GetAppointments(string startDate, string endDate)
         {
@@ -165,6 +165,51 @@ namespace MedFuture.Server.Controllers
             }).ToList();
 
             return Ok(value: new { outputObject });
+        }
+
+        [Authorize("AdminOnlyPolicy")]
+        [HttpPost("delete")]
+        public async Task<IActionResult> DeleteAppointments([FromBody] DeleteAppointmentsRequest request)
+        {
+            if (request == null || request.AppointmentIdList == null || !request.AppointmentIdList.Any())
+            {
+                return BadRequest("AppointmentIdList cannot be null or empty.");
+            }
+
+            // Process request.AppointmentIdList
+            try
+            {
+                var deletedCount = await _appointmentRepository.DeleteAppointmentsByIdList(request.AppointmentIdList);
+                return Ok($"Deleted {deletedCount} appointments.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("update-status")]
+        public async Task<IActionResult> BulkUpdateAppointmentStatus([FromBody] BulkUpdateRequest request)
+        {
+            if (request == null || request.AppointmentIdList == null || !request.AppointmentIdList.Any())
+            {
+                return BadRequest("AppointmentIdList cannot be null or empty.");
+            }
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), request.NewStatus))
+            {
+                return BadRequest("Invalid newStatus value.");
+            }
+
+            try
+            {
+                var updatedCount = await _appointmentRepository.BulkUpdateAppointmentStatus(request.AppointmentIdList, request.NewStatus);
+                return Ok($"Updated {updatedCount} appointments.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

@@ -82,17 +82,20 @@ namespace MedFuture.Server.Database.Repositories
         }
 
 
-        public Task RemoveDoctorFromService(int doctorId, int serviceId)
+        public async Task RemoveDoctorFromService(int docServiceId)
         {
             var doctorService = _context.DoctorServices
-                .SingleOrDefault(ds => ds.DoctorID == doctorId && ds.ServiceID == serviceId);
+                .SingleOrDefault(ds => ds.DoctorServiceID == docServiceId);
+          
             if (doctorService != null)
             {
-                _context.DoctorServices.Remove(doctorService);
-                _context.SaveChanges();
+                Console.WriteLine("AAl iraan - "+ doctorService.ServiceID);
+                _context.Set<DoctorServiceM>().Remove(doctorService);
+                await _context.SaveChangesAsync();
+           
             }
 
-            return Task.CompletedTask;
+ 
         }
 
         public async Task<ServiceM> AddService(ServiceDto serviceDto)

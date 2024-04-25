@@ -9,8 +9,13 @@ import manageDoctors from './admin/manageDoctors';
 import manageAppointments from './admin/manageAppointments';
 // ==============================|| MENU ITEMS ||============================== //
 
+// doctor imports
+import DoctorAppointmentGroup from './doctor/appointment';
+
+
+
 const items = {
-    items: [adminDashboard, services, manageDoctors, utilities, support, doctorDashboard, manageAppointments]
+    items: [adminDashboard, services, manageDoctors, utilities, support, doctorDashboard, manageAppointments, DoctorAppointmentGroup]
 };
 
 const getMenuItems = (role) => {
@@ -27,7 +32,7 @@ const getMenuItems = (role) => {
     }
     else {
         return {
-            items: [patientDashboard]
+            items: [patientDashboard, DoctorAppointmentGroup]
         }
     }
 

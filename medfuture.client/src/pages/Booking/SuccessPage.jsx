@@ -25,7 +25,7 @@ const SuccessfulBooking = ({ selectedService: service, selectedDoctor: doctor, a
     extra={[
         <Container key="container" sx={{ display: 'flex', justifyContent: 'center', margin: 1 }}>
             
-            <Card sx={{ width: { md: 'auto', sm: '400px' } }} disableElevation>
+            <Card sx={{ width: { md: 'auto', sm: '400px' } }} >
                 <CardContent>
     
 

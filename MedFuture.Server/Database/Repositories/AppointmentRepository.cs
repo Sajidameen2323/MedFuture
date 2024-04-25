@@ -59,5 +59,50 @@ namespace MedFuture.Server.Database.Repositories
 
             return appointments;
         }
+
+        public async Task<int> DeleteAppointmentsByIdList(IEnumerable<int> appointmentIdList)
+        {
+            // Validate input to prevent potential SQL injection vulnerabilities
+            if (appointmentIdList == null || !appointmentIdList.Any())
+            {
+                throw new ArgumentException("appointmentIdList cannot be null or empty.");
+            }
+
+            // Efficiently filter appointments by ID list using `Where` and `ToList` (or `ToArray`)
+            var appointmentsToDelete = await _context.Appointments
+                .Where(a => appointmentIdList.Contains(a.AppointmentId))
+                .ToListAsync(); // Consider using ToArray if large datasets are expected
+
+            // Remove tracked entities (optional, but recommended for large deletions)
+            _context.RemoveRange(appointmentsToDelete);
+
+            // Execute the deletion in a single database operation for efficiency
+            return await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<int> BulkUpdateAppointmentStatus(IEnumerable<int> appointmentIdList, AppointmentStatus newStatus)
+        {
+            // Validate input
+            if (appointmentIdList == null || !appointmentIdList.Any())
+            {
+                throw new ArgumentException("appointmentIdList cannot be null or empty.");
+            }
+
+            // Efficiently filter appointments by ID list using `Where`
+            var appointmentsToUpdate = await _context.Appointments
+                .Where(a => appointmentIdList.Contains(a.AppointmentId))
+                .ToListAsync(); // Consider using ToArray if large datasets are expected
+
+            // Update status for all appointments in the list
+            foreach (var appointment in appointmentsToUpdate)
+            {
+                appointment.Status = newStatus;
+            }
+
+            // Save changes in a single database operation for efficiency
+            return await _context.SaveChangesAsync();
+        }
+
     }
 }

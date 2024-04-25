@@ -2,23 +2,19 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { Button, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Stack, IconButton, Box } from '@mui/material';
+import { Stack, IconButton, Box } from '@mui/material';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import SecurityIcon from '@mui/icons-material/Security';
+
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import { useState, useContext } from 'react';
-
-import avatar1 from 'assets/images/users/avatar-1.png';
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { Empty } from 'antd';
@@ -27,6 +23,7 @@ import { useCallback } from 'react';
 import { Descriptions } from 'antd';
 
 import CloseIcon from '@mui/icons-material/Close';
+import DataGridOptions from './DataGridOptions';
 
 export default function DataTable({ props }) {
 
@@ -64,34 +61,26 @@ export default function DataTable({ props }) {
                     }}
                 />
                 ,
-                <GridActionsCellItem
-                    icon={<SecurityIcon />}
-                    label="Set Status"
-                    onClick={() => { }}
-                    showInMenu
-                />,
+                //<GridActionsCellItem
+                //    icon={<SecurityIcon />}
+                //    label="Set Status"
+                //    onClick={() => { }}
+                //    showInMenu
+                ///>,
 
             ],
         },
     ];
 
 
-
     const [rows, setRows] = useState([]);
     const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
-
-    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
-    const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
     const { idToken } = useContext(FirebaseAuthContext);
     const { dateRange, statusFilter } = props;
+    const [prevDateRange, setPrevDateRange] = useState(null);
 
     const [selectedAppointment, setSelectedAppointment] = useState(null);
-
-    const queryClient = useQueryClient();
-
-
-
 
     // data fetching logic
     const fetchAppointmentsByRange = useCallback(async () => {
@@ -122,38 +111,15 @@ export default function DataTable({ props }) {
         }
     }, [idToken, dateRange]);
 
-    const deleteUser = async (userId) => {
 
-        const response = await fetch(`/api/doctor/doctors/${userId}`, {
-            method: 'DELETE', headers: {
-                'Authorization': `Bearer ${idToken}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to delete user');
-        }
-        return true // You might not need a response here
-    };
-
-
-    const { isLoading, isError, data, error } = useQuery(['apiGetAppointmentsForRange', dateRange], () => fetchAppointmentsByRange(), {
-        enabled: true, 
+    const { isLoading, isError, data, error } = useQuery(['apiGetAppointmentsForRange', dateRange], fetchAppointmentsByRange, {
+        enabled: dateRange !== prevDateRange,
+    
+        onSuccess: () => {
+            // Update the prevDateRange state after a successful query
+            setPrevDateRange(dateRange);
+        },
     });
-
-    const { mutate: deleteUserMutation, isLoading: isDeleting, error: deleteError } = useMutation(
-        deleteUser,
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries('doctors'); // Invalidate user list query
-                // onUserDeleted(deletedUser); // Callback for successful deletion
-            },
-            onError: (error) => {
-                console.error('Delete user error:', error);
-                // Handle deletion error (e.g., show error message)
-            },
-        }
-    )
 
 
     React.useEffect(() => {
@@ -192,23 +158,6 @@ export default function DataTable({ props }) {
 
     }, [data, statusFilter]);
 
-    const handleDeleteOpen = (id) => {
-        setOpenDeleteDialog(true);
-        setDoctorToDeleteId(id);
-    };
-
-    const handleDeleteClose = () => {
-        setOpenDeleteDialog(false);
-        setDoctorToDeleteId(null);
-    };
-
-    const handleDeleteConfirm = () => {
-        // Implement your logic to delete the doctor with doctorToDeleteId
-        console.log('Deleting doctor with ID:', doctorToDeleteId);
-        deleteUserMutation(doctorToDeleteId);
-        handleDeleteClose(); // Close the dialog after deletion
-    };
-
 
     if (isLoading) {
         return <span>Loading...</span>
@@ -226,12 +175,14 @@ export default function DataTable({ props }) {
         <>
             <Stack spacing={2}>
 
-                {selectedAppointment && <DetailView selectedAppointment={selectedAppointment} setSelectedAppointment={ setSelectedAppointment } />}
+                {selectedAppointment && <DetailView selectedAppointment={selectedAppointment} setSelectedAppointment={setSelectedAppointment} />}
+       
                 <Box sx={{ margin:'100px' }}>
                     <DataGrid
                         sx={{ height: rows.length == 0 ? '300px' : '100%' }}
                         slots={{
                             noRowsOverlay: Empty,
+                          
                         }}
                         rows={rows}
                         columns={columns}
@@ -258,12 +209,8 @@ export default function DataTable({ props }) {
 
                     />
                 </Box>
+                {rowSelectionModel && rowSelectionModel.length > 0 && <DataGridOptions rowSelectionModel={rowSelectionModel} setPrevDateRange={setPrevDateRange} />}
 
-                <DeleteConfirmationDialog
-                    open={openDeleteDialog}
-                    onClose={handleDeleteClose}
-                    onDeleteConfirm={handleDeleteConfirm}
-                />
             </Stack>
   
         </>
@@ -347,19 +294,4 @@ function DetailView({ selectedAppointment, setSelectedAppointment }) {
 
 }
 
-function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {
-    return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Confirm Doctor Deletion</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">Are you sure you want to delete this doctor?</Typography>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={onDeleteConfirm}>
-                    Delete
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
-}
+

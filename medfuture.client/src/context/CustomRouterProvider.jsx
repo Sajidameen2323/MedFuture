@@ -22,6 +22,8 @@ const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/Em
 
 
 const BookingPage = Loadable(lazy(() => import("pages/Booking")));
+const ConsultationScreen = Loadable(lazy(() => import("pages/Doctor/Consultation/ConsultationScreen")));
+
 
 import AdminRouteGenerator from 'config/AdminRoutesGenerator.js';
 import NotAuthorized from "../pages/ErrorPages/NotAuthorized";
@@ -56,6 +58,13 @@ function CustomRouterProvider() {
                     index: true,
                     loader: protectedLoader,
                     Component: Weather,
+                },
+                {
+                    id: 'consultation',
+                    path: 'con',
+                    loader: protectedLoader,
+                    Component: ConsultationScreen
+
                 },
                 ...AdminRouteGenerator({adminOnlyLoader, protectedLoader})
             ]

@@ -37,7 +37,7 @@ namespace MedFuture.Server.Controllers
                 Duration = service.Duration,
                 ServiceCharge = service.ServiceCharge,
                 DoctorNames = service.DoctorServices
-                              .Select(ds => new DoctorNameDto { DoctorID=ds.DoctorID ,FullName= $"{ds.Doctor.User.FirstName} {ds.Doctor.User.LastName}", FirstName = ds.Doctor.User.FirstName, LastName = ds.Doctor.User.LastName })
+                              .Select(ds => new DoctorNameDto { DocServiceId = ds.DoctorServiceID ,DoctorID=ds.DoctorID ,FullName= $"{ds.Doctor.User.FirstName} {ds.Doctor.User.LastName}", FirstName = ds.Doctor.User.FirstName, LastName = ds.Doctor.User.LastName })
                               .ToList()
             }).ToList();
 
@@ -132,6 +132,22 @@ namespace MedFuture.Server.Controllers
             catch(Exception ex)
             {
                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpDelete("remove-doctor-from-service/{id}")]
+        public async Task<IActionResult> RemoveDoctorFromService(int id)
+        {
+            try
+            {
+                await _serviceRepository.RemoveDoctorFromService(id);
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
         }

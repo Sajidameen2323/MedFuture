@@ -19,7 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from '@mui/material/Stack';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Input } from "@mui/material";
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
@@ -97,7 +97,10 @@ function Row(props) {
                                             <TableCell>{doctorRow.firstName}</TableCell>
                                             <TableCell >{doctorRow.lastName}</TableCell>
                                             <TableCell>
-                                                <DeleteIcon variant="error" color="error" />
+
+                                                <IconButton aria-label="delete" color="error" onClick={() => props.handleRemoveOpen(doctorRow?.docServiceId) } >
+                                                    <DeleteIcon />
+                                                </IconButton>
 
                                             </TableCell>
                                         </TableRow>
@@ -129,7 +132,8 @@ Row.propTypes = {
         description: PropTypes.string.isRequired,
 
     }).isRequired,
-    handleDeleteOpen: PropTypes.func.isRequired
+    handleDeleteOpen: PropTypes.func.isRequired,
+    handleRemoveOpen: PropTypes.func.isRequired,
 };
 
 
@@ -155,7 +159,10 @@ export default function CollapsibleTable() {
     const { isLoading: serviceLoading, error: serviceError, data: serviceData } = useQuery('servicesFetchApi', servicesResponse);
     const [rows, setRows] = React.useState([]);
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+    const [openRemoveDialog, setOpenRemoveDialog] = React.useState(false);
     const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
+    const [docServiceToDeleteId, setDocServiceToDeletId] = React.useState(null);
+
     const queryClient = useQueryClient();
     const { idToken } = useContext(FirebaseAuthContext);
 
@@ -172,6 +179,20 @@ export default function CollapsibleTable() {
         }
         return true // You might not need a response here
     };
+    const removeDocService = async (id) => {
+
+        const response = await fetch(`/api/service/remove-doctor-from-service/${id}`, {
+            method: 'DELETE', headers: {
+                'Authorization': `Bearer ${idToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete user');
+        }
+        return true // You might not need a response here
+    };
+
     const { mutate: deleteUserMutation, isLoading: isDeleting, error: deleteError } = useMutation(
         deleteService,
         {
@@ -185,7 +206,19 @@ export default function CollapsibleTable() {
             },
         }
     )
-
+    const { mutate: removeDocServiceMutation, isLoading: isRemoving, error: removeError } = useMutation(
+        removeDocService,
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries('servicesFetchApi'); // Invalidate user list query
+                // onUserDeleted(deletedUser); // Callback for successful deletion
+            },
+            onError: (error) => {
+                console.error('Delete service error:', error);
+                // Handle deletion error (e.g., show error message)
+            },
+        }
+    )
 
     useEffect(() => {
 
@@ -217,8 +250,29 @@ export default function CollapsibleTable() {
         // Implement your logic to delete the doctor with doctorToDeleteId
         console.log('Deleting service with ID:', doctorToDeleteId);
         deleteUserMutation(doctorToDeleteId);
+        if (deleteError) console.log(deleteError);
+
         handleDeleteClose(); // Close the dialog after deletion
     };
+        
+    const handleRemoveOpen = (id) => {
+        setOpenRemoveDialog(true);
+        setDocServiceToDeletId(id);
+    };
+
+    const handleRemoveClose = () => {
+        setOpenRemoveDialog(false);
+        setDoctorToDeleteId(null);
+    };
+
+    const handleRemoveConfirm = () => {
+        // Implement your logic to delete the doctor with doctorToDeleteId
+        console.log('Removing docservice with id:', docServiceToDeleteId);
+        removeDocServiceMutation(docServiceToDeleteId);
+        if (removeError) console.log(removeError);
+        handleRemoveClose(); // Close the dialog after deletion
+    };
+
 
     if (serviceError) {
 
@@ -229,7 +283,7 @@ export default function CollapsibleTable() {
             </>
         )
     }
-    if (isDeleting) {
+    if (isDeleting || isRemoving) {
 
         return (
             <>
@@ -244,7 +298,20 @@ export default function CollapsibleTable() {
                 open={openDeleteDialog}
                 onClose={handleDeleteClose}
                 onDeleteConfirm={handleDeleteConfirm}
+                HeaderText="Confirm Service Deletion"
+                ContentText="Are you sure you want to delete this service?"
+                requireInput={ true }
             />
+            <DeleteConfirmationDialog
+                open={openRemoveDialog}
+                onClose={handleRemoveClose}
+                onDeleteConfirm={handleRemoveConfirm}
+                HeaderText="Confirm Doctor Service Deletion"
+                ContentText="Are you sure you want to remove doctor from this service?"
+                requireInput={false}
+            />
+
+
             <TableContainer component={Paper} sx={{ width: { md: 1100 }, height: '100%' }}>
                 <Table aria-label="collapsible table">
                     <TableHead>
@@ -260,7 +327,7 @@ export default function CollapsibleTable() {
                     </TableHead>
                     <TableBody>
                         {rows.map((row) => (
-                            <Row key={row.id} row={row} handleDeleteOpen={handleDeleteOpen} />
+                            <Row key={row.id} row={row} handleDeleteOpen={handleDeleteOpen} handleRemoveOpen={handleRemoveOpen} />
                         ))}
                     </TableBody>
                 </Table>
@@ -270,16 +337,27 @@ export default function CollapsibleTable() {
     );
 }
 // eslint-disable-next-line react/prop-types
-function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {
+function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm, HeaderText, ContentText, requireInput }) {
+
+    const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
+
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Confirm Service Deletion</DialogTitle>
+            <DialogTitle>{ HeaderText}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">Are you sure you want to delete this service?</Typography>
+                <Typography variant="body2">{ ContentText }</Typography>
+
+                {requireInput && <Input
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    placeholder="Type 'delete' to confirm"
+
+                /> }
+
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={onDeleteConfirm}>
+                <Button variant="contained" color="error" disabled={ deleteConfirmation !== "delete" && requireInput } onClick={onDeleteConfirm}>
                     Delete
                 </Button>
             </DialogActions>

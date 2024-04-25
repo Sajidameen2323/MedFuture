@@ -12,7 +12,7 @@ namespace MedFuture.Server.Database.Interfaces
         Task<ServiceM> AddService(ServiceDto serviceDto);
         Task UpdateService(ServiceDto serviceDto);
         Task AddDoctorToService(int doctorId, int serviceId);
-        Task RemoveDoctorFromService(int doctorId, int serviceId);
+        Task RemoveDoctorFromService(int docServiceId);
         Task DeleteService(int serviceId);
     }
 }

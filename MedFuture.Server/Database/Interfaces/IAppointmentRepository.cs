@@ -9,6 +9,8 @@ namespace MedFuture.Server.Database.Interfaces
         Task<IEnumerable<AppointmentM>> GetAppointmentsForNextTwoWeeks(int docId);
         Task<AppointmentM> CreateAppointment(CreateAppointmentDto createAppointmentDto);
         Task<IEnumerable<AppointmentM>> GetAppointmentsForDateRange(DateTime startDate, DateTime endDate);
+        Task<int> DeleteAppointmentsByIdList(IEnumerable<int> appointmentIdList);
+        Task<int> BulkUpdateAppointmentStatus(IEnumerable<int> appointmentIdList, AppointmentStatus newStatus);
 
     }
 }

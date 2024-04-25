@@ -58,7 +58,25 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
     
 
         const ddd = args.firstDay;
-        const invalid = [];
+        const invalid = [
+            {
+                recurring: {
+                    repeat: 'weekly',
+                    weekDays: 'MO'
+                }
+            },
+            {
+                recurring: {
+                    repeat: 'yearly',
+                    day: 23,
+                    month: 5
+                }
+            },
+            {
+                start: '2024-05-07',
+                end: '2024-05-10'
+            },
+        ];
         const labels = [];
 
         for (let i = 0; i < scheduleData.length; i++)
