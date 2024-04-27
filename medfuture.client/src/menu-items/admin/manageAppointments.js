@@ -20,7 +20,7 @@ const pages = {
             id: 'appointment_settings',
             title: 'Configure Appointments',
             type: 'item',
-            url: '/account/appointment-settings',
+            url: '/dashboard/appointment-settings',
             icon: icons.SettingOutlined,
             target: false
         },
@@ -28,7 +28,7 @@ const pages = {
             id: 'appointments_list',
             title: 'List Appointments',
             type: 'item',
-            url: '/account/appointments',
+            url: '/dashboard/appointments',
             icon: icons.UnorderedListOutlined,
             target: false
         }

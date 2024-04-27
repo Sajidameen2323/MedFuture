@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import Loadable from 'components/Loadable';
 
-
 const Weather = Loadable(lazy(() => import("../pages/Weather")));
 const AddMedicalServiceForm = Loadable(lazy(() => import("../pages/Admin/Service/Add")));
 
@@ -12,6 +11,7 @@ const ListServices = Loadable(lazy(() => import("pages/Admin/Service/List")));
 const EditService = Loadable(lazy(() => import("pages/Admin/Service/EditService")));
 
 const ListAppointments = Loadable(lazy(() => import("pages/Admin/Appointment/List")));
+const SettingsComponent = Loadable(lazy(() => import("pages/Admin/Appointment/Settings/index")));
 
 export default function GetAdminRoutes(props) {
 
@@ -19,27 +19,27 @@ export default function GetAdminRoutes(props) {
 
         {
             path: "overview",
-            loader: props.protectedLoader,
+            loader: props.adminOnlyLoader,
             Component: Weather,
         },
         {
             path: 'add-service',
-            loader: props.protectedLoader,
+            loader: props.adminOnlyLoader,
             Component: AddMedicalServiceForm
         },
         {
             path: 'edit-service',
-            loader: props.protectedLoader,
+            loader: props.adminOnlyLoader,
             Component: EditService
         },
         {
             path: 'services',
-            loader: props.protectedLoader,
+            loader: props.adminOnlyLoader,
             Component: ListServices
         },
         {
             path: 'add-doctor',
-            loader: props.protectedLoader,
+            loader: props.adminOnlyLoader,
             Component: AddDoctor
         },
         {
@@ -51,6 +51,11 @@ export default function GetAdminRoutes(props) {
             path: 'appointments',
             loader: props.adminOnlyLoader,
             Component: ListAppointments
+        },
+        {
+            path: 'appointment-settings',
+            loader: props.adminOnlyLoader,
+            Component: SettingsComponent
         },
     ]
 

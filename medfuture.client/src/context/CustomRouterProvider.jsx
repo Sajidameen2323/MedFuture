@@ -49,8 +49,8 @@ function CustomRouterProvider() {
             ],
         },
         {
-            id: "account",
-            path: '/account',
+            id: "dashboard",
+            path: '/dashboard',
             //loader: protectedLoader,
             Component: MainLayout,
             children: [

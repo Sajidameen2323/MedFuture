@@ -13,6 +13,7 @@
     <Folder Include="context\" />
     <Folder Include="hooks\" />
     <Folder Include="src\hooks\" />
+    <Folder Include="src\pages\Admin\Appointment\Settings\" />
     <Folder Include="src\pages\Admin\Service\List\" />
     <Folder Include="src\pages\Doctor\Consultation\" />
     <Folder Include="src\pages\ErrorPages\" />

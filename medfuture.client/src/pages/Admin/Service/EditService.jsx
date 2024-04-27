@@ -55,7 +55,7 @@ const EditServiceForm = () => {
         duration: Yup.number().required('Duration is required').positive('Duration must be positive'),
         charge: Yup.number().required('Charge is required').positive('Charge should be a positive value')
     });
-    const durations = [{ id: 1, value: 15 }, { id: 2, value: 30 }, { id: 3, value: 45 }]
+    const durations = [{ id: 1, value: 5 }, { id: 2, value: 10 }, { id: 3, value: 15 }, { id: 4, value: 30 }, { id: 5, value: 45 }]
 
     const onSubmit = async (values, { setSubmitting, setErrors, setStatus }) => {
         // Similar logic to Add service component, but with a different API endpoint for updating

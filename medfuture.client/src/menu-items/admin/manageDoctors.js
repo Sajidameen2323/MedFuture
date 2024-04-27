@@ -19,7 +19,7 @@ const pages = {
       id: 'doctor_add',
       title: 'Register Doctor',
       type: 'item',
-          url: '/account/add-doctor',
+          url: '/dashboard/add-doctor',
           icon: icons.UserAddOutlined,
       target: false  
     },
@@ -27,7 +27,7 @@ const pages = {
       id: 'doctor_list',
       title: 'List Doctors',
       type: 'item',
-        url: '/account/doctors',
+        url: '/dashboard/doctors',
         icon: icons.UnorderedListOutlined,
       target: false
     }

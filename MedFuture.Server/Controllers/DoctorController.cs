@@ -37,19 +37,46 @@ namespace MedFuture.Server.Controllers
         [HttpGet("doctors")]
         public async Task<IActionResult> GetAllDoctors()
         {
-            IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
+            try
+            {
+                IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
 
-            return Ok(docList);
+                var list = docList.Select(d => new { d.DoctorID, d.UserID, d.User, d.DOB, d.Gender, d.PhoneNumber,
+                    workingHours = new {
+                        d.WorkingHours.StartTime,
+                        d.WorkingHours.EndTime
+
+                    } })
+                    .ToList();
+
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { error="Something Went Wrong!!" });
+            }
         }
 
         [HttpGet("doctors-for-form")]
         public async Task<IActionResult> GetAllDoctorsForForm()
         {
-            IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
 
-            var doctorDtoList = docList.Select(doctor => new { doctorID = doctor.DoctorID, name = doctor.User.FirstName + " " + doctor.User.LastName });
+            try
+            {
+                IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
 
-            return Ok(doctorDtoList);
+                var doctorDtoList = docList.Select(doctor => new { doctorID = doctor.DoctorID, name = doctor.User.FirstName + " " + doctor.User.LastName });
+
+                return Ok(doctorDtoList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { error = "Something Went Wrong!!" });
+            }
+
+
         }
 
 

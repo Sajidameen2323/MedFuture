@@ -31,7 +31,8 @@ namespace MedFuture.Server.Controllers
             try
             {
                 DoctorM doctor =  await _userService.CreateDoctor(doctorCreateDto);
-                return Ok(new CreateDoctorResponse<DoctorM> { Success=true, Message="Successfully Registered!", Data=doctor});
+
+                return Ok(new CreateDoctorResponse<DoctorM> { Success=true, Message="Successfully Registered!"});
             }
             catch (FirebaseException ex)
             {

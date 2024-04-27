@@ -17,8 +17,8 @@ setOptions({
     themeVariant: 'light'
 });
 
-const getAppointmentSchedule = async (docId) => {
-    const response = await fetch('/api/appointment/get-appointment-schedule?docId=' + docId);
+const getAppointmentSchedule = async (docId, serviceId) => {
+    const response = await fetch('/api/appointment/get-appointment-schedule?docId=' + docId + '&serviceId='+ serviceId);
     if (!response.ok) {
         throw new Error('Network response was not ok');
     }
@@ -27,7 +27,7 @@ const getAppointmentSchedule = async (docId) => {
 
 function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
-    const { isLoading, isError, data: scheduleData, error } = useQuery(['appointmentScheduleApi', selectedDoctor.doctorID], () => getAppointmentSchedule(selectedDoctor.doctorID), {
+    const { isLoading, isError, data: scheduleData, error } = useQuery(['appointmentScheduleApi', selectedDoctor.doctorID], () => getAppointmentSchedule(selectedDoctor.doctorID, selectedService.serviceID), {
         // Optional configuration options for useQuery
         staleTime: 0, // Fetch data again if it's older than 0 seconds
         refetchInterval: 60 * 60 * 1000, // Refetch data every hour (optional)
@@ -38,8 +38,8 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
 
     const today = new Date();
-    const minDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const maxDate = new Date(today.getTime() + 28 * 24 * 60 * 60 * 1000);
+    const minDate = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const maxDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     minDate.setUTCHours(0, 0, 0, 0);
     maxDate.setUTCHours(23, 0, 0, 0);
@@ -59,12 +59,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
         const ddd = args.firstDay;
         const invalid = [
-            {
-                recurring: {
-                    repeat: 'weekly',
-                    weekDays: 'MO'
-                }
-            },
+
             {
                 recurring: {
                     repeat: 'yearly',
@@ -72,16 +67,23 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
                     month: 5
                 }
             },
-            {
-                start: '2024-05-07',
-                end: '2024-05-10'
-            },
+            //{
+            //    start: '2024-05-07',
+            //    end: '2024-05-10'
+            //},
         ];
         const labels = [];
 
-        for (let i = 0; i < scheduleData.length; i++)
+        let bookedApps = scheduleData?.groupedAppointments || [];
+        let weeklyInvalids = scheduleData?.weeklyInvalid;
+        if (weeklyInvalids?.weekDays != "") {
+            invalid.push({ recurring: weeklyInvalids })
+        }
+
+
+        for (let i = 0; i < bookedApps.length; i++)
         {
-            let booking = scheduleData[i];
+            let booking = bookedApps[i];
             const d = new Date(booking.d);
             if (booking.nr > 0) {
                 labels.push({
@@ -102,27 +104,8 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
     }, [scheduleData]);
 
-    if (isLoading) {
-
-        return (
-            <>
-                <div style={{ width:'100vw', height:'80vh', textAlign:'center'}}>
-                        <h3>Loading...</h3>
-                </div>
-            </>
-        )
-    }
-    if (isError) {
-
-        return (
-            <>
-                <h5>Failed To fetch data</h5>
-            </>
-        )
-    }
-
     return (
-        <Box sx={{ my:4 } }>
+        <Box sx={{ my: 4, height: isLoading?'500px':'100%' }}>
 
  
 
@@ -133,8 +116,8 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
                     controls={['calendar', 'timegrid']}
                     min={min}
                     max={max}
-                    minTime="08:00"
-                    maxTime="19:59"
+                    minTime={scheduleData?.doctorWorkingHours.startTime ?? "08:00"}
+                    maxTime={scheduleData?.doctorWorkingHours.endTime ?? "18:00"}
                     stepMinute={selectedService?.duration || 15}
                     width={null}
                     labels={datetimeLabels}

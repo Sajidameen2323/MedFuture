@@ -21,12 +21,17 @@ namespace MedFuture.Server.Controllers
 
         private readonly ILogger<AppointmentController> _logger;
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IDoctorRepository _doctorRepository;
+        private readonly IServiceRepository _serviceRepository;
+
         private readonly IUserService _userService;
 
-        public AppointmentController(ILogger<AppointmentController> logger, IAppointmentRepository appointmentRepository, IUserService userService)
+        public AppointmentController(ILogger<AppointmentController> logger, IAppointmentRepository appointmentRepository, IDoctorRepository doctorRepository , IServiceRepository serviceRepository ,IUserService userService)
         {
             _logger = logger;
             _appointmentRepository = appointmentRepository;
+            _doctorRepository = doctorRepository;
+            _serviceRepository = serviceRepository;
             _userService = userService;
         }
 
@@ -74,13 +79,13 @@ namespace MedFuture.Server.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex.Message);
                 return BadRequest(new { error=true, message = "Something Went Wrong" });
             }
         }
 
         [HttpGet("get-appointment-schedule")]
-        public async Task<IActionResult> GetAppointmentSchedule(int docId)
+        public async Task<IActionResult> GetAppointmentSchedule(int docId, int serviceId)
         {
 
             try
@@ -90,15 +95,50 @@ namespace MedFuture.Server.Controllers
                 Console.WriteLine("Appointments Count : ");
                 Console.WriteLine(appointments.Count());
 
-                DateTime startTime = DateTime.Parse("09:00 AM");
-                DateTime endTime = DateTime.Parse("05:00 PM");
+                DoctorM? doc = await _doctorRepository.GetDoctorByIdAsync(docId);
+                ServiceM service = await _serviceRepository.GetService(serviceId);
 
+
+                if(doc == null)
+                {
+                    return BadRequest(new { error = "Invalid Doctor Selection" });
+                }
+
+                if (service == null)
+                {
+                    return BadRequest(new { error = "Invalid Service Selection" });
+                }
+
+                var doctorWorkingSchedules = await _appointmentRepository.GetNotWorkingDaysForDoctor(docId);
+
+                var doctorWorkingHours = doc.WorkingHours;
+
+                var invalidWeeklyDaysString = "";
+
+                foreach(DoctorWorkDayScheduleM doctorWorkDaySchedule in doctorWorkingSchedules) {
+
+                    Console.WriteLine(GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek) +" - "+ doctorWorkDaySchedule.IsWorkingDay);
+
+                    invalidWeeklyDaysString += GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek);
+
+
+                }
+
+                // Define start and end working hours for doctor
+                TimeSpan? nullableStartTime = doctorWorkingHours.StartTime;
+                TimeSpan startTime = nullableStartTime ?? TimeSpan.Parse("09:00 AM");
+
+                TimeSpan? nullableEndTime = doctorWorkingHours.EndTime;
+                TimeSpan endTime = nullableEndTime ?? TimeSpan.Parse("05:00 PM");
+
+
+                int? nullableDuration = service.Duration;
                 // Define slot duration
-                TimeSpan slotDuration = TimeSpan.FromMinutes(30);
+                TimeSpan slotDuration = TimeSpan.FromMinutes(nullableDuration ?? 30);
 
                 // Calculate the number of slots
                 int totalSlots = 0;
-                DateTime currentTime = startTime;
+                TimeSpan currentTime = startTime;
                 while (currentTime < endTime)
                 {
                     totalSlots++;
@@ -119,7 +159,9 @@ namespace MedFuture.Server.Controllers
                     })
                     .ToList();
 
-                return Ok(groupedAppointments);
+                var weeklyInvalid = new { repeat = "weekly", weekDays= invalidWeeklyDaysString };
+
+                return Ok(new { groupedAppointments, weeklyInvalid, doctorWorkingHours = new { doctorWorkingHours.StartTime, doctorWorkingHours.EndTime } });
             }
             catch (Exception ex)
             {
@@ -127,6 +169,29 @@ namespace MedFuture.Server.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+        private static string GetTwoLetterDayOfWeekCode(DayOfWeek dayOfWeek)
+        {
+            switch (dayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    return "SU";
+                case DayOfWeek.Monday:
+                    return "MO";
+                case DayOfWeek.Tuesday:
+                    return "TU";
+                case DayOfWeek.Wednesday:
+                    return "WE";
+                case DayOfWeek.Thursday:
+                    return "TH";
+                case DayOfWeek.Friday:
+                    return "FR";
+                case DayOfWeek.Saturday:
+                    return "SA";
+                default:
+                    return "";
+            }
         }
 
 

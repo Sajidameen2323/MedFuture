@@ -105,8 +105,8 @@ const AddDoctor = () => {
                             });
                             if (response.ok) {
 
-                                const { data, message } = await response.json()
-                                console.log(data)
+                                const {  message } = await response.json()
+                                //console.log(data)
                                 console.log(message)
                                 setFormMessage({ success: true, message })
                                 resetForm();

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Numerics;
 
 namespace MedFuture.Server.Models
 {
@@ -10,9 +11,9 @@ namespace MedFuture.Server.Models
         public int DoctorID { get; set; }
 
         [Required]
-        [ForeignKey("UserM")]
         public int UserID { get; set; }
 
+        [ForeignKey("UserID")]
         public UserM User { get; set; } // Navigation property for the relationship
 
         [DataType(DataType.Date)]
@@ -31,8 +32,45 @@ namespace MedFuture.Server.Models
         // Navigation property for the relationship with Doctor
         //  public ICollection<DoctorServiceM> DoctorServices { get; set; }
 
+        public ICollection<DoctorWorkDayScheduleM> WorkDaySchedule { get; set; }
+
+        public DoctorWorkingHours? WorkingHours { get; set; }
 
         public bool IsDeleted { get; set; } = false;
-
+        
     }
+
+    [Table("DoctorWorkDaySchedule")]
+    public class DoctorWorkDayScheduleM
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; }
+
+
+        public int DoctorId { get; set; }
+
+        public DayOfWeek DayOfWeek { get; set; }
+
+        public bool IsWorkingDay { get; set; }
+
+        [ForeignKey("DoctorId")]
+        public DoctorM Doctor { get; set; }
+    }
+
+    [Table("DoctorWorkingHours")]
+    public class DoctorWorkingHours
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        public int DoctorId { get; set; }
+
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+
+
+        [ForeignKey("DoctorId")]
+        public DoctorM Doctor { get; set; }
+    }
+
 }

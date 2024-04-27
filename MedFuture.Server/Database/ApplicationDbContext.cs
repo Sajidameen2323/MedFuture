@@ -1,5 +1,6 @@
 ﻿using MedFuture.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 
 namespace MedFuture.Server.Database
 {
@@ -64,6 +65,27 @@ namespace MedFuture.Server.Database
             modelBuilder.Entity<DoctorM>()
                 .HasOne(d => d.User);
 
+            modelBuilder.Entity<DoctorM>()
+                            .HasMany(d => d.WorkDaySchedule)
+                            .WithOne(s => s.Doctor)
+                            .HasForeignKey(s => s.DoctorId)
+                            .OnDelete(DeleteBehavior.Cascade);
+
+            //Model building for doctorWorkingSchedule table
+
+            modelBuilder.Entity<DoctorWorkDayScheduleM>()
+                .HasKey(ws => new {ws.DoctorId, ws.DayOfWeek});
+
+            modelBuilder.Entity<DoctorWorkDayScheduleM>()
+                .Property(s => s.IsWorkingDay)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<DoctorWorkingHours>()
+                 .HasOne(wh => wh.Doctor)
+                 .WithOne(d => d.WorkingHours)
+                 .HasForeignKey<DoctorWorkingHours>(wh => wh.DoctorId)
+                 .OnDelete(DeleteBehavior.Cascade)
+                 .IsRequired();
 
             //Model building for services table
 
@@ -108,6 +130,25 @@ namespace MedFuture.Server.Database
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+
+            var newDoctors = ChangeTracker.Entries<DoctorM>()
+                .Where(e => e.State == EntityState.Added);
+
+            foreach (var doctorEntry in newDoctors)
+            {
+                var doctor = doctorEntry.Entity;
+                doctor.WorkDaySchedule = Enumerable.Range(0, 7)
+                    .Select(i => new DoctorWorkDayScheduleM
+                    {
+                        DoctorId = doctor.DoctorID,
+                        DayOfWeek = (DayOfWeek)i,
+                        IsWorkingDay = true // Adjust as needed
+                    })
+                    .ToList();
+
+                doctor.WorkingHours = new DoctorWorkingHours { DoctorId = doctor.DoctorID, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(17, 0, 0) };
+            }
+
             // Iterate through entities marked for deletion
             foreach (var entry in ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Deleted))
@@ -124,7 +165,11 @@ namespace MedFuture.Server.Database
 
         public DbSet<UserM> Users { get; set; }
         public DbSet<PatientM> Patients { get; set; }
+
         public DbSet<DoctorM> Doctors { get; set; }
+        public DbSet<DoctorWorkDayScheduleM> DoctorWorkDaySchedules { get; set; }
+        public DbSet<DoctorWorkingHours> DoctorWorkingHours { get; set; }
+
         public DbSet<DoctorQualificationM> DoctorQualifications { get; set;}
         public DbSet<DoctorSpecialtyM> DoctorSpecialties { get; set; }
         public DbSet<ServiceM> Services { get; set; }

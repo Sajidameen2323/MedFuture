@@ -21,13 +21,13 @@ namespace MedFuture.Server.Database.Repositories
             var today = DateOnly.FromDateTime(DateTime.Now);
 
             // Calculate start date (today + 7 days)
-            var startDate = today.AddDays(7);
+            var startDate = today.AddDays(3);
 
             // Calculate end date (today + 14 days)
-            var endDate = today.AddDays(28);
+            var endDate = today.AddDays(30);
 
             var appointments = _context.Appointments
-                .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate && a.DoctorId == docId );
+                .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate && a.DoctorId == docId ).IgnoreQueryFilters();
 
             return appointments;
         }
@@ -55,7 +55,8 @@ namespace MedFuture.Server.Database.Repositories
             var appointments = _context.Appointments.Where(a => a.AppointmentDate >= DateOnly.FromDateTime(startDate) && a.AppointmentDate <= DateOnly.FromDateTime(endDate))
                                        .Include(a => a.Doctor.User)
                                        .Include(a => a.Patient.User)
-                                       .Include(a => a.Service);
+                                       .Include(a => a.Service)
+                                       .IgnoreQueryFilters();
 
             return appointments;
         }
@@ -102,6 +103,14 @@ namespace MedFuture.Server.Database.Repositories
 
             // Save changes in a single database operation for efficiency
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<DoctorWorkDayScheduleM>> GetNotWorkingDaysForDoctor(int docId)
+        {
+            var workingSchedule = _context.DoctorWorkDaySchedules.Where(ws => ws.DoctorId == docId && !ws.IsWorkingDay);
+
+            return workingSchedule;
+
         }
 
     }

@@ -168,6 +168,55 @@ namespace MedFuture.Server.Migrations
                     b.ToTable("DoctorSpecialties");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorWorkDayScheduleM", b =>
+                {
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("IsWorkingDay")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.HasKey("DoctorId", "DayOfWeek");
+
+                    b.ToTable("DoctorWorkDaySchedule");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorWorkingHours", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId")
+                        .IsUnique();
+
+                    b.ToTable("DoctorWorkingHours");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
                 {
                     b.Property<int>("PatientID")
@@ -361,6 +410,28 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Doctor");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorWorkDayScheduleM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
+                        .WithMany("WorkDaySchedule")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorWorkingHours", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
+                        .WithOne("WorkingHours")
+                        .HasForeignKey("MedFuture.Server.Models.DoctorWorkingHours", "DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.UserM", "User")
@@ -377,6 +448,10 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Qualifications");
 
                     b.Navigation("Specialties");
+
+                    b.Navigation("WorkDaySchedule");
+
+                    b.Navigation("WorkingHours");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>

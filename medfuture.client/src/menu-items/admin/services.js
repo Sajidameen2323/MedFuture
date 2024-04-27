@@ -20,7 +20,7 @@ const pages = {
       id: 'service_add',
       title: 'Manage Services',
       type: 'item',
-          url: '/account/add-service',
+          url: '/dashboard/add-service',
           icon: icons.MedicalServicesIcon,
       target: false  
       },
@@ -28,7 +28,7 @@ const pages = {
           id: 'service_edit',
           title: 'Edit Service',
           type: 'item',
-          url: '/account/edit-service',
+          url: '/dashboard/edit-service',
           icon: icons.MedicalServicesIcon,
           target: false,
           hidden: true
@@ -37,7 +37,7 @@ const pages = {
       id: 'service_list',
       title: 'List Services',
       type: 'item',
-        url: '/account/services',
+        url: '/dashboard/services',
         icon: icons.UnorderedListOutlined,
       target: false
     }

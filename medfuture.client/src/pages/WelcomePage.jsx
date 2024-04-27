@@ -121,8 +121,8 @@ const WelcomePage = () => {
                             </Link>
                         </Grid>}
                         {currentUser && <Grid item xs={12}>
-                            <Link component={RouterLink} to="/account" variant="body2" sx={{ ml: 2 }}>
-                                Account
+                            <Link component={RouterLink} to="/dashboard" variant="body2" sx={{ ml: 2 }}>
+                                Dashboard
                             </Link>
                             <Link component={Button} onClick={logout } variant="body2" sx={{ ml: 2 }}>
                                 Logout

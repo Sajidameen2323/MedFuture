@@ -1,14 +1,13 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { Button, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
+import { Button, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Input, Container, IconButton } from '@mui/material';
 
-
+import { Empty } from 'antd';
 
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -20,20 +19,9 @@ import { useState, useContext } from 'react';
 import avatar1 from 'assets/images/users/avatar-1.png';
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
+import { Descriptions } from 'antd';
 
-
-
-//const rows = [
-//    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-//    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42, email:'admin123@gmail.com' },
-//    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-//    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-//    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-//    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-//    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-//    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-//    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-//];
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function DataTable() {
 
@@ -106,19 +94,25 @@ export default function DataTable() {
                 <GridActionsCellItem
                     icon={<VisibilityIcon />}
                     label="View"
-                    onClick={() => { }}
+                    onClick={() => {
+
+                        if (data) {
+                            let doc = data.filter((el) => el?.doctorID === params.row.id)[0]
+
+                            console.log(doc)
+                            setSelectedDoctor(doc)
+                        }
+
+
+
+                    }}
                 />
                 ,
-                <GridActionsCellItem
-                    icon={<DeleteIcon />}
-                    label="Delete"
-                    onClick={() => handleDeleteOpen(params.row.id)}
-                    showInMenu
-                />,
+
                 <GridActionsCellItem
                     icon={<SecurityIcon />}
-                    label="Toggle Status"
-                    onClick={() => { }}
+                    label={ params.row?.status == "Active" ? "Disable": "Activate" }
+                    onClick={() => { () => handleDeleteOpen(params.row.id) }}
                     showInMenu
                 />,
 
@@ -156,6 +150,10 @@ export default function DataTable() {
 
 
     const [rows, setRows] = useState([]);
+
+
+    const [selectedDoctor, setSelectedDoctor] = useState(null);
+
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
     const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
     const { idToken } = useContext(FirebaseAuthContext);
@@ -185,7 +183,7 @@ export default function DataTable() {
             let tempArr = [];
             data.forEach((el) => {
 
-                tempArr.push({ id: el?.doctorID, firstName: el?.user?.firstName, lastName: el?.user?.lastName, age: el?.dob, email: el?.user?.email, status: 'active', firebaseId: el?.user?.firebaseID })
+                tempArr.push({ id: el?.doctorID, firstName: el?.user?.firstName, lastName: el?.user?.lastName, age: el?.dob, email: el?.user?.email, status: el?.user.isDeleted ? "Disabled" : "Active", firebaseId: el?.user?.firebaseID })
 
             })
             console.log(data)
@@ -222,10 +220,15 @@ export default function DataTable() {
     }
 
     return (
-        <div style={{ height: '100%', width: '1100px', overflow:'hidden' }}>
+        <Container maxWidth="lg" sx={{ width: { md: '1100px' } }}>
+
+            {selectedDoctor && <DetailView selectedDoctor={selectedDoctor} setSelectedDoctor={setSelectedDoctor} />}
+
             <DataGrid
+                sx={{ height: rows.length == 0 ? '300px' : '100%' }}
                 slots={{
-                    noRowsOverlay: ()=> <h5>No Data</h5>,
+                    noRowsOverlay: Empty,
+
                 }}
                 rows={rows}
                 columns={columns}
@@ -248,23 +251,107 @@ export default function DataTable() {
                 onClose={handleDeleteClose}
                 onDeleteConfirm={handleDeleteConfirm}
             />
-        </div>
+        </Container>
     );
 }
 
 function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {
+
+    const [confirmDeleteText, setConfirmDeleteText] = useState("");
+
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Confirm Doctor Deletion</DialogTitle>
             <DialogContent>
                 <Typography variant="body2">Are you sure you want to delete this doctor?</Typography>
+                <Input
+                    value={confirmDeleteText}
+                    onChange={(e) => setConfirmDeleteText(e.target.value)}
+                    placeholder="Type 'delete' to confirm"
+
+                />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={onDeleteConfirm}>
+                <Button onClick={() => {
+                    setConfirmDeleteText("")
+                    onClose()
+                }}>Cancel</Button>
+                <Button variant="contained" disabled={confirmDeleteText !== "delete"} color="error" onClick={() => {
+                    setConfirmDeleteText("")
+                    onDeleteConfirm()
+                }}>
                     Delete
                 </Button>
             </DialogActions>
         </Dialog>
     );
+}
+function DetailView({ selectedDoctor, setSelectedDoctor }) {
+
+    const items = [
+        {
+            key: '1',
+            label: 'Doctor Name',
+            children: selectedDoctor?.user?.firstName + " " + selectedDoctor?.user?.lastName,
+        },
+        {
+            key: '2',
+            label: 'Email',
+            span: 1,
+            children: selectedDoctor?.user?.email ?? "N/A",
+        },
+        {
+            key: '3',
+            label: 'Phone',
+            span: 1,
+            children: selectedDoctor?.phoneNumber ?? "N/A",
+        },
+        {
+            key: '4',
+            label: 'Gender',
+            span: 1,
+            children: selectedDoctor?.gender ?? "N/A",
+        },
+        {
+            key: '5',
+            label: 'Working Hours',
+            span: 1,
+            children: formatTime(selectedDoctor?.workingHours.startTime) + " - " + formatTime(selectedDoctor?.workingHours.endTime),
+        },
+        {
+            key: '6',
+            label: 'Account Status',
+            children: selectedDoctor?.user.isDeleted ? "Disabled" : "Active",
+        },
+
+    ];
+
+    return (
+        <>
+           
+            <Descriptions title="Doctor Info" layout="vertical" items={items}
+                extra={
+                    <IconButton aria-label="delete" size="medium" onClick={() => { setSelectedDoctor(null) }} >
+                        <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                }
+            />
+        </>
+    )
+
+}
+
+function formatTime(time) {
+    try {
+        let hours = parseInt(time.slice(0, 2));
+        let minutes = time.slice(3, 5);
+        let ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // Convert to 12-hour format (adjust for noon)
+
+        return `${hours}:${minutes} ${ampm}`;
+    }
+    catch {
+
+        return ""
+    }
 }

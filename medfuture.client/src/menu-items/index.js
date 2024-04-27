@@ -15,19 +15,19 @@ import DoctorAppointmentGroup from './doctor/appointment';
 
 
 const items = {
-    items: [adminDashboard, services, manageDoctors, utilities, support, doctorDashboard, manageAppointments, DoctorAppointmentGroup]
+    items: [adminDashboard, services, manageDoctors, doctorDashboard, manageAppointments, DoctorAppointmentGroup]
 };
 
 const getMenuItems = (role) => {
 
     if (role === "Admin") {
         return {
-            items: [adminDashboard, services, manageDoctors, manageAppointments, utilities, support]
+            items: [adminDashboard, services, manageDoctors, manageAppointments]
         };
     }
     else if (role === "Doctor") {
         return {
-            items: [support, doctorDashboard]
+            items: [ doctorDashboard]
         }
     }
     else {

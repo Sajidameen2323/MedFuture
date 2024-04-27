@@ -47,7 +47,7 @@ const AddServiceForm = () => {
         charge:0
     };
 
-    const durations = [{ id: 1, value: 15 }, { id: 2, value: 30 }, { id:3, value: 45 } ]
+    const durations = [{ id: 1, value: 5 }, { id:2, value: 10 }, { id: 3, value: 15 }, { id: 4, value: 30 }, { id:5, value: 45 } ]
 
     const validationSchema = Yup.object().shape({
         serviceName: Yup.string().required('Service name is required'),

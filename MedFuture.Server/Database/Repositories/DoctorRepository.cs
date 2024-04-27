@@ -32,12 +32,12 @@ namespace MedFuture.Server.Database.Repositories
 
         public async Task<IEnumerable<DoctorM>> GetAllDoctorsAsync()
         {
-            return await _context.Set<DoctorM>().Include(d => d.User).ToListAsync();
+            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).ToListAsync();
         }
 
         public async Task<DoctorM?> GetDoctorByIdAsync(int id)
         {
-            return await _context.Set<DoctorM>().Include(d => d.User).FirstOrDefaultAsync(d => d.DoctorID == id);
+            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).FirstOrDefaultAsync(d => d.DoctorID == id);
         }
 
         public async Task UpdateDoctorAsync(DoctorM doctor)
