@@ -6,6 +6,8 @@ using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using MedFuture.Server.DataTransferObjects.Docotor;
+using Microsoft.EntityFrameworkCore;
 
 namespace MedFuture.Server.Controllers
 {
@@ -97,5 +99,65 @@ namespace MedFuture.Server.Controllers
             }
         }
 
+        [Authorize("AdminOnlyPolicy")]
+        [HttpGet("doctors/workdayschedule")]
+        public async Task<IActionResult> GetDoctorWorkDaySchedule()
+        {
+
+            IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
+
+            var formatted = docList.Select(d =>
+            {
+                var doctorId = d.DoctorID;
+                var name = d.User?.FirstName + " " + d.User?.LastName; // Use null-conditional operator
+
+                // Handle null WorkDaySchedule
+                var workSchedule = d.WorkDaySchedule?.Select(s => new
+                {
+                    dayOfWeek = s.DayOfWeek,
+                    isWorkingDay = s.IsWorkingDay
+                });
+
+                // Handle null workingHours
+                var workingHours = d.WorkingHours != null ? new
+                {
+                    StartTime = d.WorkingHours.StartTime,
+                    EndTime = d.WorkingHours.EndTime
+                } : new
+                {
+                    StartTime = new TimeSpan(9, 0, 0), // 9 AM
+                    EndTime = new TimeSpan(17, 0, 0)  // 5 PM
+                };
+
+                return new
+                {
+                    DoctorId = doctorId,
+                    Name = name,
+                    WorkSchedule = workSchedule,
+                    WorkingHours = workingHours
+                };
+            });
+
+            return Ok(new { result = formatted });
+        }
+
+        [Authorize("AdminOnlyPolicy")]
+        [HttpPost("doctors/update/workdayschedule")]
+        public async Task<IActionResult> UpdateDoctorWorkDaySchedule(DoctorWorkDayScheduleupdateDto workDayScheduleDto)
+        {
+            try
+            {
+                await _doctorRepository.UpdateDoctorWorkDaySchedule(workDayScheduleDto);
+                await _doctorRepository.UpdateDoctorWorkHours(workDayScheduleDto);
+
+                return Ok(new { message="Successfully Updated" });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new {message=ex.Message });
+            }
+        }
+
     }
+
 }

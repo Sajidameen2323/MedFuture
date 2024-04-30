@@ -10,6 +10,8 @@ import Logo from 'components/Logo';
 import { useQueryClient } from 'react-query';
 import { FirebaseAuthContext } from "context/FirebaseAuthProvider";
 import { Link as RouterLink } from 'react-router-dom';
+import AnimateButton from 'components/@extended/AnimateButton';
+import { Button as AntButton } from 'antd';
 
 const steps = ['Service', 'Doctor', 'Date & Time', 'Success'];
 
@@ -24,6 +26,8 @@ const AppointmentStepper = () => {
     const [selectedDoctor, setSelectedDoctor] = useState('');
     const [selectedDateTime, setSelectedDateTime] = useState('');
     const [appointmentDetails, setAppointmentDetails] = useState(null);
+
+    const [processing, setProcessing] = useState(false);
 
     const handleNext = () => {
 
@@ -51,6 +55,7 @@ const AppointmentStepper = () => {
     const handleFinish = async() => {
 
         setFormError(null);
+        setProcessing(true);
         console.log("Booking Appointment!");
         console.log(selectedDateTime);
         const jsonData = {
@@ -84,10 +89,15 @@ const AppointmentStepper = () => {
                 queryClient.invalidateQueries('appointmentScheduleApi');
                 setActiveStep((prevStep) => prevStep + 1);
             }
+            else if (response.status === 403) {
+                console.log("Not Authorized for This Role");
+                setFormError("Not Authorized for This Role");
+            }
             else {
                 const { error, message } = await response.json()
                 if (error) {
                     console.log(message)
+                    setFormError(error)
                 }
                
             }
@@ -97,7 +107,7 @@ const AppointmentStepper = () => {
 
         }
 
-
+        setProcessing(false);
 
     };
 
@@ -110,7 +120,7 @@ const AppointmentStepper = () => {
             <Box display="flex" justifyContent="center" alignItems="center" p={2}>
                 <Logo to="/" />
             </Box>
-        <Box sx={{
+            <Box sx={{
                 display: 'flex', flexDirection: 'column', justifyContent: 'center', width: {md:'80vw'}, mx: { md: '10px' } }}>
             <Stepper activeStep={activeStep} alternativeLabel>
                 {steps.map((label) => (
@@ -134,11 +144,11 @@ const AppointmentStepper = () => {
                     {formError}
                 </Typography> }
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
 
-                    {activeStep <= steps.length - 2 && <Button disabled={activeStep === 0} onClick={handleBack}>
+                    {activeStep <= steps.length - 2 && <AnimateButton> <Button disabled={activeStep === 0} onClick={handleBack}>
                         Back
-                    </Button>}
+                    </Button>     </AnimateButton>}
 
                     {activeStep == steps.length - 1 && 
                         <Box sx={{ display: 'flex', justifyContent: 'center', width: { sm: '90%', md: '50%' } } } >
@@ -150,13 +160,15 @@ const AppointmentStepper = () => {
                     
                     }
 
-                    {activeStep === steps.length - 2 && <Button variant="contained" color="primary" onClick={handleFinish}>
+                    {activeStep === steps.length - 2 && <AnimateButton> <AntButton type="primary" loading={processing} onClick={handleFinish}>
                         Finish
-                    </Button>}
+                    </AntButton></AnimateButton>}
 
-                    {activeStep < steps.length - 2 && <Button variant="contained" color="primary" onClick={handleNext}>
+                    {activeStep < steps.length - 2 && <AnimateButton> <Button variant="contained" color="primary" onClick={handleNext}>
                       Next
-                    </Button>}
+                    </Button>
+                        </AnimateButton>
+                      }
 
             </Box>
 

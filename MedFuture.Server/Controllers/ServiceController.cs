@@ -3,6 +3,7 @@ using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.DataTransferObjects.Service;
 using MedFuture.Server.Models;
 using MedFuture.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +69,8 @@ namespace MedFuture.Server.Controllers
             }
 
         }
+
+        [Authorize("AdminOnlyPolicy")]
         [HttpPost("add-service")]
         public async Task<IActionResult> AddService(ServiceDto serviceDto)
         {
@@ -84,6 +87,7 @@ namespace MedFuture.Server.Controllers
 
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpPost("update-service")]
         public async Task<IActionResult> UpdateService(ServiceDto serviceDto)
         {
@@ -100,6 +104,7 @@ namespace MedFuture.Server.Controllers
 
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpPost("add-doctor-to-service")]
         public async Task<IActionResult> AddDoctorToService(AddDoctorToServiceDto addDoctorToService)
         {
@@ -120,6 +125,7 @@ namespace MedFuture.Server.Controllers
 
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpDelete("service-delete/{id}")]
         public async Task<IActionResult> DeleteService(int id)
         {
@@ -136,6 +142,7 @@ namespace MedFuture.Server.Controllers
 
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpDelete("remove-doctor-from-service/{id}")]
         public async Task<IActionResult> RemoveDoctorFromService(int id)
         {

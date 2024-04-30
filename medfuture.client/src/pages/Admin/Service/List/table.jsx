@@ -61,7 +61,7 @@ function Row(props) {
                 <TableCell align="right">{row.fee}</TableCell>
                 <TableCell>
                     <Stack direction="row" spacing={1}>
-                        <IconButton aria-label="edit" color="secondary" onClick={() => { navigate('/account/edit-service', { state: { serviceId: row.id } }) }} >
+                        <IconButton aria-label="edit" color="secondary" onClick={() => { navigate('/dashboard/edit-service', { state: { serviceId: row.id } }) }} >
                             <EditIcon />
                         </IconButton>
                         <IconButton aria-label="delete" color="error" onClick={() => props.handleDeleteOpen(row.id)} >

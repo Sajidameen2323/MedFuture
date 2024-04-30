@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import { DatePicker, Space, Segmented, ConfigProvider } from 'antd';
+import { DatePicker, Space, Segmented, ConfigProvider, Button } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 
 
 import dayjs from 'dayjs';
@@ -33,6 +34,9 @@ function Toolbar({ props }) {
 
   return (
       <Space direction="horizontal" size={12}>
+          <Button onClick={() => { props?.setPrevDateRange(null) } } type="text" icon={<ReloadOutlined />}>
+              Refresh
+          </Button>
           <RangePicker 
               defaultValue={[dayjs(), dayjs().add(7, 'd')]}
               format={dateFormat}

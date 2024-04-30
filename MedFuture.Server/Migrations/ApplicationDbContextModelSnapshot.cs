@@ -62,6 +62,41 @@ namespace MedFuture.Server.Migrations
                     b.ToTable("Appointments");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.AppointmentSettingsM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingPeriodInDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumTimeBeforeBookingInDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumTimeBeforeCancelingInDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumTimeBeforeReschedulingInDays")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("appointmentSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BookingPeriodInDays = 30,
+                            MinimumTimeBeforeBookingInDays = 3,
+                            MinimumTimeBeforeCancelingInDays = 3,
+                            MinimumTimeBeforeReschedulingInDays = 3
+                        });
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
                 {
                     b.Property<int>("DoctorID")

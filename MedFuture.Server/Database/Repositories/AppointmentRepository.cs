@@ -14,17 +14,23 @@ namespace MedFuture.Server.Database.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<AppointmentM>> GetAppointmentsForNextTwoWeeks(int docId)
+        public async Task<IEnumerable<AppointmentM>> GetAppointmentsForNextSchedule(int docId)
         {
 
+            AppointmentSettingsM? appointmentSettings = await _context.AppointmentSettings.SingleOrDefaultAsync();
             // Get today's date
             var today = DateOnly.FromDateTime(DateTime.Now);
 
+            int minDaysBeforeBooking = appointmentSettings?.MinimumTimeBeforeBookingInDays ?? 3;
+            int maxDaysForBooking = appointmentSettings?.BookingPeriodInDays ?? 30;
+
+            Console.WriteLine("Appointment min and max days - " + minDaysBeforeBooking + " , " + maxDaysForBooking);
+
             // Calculate start date (today + 7 days)
-            var startDate = today.AddDays(3);
+            var startDate = today.AddDays(minDaysBeforeBooking);
 
             // Calculate end date (today + 14 days)
-            var endDate = today.AddDays(30);
+            var endDate = today.AddDays(maxDaysForBooking);
 
             var appointments = _context.Appointments
                 .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate && a.DoctorId == docId ).IgnoreQueryFilters();
@@ -113,5 +119,39 @@ namespace MedFuture.Server.Database.Repositories
 
         }
 
+        public async Task<AppointmentSettingsM> GetAppointmentSettings()
+        {
+            AppointmentSettingsM? appointmentSettings = await _context.AppointmentSettings.SingleOrDefaultAsync();
+
+            if (appointmentSettings == null)
+            {
+                appointmentSettings = new AppointmentSettingsM() { 
+                    Id=0, BookingPeriodInDays = 30, MinimumTimeBeforeBookingInDays= 3,
+                MinimumTimeBeforeCancelingInDays = 3,
+                MinimumTimeBeforeReschedulingInDays = 3
+                };
+            }
+
+            return appointmentSettings;
+        }
+
+        public async Task UpdateAppointmentSettingsAsync(AppointmentSettingsM newAppointmentSettings)
+        {
+            var existingSettings = await _context.AppointmentSettings.SingleOrDefaultAsync();
+
+            if (existingSettings == null)
+            {
+                _context.AppointmentSettings.Add(newAppointmentSettings);
+            }
+            else
+            {
+                existingSettings.MinimumTimeBeforeBookingInDays = newAppointmentSettings.MinimumTimeBeforeBookingInDays;
+                existingSettings.MinimumTimeBeforeCancelingInDays = newAppointmentSettings.MinimumTimeBeforeCancelingInDays;
+                existingSettings.MinimumTimeBeforeReschedulingInDays = newAppointmentSettings.MinimumTimeBeforeReschedulingInDays;
+                existingSettings.BookingPeriodInDays = newAppointmentSettings.BookingPeriodInDays;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

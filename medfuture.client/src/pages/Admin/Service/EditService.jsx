@@ -129,7 +129,7 @@ const EditServiceForm = () => {
     return (
         <>
             <Box sx={{ my: 2, textAlign:'left' }}>
-                <Typography variant="subject2">Update Service - { serviceData.serviceID }</Typography> 
+                <Typography variant="h6" >Update Service ID - { serviceData.serviceID }</Typography> 
             </Box>
             <Box sx={{ my: 2 }}>
                 {formMessage && formMessage?.success && <Alert onClose={() => { setFormMessage({}) }} severity={formMessage?.success ? "success" : "error"}>{formMessage?.message}</Alert>}

@@ -6,6 +6,7 @@ using MedFuture.Server.Database;
 using MedFuture.Server.Models;
 using FirebaseAdmin;
 using MedFuture.Server.DataTransferObjects.Docotor;
+using MedFuture.Server.Database.Interfaces;
 
 namespace MedFuture.Server.Controllers
 {
@@ -16,12 +17,14 @@ namespace MedFuture.Server.Controllers
         private readonly ILogger<AdminController> _logger;
         private readonly ApplicationDbContext _dbcontext;
         private readonly IUserService _userService;
+        private readonly IDoctorRepository _doctorRepository;
 
-        public AdminController(ILogger<AdminController> logger, ApplicationDbContext dbcontext, IUserService userService)
+        public AdminController(ILogger<AdminController> logger, ApplicationDbContext dbcontext, IUserService userService, IDoctorRepository doctorRepository)
         {
             _logger = logger;
             _dbcontext = dbcontext;
             _userService = userService;
+            _doctorRepository = doctorRepository;
         }
 
         [Authorize("AdminOnlyPolicy")]
@@ -50,5 +53,8 @@ namespace MedFuture.Server.Controllers
             public string Message { get; set; }
             public T Data { get; set; }
         }
+
+
+
     }
 }

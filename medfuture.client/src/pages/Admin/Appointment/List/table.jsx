@@ -77,8 +77,7 @@ export default function DataTable({ props }) {
     const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
     const { idToken } = useContext(FirebaseAuthContext);
-    const { dateRange, statusFilter } = props;
-    const [prevDateRange, setPrevDateRange] = useState(null);
+    const { dateRange, statusFilter, prevDateRange, setPrevDateRange } = props;
 
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 

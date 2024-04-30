@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import Logo from 'components/Logo';
 import { Card, CardContent, Typography, Button, Box, CardActions } from '@mui/material';
 import moment from 'moment-timezone';
+import { useEffect } from 'react';
 
 
 // setup Mobiscroll Moment plugin
@@ -29,6 +30,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
     const { isLoading, isError, data: scheduleData, error } = useQuery(['appointmentScheduleApi', selectedDoctor.doctorID], () => getAppointmentSchedule(selectedDoctor.doctorID, selectedService.serviceID), {
         // Optional configuration options for useQuery
+        refetchOnWindowFocus: false,
         staleTime: 0, // Fetch data again if it's older than 0 seconds
         refetchInterval: 60 * 60 * 1000, // Refetch data every hour (optional)
         onError: (error) => {
@@ -38,26 +40,50 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
 
     const today = new Date();
-    const minDate = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
-    const maxDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const minDateObj = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const maxDateObj = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    minDate.setUTCHours(0, 0, 0, 0);
-    maxDate.setUTCHours(23, 0, 0, 0);
+    minDateObj.setUTCHours(0, 0, 0, 0);
+    maxDateObj.setUTCHours(23, 0, 0, 0);
 
 
-    const min = minDate.toISOString();
-    const max = maxDate.toISOString();
+    const min = minDateObj.toISOString();
+    const max = maxDateObj.toISOString();
+
+    const [minDate, setMinDate] = useState(min);
+    const [maxDate, setMaxDate] = useState(max);
 
     const [datetimeLabels, setDatetimeLabels] = useState([]);
     const [datetimeInvalid, setDatetimeInvalid] = useState([]);
  
+    useEffect(() => {
 
+        if (scheduleData && scheduleData?.settings) {
+            let num1 = scheduleData?.settings?.minimumTimeBeforeBookingInDays ?? 3;
+            let num2 = scheduleData?.settings?.bookingPeriodInDays ?? 30;
+
+            let today = new Date();
+            let minDateObj = new Date(today.getTime() + num1 * 24 * 60 * 60 * 1000);
+            let maxDateObj = new Date(today.getTime() + num2 * 24 * 60 * 60 * 1000);
+
+            minDateObj.setUTCHours(0, 0, 0, 0);
+            maxDateObj.setUTCHours(23, 0, 0, 0);
+
+            let min = minDateObj.toISOString();
+            let max = maxDateObj.toISOString();
+
+            setMinDate(min);
+            setMaxDate(max);
+
+            console.log("min max date set from db")
+        }
+
+        handlePageLoadingDatetime();
+
+    }, [scheduleData])
 
     const handlePageLoadingDatetime = useCallback((args) => {
 
-    
-
-        const ddd = args.firstDay;
         const invalid = [
 
             {
@@ -107,15 +133,13 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
     return (
         <Box sx={{ my: 4, height: isLoading?'500px':'100%' }}>
 
- 
-
                 <Datepicker
 
                 display="inline"
                 dateFormat="DD.MM.YYYY"
                     controls={['calendar', 'timegrid']}
-                    min={min}
-                    max={max}
+                    min={minDate}
+                    max={maxDate}
                     minTime={scheduleData?.doctorWorkingHours.startTime ?? "08:00"}
                     maxTime={scheduleData?.doctorWorkingHours.endTime ?? "18:00"}
                     stepMinute={selectedService?.duration || 15}
@@ -137,6 +161,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
                         setSelectedDateTime(formattedDate)
                         console.log(datetimeInvalid)
+                        console.log("min max dates - "+ minDate+" , "+ maxDate)
                 }}
 
                 />

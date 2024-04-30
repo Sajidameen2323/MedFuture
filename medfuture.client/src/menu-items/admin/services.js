@@ -31,7 +31,8 @@ const pages = {
           url: '/dashboard/edit-service',
           icon: icons.MedicalServicesIcon,
           target: false,
-          hidden: true
+          hidden: true,
+          breadcrumbs: false
       },
     {
       id: 'service_list',

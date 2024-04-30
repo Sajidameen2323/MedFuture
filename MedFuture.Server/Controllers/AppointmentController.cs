@@ -35,6 +35,42 @@ namespace MedFuture.Server.Controllers
             _userService = userService;
         }
 
+        [HttpGet("settings")]
+        public async Task<IActionResult> GetAppointmentSettings()
+        {
+            var settings = await _appointmentRepository.GetAppointmentSettings();
+
+            return Ok(settings);
+        }
+
+        [Authorize("AdminOnlyPolicy")]
+        [HttpPut("settings")]
+        public async Task<IActionResult> UpdateAppointmentSettings([FromBody] AppointmentSettingsDto settings)
+        {
+            try
+            {
+                Console.WriteLine("---------------------");
+                Console.WriteLine(settings.MinimumTimeBeforeBookingInDays);
+
+                AppointmentSettingsM newSettings = new AppointmentSettingsM()
+                {
+                    MinimumTimeBeforeBookingInDays = settings.MinimumTimeBeforeBookingInDays,
+                    MinimumTimeBeforeCancelingInDays = settings.MinimumTimeBeforeCancelingInDays,
+                    MinimumTimeBeforeReschedulingInDays = settings.MinimumTimeBeforeReschedulingInDays,
+                    BookingPeriodInDays = settings.BookingPeriodInDays
+                };
+
+                await _appointmentRepository.UpdateAppointmentSettingsAsync(newSettings);
+                return Ok(new { message = "Successfully Updated Settings!" });
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { message = "Something Went Wrong!" });
+
+            }
+        }
+
         [Authorize("PatientOnlyPolicy")]
         [HttpPost("create-appointment")]
         public async Task<IActionResult> CreateAppointment(CreateAppointmentDto createAppointmentDto)
@@ -90,7 +126,9 @@ namespace MedFuture.Server.Controllers
 
             try
             {
-                IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForNextTwoWeeks(docId);
+                IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForNextSchedule(docId);
+
+                AppointmentSettingsM appointmentSettings = await _appointmentRepository.GetAppointmentSettings();
 
                 Console.WriteLine("Appointments Count : ");
                 Console.WriteLine(appointments.Count());
@@ -119,10 +157,11 @@ namespace MedFuture.Server.Controllers
 
                     Console.WriteLine(GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek) +" - "+ doctorWorkDaySchedule.IsWorkingDay);
 
-                    invalidWeeklyDaysString += GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek);
+                    invalidWeeklyDaysString += GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek)+" ";
 
 
                 }
+                invalidWeeklyDaysString = string.Join(",", invalidWeeklyDaysString.Trim().Split(' '));
 
                 // Define start and end working hours for doctor
                 TimeSpan? nullableStartTime = doctorWorkingHours.StartTime;
@@ -161,7 +200,13 @@ namespace MedFuture.Server.Controllers
 
                 var weeklyInvalid = new { repeat = "weekly", weekDays= invalidWeeklyDaysString };
 
-                return Ok(new { groupedAppointments, weeklyInvalid, doctorWorkingHours = new { doctorWorkingHours.StartTime, doctorWorkingHours.EndTime } });
+                return Ok(new { 
+
+                    groupedAppointments, weeklyInvalid, 
+                    doctorWorkingHours = new { doctorWorkingHours.StartTime, doctorWorkingHours.EndTime },
+                    settings = appointmentSettings
+
+                });
             }
             catch (Exception ex)
             {
@@ -253,6 +298,7 @@ namespace MedFuture.Server.Controllers
             }
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpPut("update-status")]
         public async Task<IActionResult> BulkUpdateAppointmentStatus([FromBody] BulkUpdateRequest request)
         {

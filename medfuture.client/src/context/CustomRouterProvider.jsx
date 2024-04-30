@@ -66,6 +66,7 @@ function CustomRouterProvider() {
                     Component: ConsultationScreen
 
                 },
+
                 ...AdminRouteGenerator({adminOnlyLoader, protectedLoader})
             ]
         },

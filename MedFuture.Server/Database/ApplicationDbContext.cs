@@ -125,6 +125,15 @@ namespace MedFuture.Server.Database
             modelBuilder.Entity<AppointmentM>()
                 .HasOne<DoctorM>(a => a.Doctor);
 
+            modelBuilder.Entity<AppointmentSettingsM>()
+                .HasData(new AppointmentSettingsM {
+                    Id = 1,
+                    MinimumTimeBeforeBookingInDays = 3,
+                    MinimumTimeBeforeCancelingInDays = 3,
+                    MinimumTimeBeforeReschedulingInDays = 3,
+                    BookingPeriodInDays = 30
+                
+                });
 
         }
 
@@ -174,6 +183,8 @@ namespace MedFuture.Server.Database
         public DbSet<DoctorSpecialtyM> DoctorSpecialties { get; set; }
         public DbSet<ServiceM> Services { get; set; }
         public DbSet<DoctorServiceM> DoctorServices { get; set; }
+
         public DbSet<AppointmentM> Appointments { get; set; }
+        public DbSet<AppointmentSettingsM> AppointmentSettings { get; set; }
     }
 }

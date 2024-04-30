@@ -44,7 +44,7 @@ const SettingsComponent = () => {
                     <Typography variant="body2" color="textSecondary">
                         Use these settings to define plugin general settings and default settings for your appointments
                     </Typography>
-                    <Typography component={RouterLink} to="/kk" variant="button" sx={{ color: theme.palette.primary.main ?? 'black' }} >VIEW GENERAL SETTINGS</Typography>
+                    <Typography component={RouterLink} to="/dashboard/appointment-settings/general" variant="button" sx={{ color: theme.palette.primary.main ?? 'black' }} >VIEW GENERAL SETTINGS</Typography>
                 </SettingBox>
             <SettingBox>
                 <IconContainer>
@@ -56,7 +56,7 @@ const SettingsComponent = () => {
                 <Typography variant="body2" color="textSecondary">
                     Use these settings to set company working hours and days off which will be applied for every employee
                 </Typography>
-                    <Typography component={RouterLink } to="/kk" variant="button" sx={{ color: theme.palette.primary.main ?? 'black' } } >VIEW WORKING HOURS & DAYS OFF SETTINGS</Typography>
+                    <Typography component={RouterLink} to="/dashboard/appointment-settings/workschedule" variant="button" sx={{ color: theme.palette.primary.main ?? 'black' } } >VIEW WORKING HOURS & DAYS OFF SETTINGS</Typography>
             </SettingBox>
 
                 <SettingBox>

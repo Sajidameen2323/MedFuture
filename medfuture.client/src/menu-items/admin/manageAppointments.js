@@ -23,6 +23,7 @@ const pages = {
             url: '/dashboard/appointment-settings',
             icon: icons.SettingOutlined,
             target: false
+
         },
         {
             id: 'appointments_list',
@@ -31,7 +32,27 @@ const pages = {
             url: '/dashboard/appointments',
             icon: icons.UnorderedListOutlined,
             target: false
-        }
+        },
+        {
+            id: 'workschedule_settings',
+            title: 'Work Schedule Settings',
+            type: 'item',
+            url: '/dashboard/appointment-settings/workschedule',
+            icon: icons.MedicalServicesIcon,
+            target: false,
+            hidden: true,
+            breadcrumbs: false
+        },
+        {
+            id: 'general_settings',
+            title: 'General Settings',
+            type: 'item',
+            url: '/dashboard/appointment-settings/general',
+            icon: icons.MedicalServicesIcon,
+            target: false,
+            hidden: true,
+            breadcrumbs: false
+        },
     ]
 };
 
