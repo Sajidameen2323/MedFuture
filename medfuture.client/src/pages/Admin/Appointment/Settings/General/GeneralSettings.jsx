@@ -46,12 +46,12 @@ const GeneralSettings = () => {
         refetchOnWindowFocus: false, // Prevent refetching when the window regains focus
         onSuccess: (resData) => {
             console.log(resData);
-            //formik.setValues({
-            //    minimumTimeBeforeBookingInDays: data?.minimumTimeBeforeBookingInDays || 1,
-            //    minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
-            //    minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
-            //    bookingPeriodInDays: data?.bookingPeriodInDays || 30,
-            //});
+            formik.setvalues({
+                minimumtimebeforebookingindays: data?.minimumtimebeforebookingindays || 1,
+                minimumtimebeforecancelingindays: data?.minimumtimebeforecancelingindays || 1,
+                minimumtimebeforereschedulingindays: data?.minimumtimebeforereschedulingindays || 1,
+                bookingperiodindays: data?.bookingperiodindays || 30,
+            });
         }
     });
     const { mutate, isLoading: isMutating, isError: isUpdateError, error: updateError, reset: updateReset } = useMutation(updateAppointmentSettings, {

@@ -86,19 +86,18 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
         const invalid = [
 
-            {
-                recurring: {
-                    repeat: 'yearly',
-                    day: 23,
-                    month: 5
-                }
-            },
             //{
-            //    start: '2024-05-07',
-            //    end: '2024-05-10'
+            //    recurring: {
+            //        repeat: 'yearly',
+            //        day: 23,
+            //        month: 5
+            //    }
             //},
+  
         ];
         const labels = [];
+
+        let holidays = scheduleData?.holidays || [];
 
         let bookedApps = scheduleData?.groupedAppointments || [];
         let weeklyInvalids = scheduleData?.weeklyInvalid;
@@ -106,6 +105,19 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
             invalid.push({ recurring: weeklyInvalids })
         }
 
+        holidays.forEach((el) => {
+            let endDate = new Date(el?.endDate);
+            if (endDate) {
+                endDate.setHours(24);
+                endDate.setMinutes(0);
+            }
+            console.log(endDate);
+            invalid.push({
+                start: el?.startDate,
+                end: endDate
+            })
+
+        })
 
         for (let i = 0; i < bookedApps.length; i++)
         {

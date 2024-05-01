@@ -153,5 +153,45 @@ namespace MedFuture.Server.Database.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<HolidayM>> GetUpcomingHolidays()
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var holidays = await _context.Holidays.Where(h => (h.StartDate <= today && h.EndDate>= today ) || (h.StartDate>= today && h.EndDate > today) )
+                .ToListAsync();
+
+            return holidays;
+        }
+
+        public async Task AddHoliday(HolidayDto holiday)
+        {
+
+            HolidayM newHoliday = new HolidayM()
+            {
+                StartDate = DateOnly.FromDateTime(holiday.StartDate),
+                EndDate = DateOnly.FromDateTime(holiday.EndDate),
+                Name = holiday.Name
+            };
+
+            _context.Holidays.Add(newHoliday);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveHoliday(int id)
+        {
+            var holiday = _context.Holidays.Where(h=> h.Id == id).FirstOrDefault();
+
+            if (holiday == null) {
+
+                throw new ArgumentException("Invalid Holiday Id");
+            }
+            
+            _context.Holidays.Remove(holiday); 
+            
+            await _context.SaveChangesAsync();
+
+        }
     }
 }

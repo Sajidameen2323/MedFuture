@@ -15,6 +15,8 @@ const ListAppointments = Loadable(lazy(() => import("pages/Admin/Appointment/Lis
 const SettingsComponent = Loadable(lazy(() => import("pages/Admin/Appointment/Settings/index")));
 const DoctorSchedule = Loadable(lazy(() => import("pages/Admin/Appointment/Settings/DoctorWorkSchedule/DoctorWorkSchedule")));
 const GeneralSettings = Loadable(lazy(() => import("pages/Admin/Appointment/Settings/General/GeneralSettings")));
+const HolidaySettings = Loadable(lazy(() => import("pages/Admin/Appointment/Settings/DaysOff/HolidaySettings")));
+
 
 export default function GetAdminRoutes(props) {
 
@@ -72,6 +74,13 @@ export default function GetAdminRoutes(props) {
             path: 'appointment-settings/general',
             loader: props.adminOnlyLoader,
             Component: GeneralSettings
+
+        },
+        {
+            id: 'holiday_settings',
+            path: 'appointment-settings/holidays',
+            loader: props.adminOnlyLoader,
+            Component: HolidaySettings
 
         },
     ]

@@ -69,7 +69,7 @@ const SettingsComponent = () => {
                     <Typography variant="body2" color="textSecondary">
                         Use these settings to set company Holidays and days off which will be applied for all employee in the system.
                     </Typography>
-                    <Typography variant="button" sx={{ color: theme.palette.primary.main ?? 'black' }} >VIEW HOLIDAYS & DAYS OFF SETTINGS</Typography>
+                    <Typography component={RouterLink} to="/dashboard/appointment-settings/holidays" variant="button" sx={{ color: theme.palette.primary.main ?? 'black' }} >VIEW HOLIDAYS & DAYS OFF SETTINGS</Typography>
                 </SettingBox>
 
             </StyledBox>

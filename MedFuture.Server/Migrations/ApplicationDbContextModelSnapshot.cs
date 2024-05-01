@@ -84,7 +84,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("appointmentSettings");
+                    b.ToTable("AppointmentSettings");
 
                     b.HasData(
                         new
@@ -250,6 +250,29 @@ namespace MedFuture.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("DoctorWorkingHours");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.HolidayM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Holidays");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>

@@ -186,5 +186,6 @@ namespace MedFuture.Server.Database
 
         public DbSet<AppointmentM> Appointments { get; set; }
         public DbSet<AppointmentSettingsM> AppointmentSettings { get; set; }
+        public DbSet<HolidayM> Holidays { get; set; }
     }
 }

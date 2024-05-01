@@ -43,6 +43,50 @@ namespace MedFuture.Server.Controllers
             return Ok(settings);
         }
 
+        [HttpGet("holidays")]
+        public async Task<IActionResult> GetUpcomingHolidays()
+        {
+            var holidays = await _appointmentRepository.GetUpcomingHolidays();
+
+            return Ok(holidays);
+        }
+
+        [HttpPost("holidays")]
+        public async Task<IActionResult> AddHoliday(HolidayDto holiday)
+        {
+            try
+            {
+                await _appointmentRepository.AddHoliday(holiday);
+                return Ok(new { message = "Successfully Added Holiday!" });
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { message="Something Went Wrong!" });
+            }
+        }
+
+        [HttpDelete("holidays/{id}")]
+        public async Task<IActionResult> RemoveHoliday(int id)
+        {
+            try
+            {
+                await _appointmentRepository.RemoveHoliday(id);
+                return Ok(new { message = "Successfully Removed Holiday!" });
+            }
+            catch(ArgumentException aex)
+            {
+                Console.WriteLine(aex.Message);
+                return BadRequest(new { message = "Invalid Holiday Id" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { message = "Something Went Wrong!" });
+            }
+        }
+
+
         [Authorize("AdminOnlyPolicy")]
         [HttpPut("settings")]
         public async Task<IActionResult> UpdateAppointmentSettings([FromBody] AppointmentSettingsDto settings)
@@ -130,6 +174,8 @@ namespace MedFuture.Server.Controllers
 
                 AppointmentSettingsM appointmentSettings = await _appointmentRepository.GetAppointmentSettings();
 
+                IEnumerable<HolidayM> holidays = await _appointmentRepository.GetUpcomingHolidays();
+
                 Console.WriteLine("Appointments Count : ");
                 Console.WriteLine(appointments.Count());
 
@@ -204,7 +250,8 @@ namespace MedFuture.Server.Controllers
 
                     groupedAppointments, weeklyInvalid, 
                     doctorWorkingHours = new { doctorWorkingHours.StartTime, doctorWorkingHours.EndTime },
-                    settings = appointmentSettings
+                    settings = appointmentSettings,
+                    holidays
 
                 });
             }

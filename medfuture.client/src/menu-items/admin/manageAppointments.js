@@ -53,6 +53,16 @@ const pages = {
             hidden: true,
             breadcrumbs: false
         },
+        {
+            id: 'holiday_settings',
+            title: 'Holiday Settings',
+            type: 'item',
+            url: '/dashboard/appointment-settings/holidays',
+            icon: icons.MedicalServicesIcon,
+            target: false,
+            hidden: true,
+            breadcrumbs: false
+        },
     ]
 };
 
