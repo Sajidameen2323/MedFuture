@@ -5,6 +5,7 @@ import { InputLabel, OutlinedInput, FormHelperText, Box, Button, Typography, Sta
 import * as Yup from 'yup';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { useCallback } from 'react';
+import { useEffect } from 'react';
 
 const GeneralSettings = () => {
 
@@ -12,6 +13,8 @@ const GeneralSettings = () => {
     const queryClient = useQueryClient();
     const [successMessage, setSuccessMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
+
+
 
 
     const updateAppointmentSettings = useCallback(async (formData) => {
@@ -46,11 +49,11 @@ const GeneralSettings = () => {
         refetchOnWindowFocus: false, // Prevent refetching when the window regains focus
         onSuccess: (resData) => {
             console.log(resData);
-            formik.setvalues({
-                minimumtimebeforebookingindays: data?.minimumtimebeforebookingindays || 1,
-                minimumtimebeforecancelingindays: data?.minimumtimebeforecancelingindays || 1,
-                minimumtimebeforereschedulingindays: data?.minimumtimebeforereschedulingindays || 1,
-                bookingperiodindays: data?.bookingperiodindays || 30,
+            formik.setValues({
+                minimumTimeBeforeBookingInDays: data?.minimumTimeBeforeBookingInDays || 1,
+                minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
+                minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
+                bookingPeriodInDays: data?.bookingPeriodInDays || 30,
             });
         }
     });
@@ -87,9 +90,23 @@ const GeneralSettings = () => {
         validationSchema,
         onSubmit: (values) => {
             mutate(values);
-        
+
         },
     });
+
+
+    useEffect(() => {
+        console.log("effect running")
+        formik.setValues({
+            minimumTimeBeforeBookingInDays: data?.minimumTimeBeforeBookingInDays || 1,
+            minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
+            minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
+            bookingPeriodInDays: data?.bookingPeriodInDays || 30,
+        });
+
+    }, [data]);
+
+
 
     const handleCancel = () => {
         formik.resetForm({
@@ -111,7 +128,7 @@ const GeneralSettings = () => {
     }
 
     return (
-        <Box enableReinitialize={false} component="form" onSubmit={formik.handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: { xs: '100%', md: '600px' }, textAlign:'left' }}>
+        <Box component="form" onSubmit={formik.handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: { xs: '100%', md: '600px' }, textAlign:'left' }}>
             <Typography variant="h4">Appointment Booking Settings</Typography>
             <Typography variant="info" color="secondary" >Below Settings Are Measured In Days</Typography>
 

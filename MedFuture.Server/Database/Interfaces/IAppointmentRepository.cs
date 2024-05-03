@@ -17,6 +17,6 @@ namespace MedFuture.Server.Database.Interfaces
         Task<IEnumerable<HolidayM>> GetUpcomingHolidays();
         Task AddHoliday(HolidayDto holiday);
         Task RemoveHoliday(int id);
-
+        Task<IEnumerable<AppointmentM>> GetTodaysAppointmentsForDoctor(int docId);
     }
 }

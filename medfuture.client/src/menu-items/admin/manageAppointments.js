@@ -17,27 +17,28 @@ const pages = {
     type: 'group',
     children: [
         {
-            id: 'appointment_settings',
-            title: 'Configure Appointments',
-            type: 'item',
-            url: '/dashboard/appointment-settings',
-            icon: icons.SettingOutlined,
-            target: false
-
-        },
-        {
             id: 'appointments_list',
             title: 'List Appointments',
             type: 'item',
-            url: '/dashboard/appointments',
+            url: '/admin/appointments',
             icon: icons.UnorderedListOutlined,
             target: false
         },
         {
+            id: 'appointment_settings',
+            title: 'Configure Appointments',
+            type: 'item',
+            url: '/admin/appointment-settings',
+            icon: icons.SettingOutlined,
+            target: false
+
+        },
+
+        {
             id: 'workschedule_settings',
             title: 'Work Schedule Settings',
             type: 'item',
-            url: '/dashboard/appointment-settings/workschedule',
+            url: '/admin/appointment-settings/workschedule',
             icon: icons.MedicalServicesIcon,
             target: false,
             hidden: true,
@@ -47,7 +48,7 @@ const pages = {
             id: 'general_settings',
             title: 'General Settings',
             type: 'item',
-            url: '/dashboard/appointment-settings/general',
+            url: '/admin/appointment-settings/general',
             icon: icons.MedicalServicesIcon,
             target: false,
             hidden: true,
@@ -57,7 +58,7 @@ const pages = {
             id: 'holiday_settings',
             title: 'Holiday Settings',
             type: 'item',
-            url: '/dashboard/appointment-settings/holidays',
+            url: '/admin/appointment-settings/holidays',
             icon: icons.MedicalServicesIcon,
             target: false,
             hidden: true,

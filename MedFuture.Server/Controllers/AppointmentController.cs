@@ -51,6 +51,7 @@ namespace MedFuture.Server.Controllers
             return Ok(holidays);
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpPost("holidays")]
         public async Task<IActionResult> AddHoliday(HolidayDto holiday)
         {
@@ -66,6 +67,7 @@ namespace MedFuture.Server.Controllers
             }
         }
 
+        [Authorize("AdminOnlyPolicy")]
         [HttpDelete("holidays/{id}")]
         public async Task<IActionResult> RemoveHoliday(int id)
         {
@@ -121,13 +123,20 @@ namespace MedFuture.Server.Controllers
         {
             try
             {
-                var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
+                var userClaims = User.Claims;
 
-                FirebaseToken decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(accessToken);
+                var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
 
-                object userId;
-                if (decoded.Claims.TryGetValue("userIdDb", out userId))
+               // var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
+
+                // FirebaseToken decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(accessToken);
+
+               // object userId;
+               // if (decoded.Claims.TryGetValue("userIdDb", out userId))
+               if(userIdClaim != null)
                 {
+                    string userId = userIdClaim.Value;
+
                     Console.Write("User DB ID - ");
                     Console.WriteLine(userId.GetType());
                     Console.Write(userId);

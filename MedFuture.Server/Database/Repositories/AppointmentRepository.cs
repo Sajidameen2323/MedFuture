@@ -193,5 +193,18 @@ namespace MedFuture.Server.Database.Repositories
             await _context.SaveChangesAsync();
 
         }
+
+        public async Task<IEnumerable<AppointmentM>> GetTodaysAppointmentsForDoctor(int docId)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var appointments = _context.Appointments.Where(a=> a.DoctorId == docId && a.AppointmentDate == today)
+                .Include(a=> a.Service)
+                .Include(a=> a.Doctor)
+                .Include(a=> a.Patient)
+                .ToList();    
+
+            return appointments;
+        }
     }
 }

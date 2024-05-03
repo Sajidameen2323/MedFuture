@@ -17,10 +17,12 @@ namespace MedFuture.Server.Controllers
     {
 
         private readonly IDoctorRepository _doctorRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
 
-        public DoctorController(IDoctorRepository doctorRepository)
+        public DoctorController(IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository)
         {
             _doctorRepository = doctorRepository;
+            _appointmentRepository = appointmentRepository;
         }
 
         [Authorize("AdminOnlyPolicy")]
@@ -157,6 +159,54 @@ namespace MedFuture.Server.Controllers
                 return BadRequest(new {message=ex.Message });
             }
         }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpGet("appointments/today")]
+        public async Task<IActionResult> GetTodaysAppointments()
+        {
+            var userClaims = User.Claims;
+
+            var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
+
+            if (userIdClaim != null)
+            {
+                // Access the userId value
+                string userId = userIdClaim.Value;
+                int userIdDb = Convert.ToInt32(userId);
+
+                var apps = await _appointmentRepository.GetTodaysAppointmentsForDoctor(userIdDb);
+
+                List<object> unknownObjects = new List<object>      
+                {
+                    new { Name = "John", Age = 30, userId },
+        
+      
+                };
+
+                foreach (var item in apps)
+                {
+                    unknownObjects.Add(
+                        new 
+                        { 
+                            item.AppointmentDate,
+                            item.Patient.DOB,
+                            item.Service.Duration,
+                            item.Service.Name,
+                            item.Status,
+                            item.StartDateTime
+                        }
+                         );
+                }
+                return Ok(unknownObjects);
+
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
+
 
     }
 

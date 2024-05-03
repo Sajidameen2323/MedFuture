@@ -20,12 +20,11 @@ const Weather = Loadable(lazy(() => import("../pages/Weather")));
 const NotFound = Loadable(lazy(() => import("../pages/ErrorPages/NotFound")));
 const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/EmailVerification")));
 
-
 const BookingPage = Loadable(lazy(() => import("pages/Booking")));
-const ConsultationScreen = Loadable(lazy(() => import("pages/Doctor/Consultation/ConsultationScreen")));
 
+import AdminRouteGenerator from '../config/AdminRoutesGenerator.js';
+import DoctorRouteGenerator from '../config/DoctorRoutesGenerator.js';
 
-import AdminRouteGenerator from 'config/AdminRoutesGenerator.js';
 import NotAuthorized from "../pages/ErrorPages/NotAuthorized";
 
 
@@ -44,13 +43,16 @@ function CustomRouterProvider() {
                     Component: WelcomePage,
                     loader: () => { return { currentUser } }
                 },
- 
-
             ],
         },
         {
-            id: "dashboard",
+            id: "get_dashboard",
             path: '/dashboard',
+            loader: dashboardLoader,
+        },
+        {
+            id: "admin",
+            path: '/admin',
             //loader: protectedLoader,
             Component: MainLayout,
             children: [
@@ -59,15 +61,22 @@ function CustomRouterProvider() {
                     loader: protectedLoader,
                     Component: Weather,
                 },
-                {
-                    id: 'consultation',
-                    path: 'con',
-                    loader: protectedLoader,
-                    Component: ConsultationScreen
-
-                },
-
                 ...AdminRouteGenerator({adminOnlyLoader, protectedLoader})
+            ]
+        },
+        {
+            id: "doctor",
+            path: '/doctor',
+            //loader: protectedLoader,
+            Component: MainLayout,
+            children: [
+                {
+                    index: true,
+                    loader: protectedLoader,
+                    Component: Weather,
+                },
+                ...DoctorRouteGenerator({ doctorOnlyLoader, protectedLoader })
+
             ]
         },
         {
@@ -162,6 +171,21 @@ function CustomRouterProvider() {
         return null;
     }
 
+    function dashboardLoader({ request, params }) {
+
+        if (!currentUser) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/login?" + params.toString());
+        }
+        else if (currentUser && !currentUser.email_verified) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/verify-email?" + params.toString());
+        }
+        return redirect("/"+currentUser?.role.toLowerCase() +"/");
+    }
+
     function adminOnlyLoader({ request, params }) {
 
         if (!currentUser) {
@@ -175,6 +199,25 @@ function CustomRouterProvider() {
             return redirect("/auth/verify-email?" + params.toString());
         }
         else if (currentUser && currentUser?.role != "Admin") {
+
+            return redirect("/error/not-authorized")
+        }
+        return null;
+    }
+
+    function doctorOnlyLoader({ request, params }) {
+
+        if (!currentUser) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/login?" + params.toString());
+        }
+        else if (currentUser && !currentUser.email_verified) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/verify-email?" + params.toString());
+        }
+        else if (currentUser && currentUser?.role != "Doctor") {
 
             return redirect("/error/not-authorized")
         }
@@ -201,38 +244,6 @@ function CustomRouterProvider() {
     return (
         <RouterProvider router={router} />
     )
-}
-
-function GetUserDashboard() {
-    const { currentUser, logout } = useContext(FirebaseAuthContext);
-
-    if (currentUser && currentUser?.role === "Admin") {
-
-        return (<MainLayout />)
-    }
-    else if (currentUser && currentUser?.role === "Patient") {
-
-        return (<div style={{ width: '100%', height: '100vh' }}>
-      
-                <h5> Ayo, Patine Whats Good Nyaggaa!!</h5>
-
-
-                {currentUser && <button onClick={async () => {
-                    await logout()
-                }}>Logout</button>}
-          
-        </div>)
-    }
-    else {
-        return (<div>
-
-            Dafuq Are ye Nyaggaaa!! {JSON.stringify(currentUser)}
-        </div>)
-    }
-}
-
-function ProtectedPage() {
-    return <h3>Protected</h3>;
 }
 
 export default CustomRouterProvider;

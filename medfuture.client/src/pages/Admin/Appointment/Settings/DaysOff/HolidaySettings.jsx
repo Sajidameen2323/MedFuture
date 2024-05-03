@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { List, Collapse, Typography, Button, Form, Input, Popconfirm, DatePicker } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Box } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
@@ -10,7 +11,35 @@ const { RangePicker } = DatePicker;
 
 const HolidaySettings = () => {
 
+    const { idToken } = useContext(FirebaseAuthContext);
     const queryClient = useQueryClient();
+
+
+    // Add holiday mutation
+    const addHolidayMutation = useCallback(async (newHoliday) => {
+        const response = await fetch('/api/appointment/holidays', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newHoliday),
+        });
+        return response.json();
+    }, [idToken]);
+
+    // Remove holiday mutation
+    const removeHolidayMutation = useCallback(async (id) => {
+        const response = await fetch(`/api/appointment/holidays/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            },
+        });
+        return response.json();
+    },[idToken]);
+
     const { data: holidaysFromServer, isLoading } = useQuery('holidays', fetchHolidays, {
         refetchOnWindowFocus: false,
         onSuccess: (data) => {
@@ -155,25 +184,7 @@ const fetchHolidays = async () => {
     return response.json();
 };
 
-// Add holiday mutation
-const addHolidayMutation = async (newHoliday) => {
-    const response = await fetch('/api/appointment/holidays', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newHoliday),
-    });
-    return response.json();
-};
 
-// Remove holiday mutation
-const removeHolidayMutation = async (id) => {
-    const response = await fetch(`/api/appointment/holidays/${id}`, {
-        method: 'DELETE',
-    });
-    return response.json();
-};
 
 
 export default HolidaySettings;
