@@ -1,11 +1,78 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Stack } from '@mui/material';
 import { notification } from 'antd';
+import axios from 'axios';
+import { useMutation, useQueryClient } from 'react-query';
+import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
 const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
     const [open, setOpen] = useState(false);
     const [action, setAction] = useState(null);
+    const queryClient = useQueryClient();
+    const { idToken } = useContext(FirebaseAuthContext);
+
+    const updateAppointmentStatus = async (appointmentId, status) => {
+
+        const response = await axios.put(`/api/doctor/appointments/${appointmentId}/status/update`, { status }, {
+            headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    };
+
+    const { mutate: UpdateStatus } = useMutation(
+
+        (status) => updateAppointmentStatus(appointment?.appointmentId, status),
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries('ApiGetAppointmentForDoctor');
+                if (action === 'missed') {
+                    notification.success({
+                        key: 'missed',
+                        message: 'Missed Appointment',
+                        description: 'Successfully Marked as Missed.',
+                        duration: 2,
+                    });
+                }
+                else if (action === "complete") {
+
+                    notification.success({
+                        key: 'complete',
+                        message: 'Appointment Completed',
+                        description: 'Appointment has been completed.',
+                        duration: 2,
+                    });
+                }
+
+            },
+            onError: (error) => {
+                console.error('Error updating appointment status:', error);
+
+                if (action === 'missed') {
+                    notification.error({
+                        key: 'missed',
+                        message: 'Error',
+                        description: 'Failed to update appointment status.',
+                        duration: 2,
+                    });
+                }
+                else if (action === "complete") {
+
+                    notification.error({
+                        key: 'complete',
+                        message: 'Error',
+                        description: 'Failed to update appointment status.',
+                        duration: 2,
+                    });
+                }
+
+            },
+        }
+    );
+
 
     const handleOpenDialog = (actionType) => {
         setAction(actionType);
@@ -29,34 +96,36 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
         } else if (action === 'missed') {
             // Mark appointment as missed
             notification.warning({
-                key: 'kak',
+                key: 'missed',
                 message: 'Missed Appointment',
                 description: 'Marking appointment as missed...',
                 duration: 2,
             });
-            setTimeout(() => {
-                notification.success({
-                    key: 'kak',
-                    message: 'Missed Appointment',
-                    description: 'Successfully Marked as Missed.',
-                    duration: 2,
-                });
-            }, 1000);
+            UpdateStatus(3)
 
 
         } else if (action === 'complete') {
             // Complete appointment
             onAppointmentComplete(appointment.id);
-            notification.success({
-                message: 'Appointment Completed',
-                description: 'Appointment has been completed.',
+            notification.warning({
+                key: 'complete',
+                message: 'Completing Appointment',
+                description: 'Marking appointment as Completed...',
                 duration: 2,
             });
+            UpdateStatus(4)
         }
 
         handleCloseDialog();
     };
 
+
+    //public enum AppointmentStatus {
+    //    Pending = 1,
+    //    Cancelled = 2,
+    //    Missed = 3,
+    //    Completed = 4,
+    //}
 
     return (
         <>

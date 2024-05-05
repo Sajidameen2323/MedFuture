@@ -6,7 +6,7 @@ import { Card, CardContent, Typography, List, ListItem, ListItemText, ListItemSe
 import { Alert } from 'antd';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { Empty } from "antd";
 
 const TodaysAppointments = () => {
     const { idToken } = useContext(FirebaseAuthContext);
@@ -21,85 +21,30 @@ const TodaysAppointments = () => {
             },
         });
         console.log(response.data)
-        return [
-            {
-                id: 1,
-                patient: {
-                    name: 'John Doe',
-                    profilePicture: 'https://via.placeholder.com/150/0000FF/FFFFFF?text=JD',
-                },
-                startTime: '09:00',
-                endTime: '09:30',
-                reason: 'Annual check-up',
-            },
-            {
-                id: 2,
-                patient: {
-                    name: 'Jane Smith',
-                    profilePicture: 'https://via.placeholder.com/150/FF0000/FFFFFF?text=JS',
-                },
-                startTime: '10:00',
-                endTime: '10:30',
-                reason: 'Follow-up',
-            },
-            {
-                id: 3,
-                patient: {
-                    name: 'Bob Johnson',
-                    profilePicture: 'https://via.placeholder.com/150/00FF00/FFFFFF?text=BJ',
-                },
-                startTime: '13:55',
-                endTime: '13:59',
-                reason: 'Consultation',
-            },
-            {
-                id: 4,
-                patient: {
-                    name: 'Alice Williams',
-                    profilePicture: 'https://via.placeholder.com/150/FFFF00/000000?text=AW',
-                },
-                startTime: '13:40',
-                endTime: '13:50',
-                reason: 'Consultation',
-            },
-            {
-                id: 5,
-                patient: {
-                    name: 'Michael Brown',
-                    profilePicture: 'https://via.placeholder.com/150/FF00FF/FFFFFF?text=MB',
-                },
-                startTime: '14:30',
-                endTime: '15:00',
-                reason: 'Physical therapy',
-            },
-            {
-                id: 6,
-                patient: {
-                    name: 'Michael Brown',
-                    profilePicture: 'https://via.placeholder.com/150/FF00FF/FFFFFF?text=MB',
-                },
-                startTime: '18:50',
-                endTime: '19:13',
-                reason: 'Physical therapy',
-            },
-
-            {
-                id: 7,
-                patient: {
-                    name: 'Michael Brown',
-                    profilePicture: 'https://via.placeholder.com/150/FF00FF/FFFFFF?text=MB',
-                },
-                startTime: '19:35',
-                endTime: '19:40',
-                reason: 'Physical therapy',
-            },
+        let dd = [
+           
         ]
+        if (response.data) {
+
+            response.data.forEach(el => {
+
+                dd.push({
+                    id: el?.appointmentId,
+                    patient: el?.patient,
+                    startTime: moment(new Date(el?.startDateTime), 'HH:mm').format("HH:mm"),
+                    endTime: moment(new Date(el?.endDateTime), 'HH:mm').format("HH:mm"),
+                    reason: el?.name,
+                    status: el?.status ?? "Pending"
+                })
+            })
+        }
+        return dd
     };
 
     const { isLoading, error, data: appointments } = useQuery('appointments', fetchAppointments, {
         refetchInterval: 60000,
         refetchOnWindowFocus: false
-  
+        
     });
 
     useEffect(() => {
@@ -123,11 +68,14 @@ const TodaysAppointments = () => {
     const handleAddConsultation = (appointment) => {
         // Open the consultation form for the selected appointment
         console.log('Add consultation for appointment:', appointment);
+        console.log(getChipColorByStatus(appointment.status))
     };
 
     return (
         <Card sx={{ width: { xs: '450px', md: '1100px' } }}>
             <CardContent>
+                {appointments.length == 0 && <Empty /> }
+        
                 <List>
                     {appointments.map(appointment => (
                         <ListItem
@@ -151,8 +99,10 @@ const TodaysAppointments = () => {
                             />
 
                             <ListItemSecondaryAction>
+                                <Chip sx={{ mr: 2 }} label={appointment.status} color={getChipColorByStatus(appointment.status)} variant="outlined" size="small" />
+
                                 {appointment.id === currentAppointment && (
-                                    <Chip sx={{ mx: 2 }} label="Current" color="success" variant="filled" size="small" />
+                                    <Chip sx={{ mr: 2 }} label="Current" color="success" variant="filled" size="small" />
                                 )}
                                 <Button variant="contained" size="small" disableElevation component={RouterLink} to={`/doctor/appointments/${appointment.id}/action` } >
                                     Action
@@ -166,6 +116,22 @@ const TodaysAppointments = () => {
         </Card>
     );
 };
+
+const getChipColorByStatus = (status) => {
+
+    switch (status) {
+
+        case "Pending":
+            return "warning";
+        case "Completed":
+            return "info";
+        case "Missed":
+            return "error";
+        default:
+            return "primary"
+    }
+
+}
 
 const isCurrentAppointment = (appointment) => {
     const now = moment();
@@ -181,7 +147,7 @@ const isCurrentAppointment = (appointment) => {
     if (
         startTime.hour() === currentHour &&
         startTime.minute() <= currentMinute &&
-        endTime.hour() >= currentHour &&
+        endTime.hour() == currentHour &&
         endTime.minute() > currentMinute
     ) {
         return true;
@@ -190,6 +156,14 @@ const isCurrentAppointment = (appointment) => {
         startTime.hour() < currentHour &&
         endTime.hour() === currentHour &&
         endTime.minute() > currentMinute
+    ) {
+        return true
+    }
+    else if (
+        startTime.hour() === currentHour &&
+        startTime.minute() <= currentMinute &&
+        endTime.hour() > currentHour &&
+        endTime.minute() < currentMinute
     ) {
         return true
     }

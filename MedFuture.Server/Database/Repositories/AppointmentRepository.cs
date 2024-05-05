@@ -1,6 +1,7 @@
 ﻿using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.DataTransferObjects.Appointment;
 using MedFuture.Server.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedFuture.Server.Database.Repositories
@@ -194,17 +195,87 @@ namespace MedFuture.Server.Database.Repositories
 
         }
 
-        public async Task<IEnumerable<AppointmentM>> GetTodaysAppointmentsForDoctor(int docId)
+        public async Task<IEnumerable<AppointmentM>> GetTodaysAppointmentsForDoctor(int userId)
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            var appointments = _context.Appointments.Where(a=> a.DoctorId == docId && a.AppointmentDate == today)
+            var doc = _context.Doctors.Where(d=> d.UserID == userId).FirstOrDefault();
+
+            if(doc == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            Console.WriteLine("Doc Id - " + doc.DoctorID);
+            Console.WriteLine("Date - "+ today);
+
+            var appointments = _context.Appointments.Where(a=> a.DoctorId == doc.DoctorID && a.AppointmentDate == today && a.Status != AppointmentStatus.Cancelled)
                 .Include(a=> a.Service)
                 .Include(a=> a.Doctor)
                 .Include(a=> a.Patient)
+                .Include(a=> a.Patient.User)
                 .ToList();    
 
             return appointments;
+        }
+
+
+        public async Task<AppointmentM> GetAppointmentDetailsForDoctor(int appId, int userId)
+        {
+   
+            var doc = _context.Doctors.Where(d => d.UserID == userId).FirstOrDefault();
+
+            if (doc == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId)
+                                .Include(a => a.Service)
+                                .Include(a => a.Doctor)
+                                .Include(a => a.Patient)
+                                .Include(a => a.Patient.User)
+                                .FirstOrDefault();
+
+            if(appointment == null)
+            {
+                throw new ArgumentException("Invalid Appointment Id");
+            }
+
+            if(appointment.DoctorId != doc.DoctorID)
+            {
+                throw new UnauthorizedAccessException("Access to the resource is unauthorized.");
+
+            }
+
+            return appointment;
+
+        }
+
+        public async Task UpdateAppointmentStatusForDoctor(int appId, int userId, AppointmentStatus newStatus)
+        {
+            var doc = _context.Doctors.Where(d => d.UserID == userId).FirstOrDefault();
+
+            if (doc == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId).FirstOrDefault();
+            if (appointment == null)
+            {
+                throw new ArgumentException("Invalid Appointment Id");
+            }
+
+            if (appointment.DoctorId != doc.DoctorID)
+            {
+                throw new UnauthorizedAccessException("Access to the resource is unauthorized.");
+
+            }
+
+            appointment.Status = newStatus;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

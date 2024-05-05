@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using Microsoft.EntityFrameworkCore;
+using MedFuture.Server.DataTransferObjects.Appointment;
 
 namespace MedFuture.Server.Controllers
 {
@@ -164,50 +165,174 @@ namespace MedFuture.Server.Controllers
         [HttpGet("appointments/today")]
         public async Task<IActionResult> GetTodaysAppointments()
         {
-            var userClaims = User.Claims;
-
-            var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
-
-            if (userIdClaim != null)
+            try
             {
-                // Access the userId value
-                string userId = userIdClaim.Value;
-                int userIdDb = Convert.ToInt32(userId);
+                var userClaims = User.Claims;
 
-                var apps = await _appointmentRepository.GetTodaysAppointmentsForDoctor(userIdDb);
+                var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
 
-                List<object> unknownObjects = new List<object>      
+                if (userIdClaim != null)
                 {
-                    new { Name = "John", Age = 30, userId },
-        
-      
-                };
+                    // Access the userId value
+                    string userId = userIdClaim.Value;
+                    int userIdDb = Convert.ToInt32(userId);
 
-                foreach (var item in apps)
-                {
-                    unknownObjects.Add(
-                        new 
-                        { 
-                            item.AppointmentDate,
-                            item.Patient.DOB,
-                            item.Service.Duration,
-                            item.Service.Name,
-                            item.Status,
-                            item.StartDateTime
-                        }
-                         );
+                    var apps = await _appointmentRepository.GetTodaysAppointmentsForDoctor(userIdDb);
+
+                    List<object> unknownObjects = new List<object>
+                    {
+
+
+                    };
+
+                    foreach (var item in apps)
+                    {
+                        unknownObjects.Add(
+                            new
+                            {
+                                item.AppointmentId,
+                                patient = new
+                                {
+
+                                    name = item.Patient.User.FirstName + " " + item.Patient.User.LastName,
+                                    profilePicture = item.Patient.User.ProfilePic,
+                                    item.Patient.DOB,
+
+                                },
+                                item.Service.Name,
+                                status = Enum.GetName(typeof(AppointmentStatus), item?.Status),
+                                item.StartDateTime,
+                                EndDateTime = item.StartDateTime.AddMinutes(item.Service.Duration)
+                            }
+                             );
+                    }
+                    return Ok(unknownObjects);
+
                 }
-                return Ok(unknownObjects);
-
+                else
+                {
+                    return Unauthorized("Invalid Session");
+                }
             }
-            else
+            catch(ArgumentException ex)
             {
-                return Unauthorized();
+                return Unauthorized(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new {message="Something Went Wrong!"});
+            }
+ 
+
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpGet("appointments/{appId}/details")]
+        public async Task<IActionResult> GetAppointmentDetails(int appId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+
+                var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
+
+                if (userIdClaim != null)
+                {
+                    // Access the userId value
+                    string userId = userIdClaim.Value;
+                    int userIdDb = Convert.ToInt32(userId);
+
+                    var app = await _appointmentRepository.GetAppointmentDetailsForDoctor(appId,userIdDb);
+
+                    var obj = new
+                    {
+                        app.AppointmentId,
+                        patient = new
+                        {
+
+                            name = app.Patient.User.FirstName + " " + app.Patient.User.LastName,
+                            profilePicture = app.Patient.User.ProfilePic,
+                            app.Patient.DOB,
+
+                        },
+                        app.Service.Name,
+                        status = Enum.GetName(typeof(AppointmentStatus), app?.Status),
+                        app.StartDateTime,
+                        EndDateTime = app.StartDateTime.AddMinutes(app.Service.Duration)
+                    };
+
+                    return Ok(obj);
+
+                }
+                else
+                {
+                    return Unauthorized("Invalid Session");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized("Resource not authorized");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Something Went Wrong!" });
             }
 
         }
 
 
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpPut("appointments/{appId}/status/update")]
+        public async Task<IActionResult> UpdateAppointmentStatus(int appId, [FromBody] UpdateAppointmentStatusRequest request)
+        {
+            if (!Enum.IsDefined(typeof(AppointmentStatus), request.Status))
+            {
+                return BadRequest($"Invalid status value: {request.Status}");
+            }
+
+            var statusName = Enum.GetName(typeof(AppointmentStatus), request.Status);
+            
+            try
+            {
+                var userClaims = User.Claims;
+
+                var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
+
+                if (userIdClaim != null)
+                {
+                    // Access the userId value
+                    string userId = userIdClaim.Value;
+                    int userIdDb = Convert.ToInt32(userId);
+
+                    AppointmentStatus newStatus = (AppointmentStatus)Enum.Parse(typeof(AppointmentStatus), request.Status.ToString());
+
+                    await _appointmentRepository.UpdateAppointmentStatusForDoctor(appId, userIdDb, newStatus);
+
+                }
+                else
+                {
+                    return Unauthorized("Invalid Session");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized("Resource not authorized");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Something Went Wrong!" });
+            }
+
+            return Ok(new { status = statusName });
+        }
     }
 
 }

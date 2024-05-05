@@ -40,7 +40,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
 
     const today = new Date();
-    const minDateObj = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const minDateObj = new Date(today.getTime() + -2 * 24 * 60 * 60 * 1000);
     const maxDateObj = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     minDateObj.setUTCHours(0, 0, 0, 0);
@@ -72,7 +72,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
             let min = minDateObj.toISOString();
             let max = maxDateObj.toISOString();
 
-            setMinDate(min);
+            //setMinDate(min);
             setMaxDate(max);
 
             console.log("min max date set from db")
@@ -108,7 +108,9 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
         holidays.forEach((el) => {
             let endDate = new Date(el?.endDate);
             if (endDate) {
-                endDate.setHours(24);
+                endDate.setDate(endDate.getDate() + 1);
+
+                endDate.setHours(1);
                 endDate.setMinutes(0);
             }
             console.log(endDate);
