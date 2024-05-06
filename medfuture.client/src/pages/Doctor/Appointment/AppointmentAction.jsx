@@ -5,12 +5,14 @@ import { notification } from 'antd';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
+import { useNavigate } from "react-router-dom";
 
 const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
     const [open, setOpen] = useState(false);
     const [action, setAction] = useState(null);
     const queryClient = useQueryClient();
     const { idToken } = useContext(FirebaseAuthContext);
+    const navigate = useNavigate();
 
     const updateAppointmentStatus = async (appointmentId, status) => {
 
@@ -84,16 +86,14 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
         setAction(null);
     };
 
-    const handleConfirmAction = () => {
-        if (action === 'consultation') {
-            // Open consultation form or navigate to consultation page
-            notification.info({
+    const handleConsultation = () => {
 
-                message: 'Consultation',
-                description: 'Opening consultation form...',
-                duration: 2,
-            });
-        } else if (action === 'missed') {
+        navigate(`/doctor/appointments/${appointment?.appointmentId}/consultation`, { state: { kaaham: 'kaaham' } });
+
+    }
+
+    const handleConfirmAction = () => {
+        if (action === 'missed') {
             // Mark appointment as missed
             notification.warning({
                 key: 'missed',
@@ -137,7 +137,7 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
                 </Button>
             ) : (
                 <>
-                    <Button variant="contained" color="primary" onClick={() => handleOpenDialog('consultation')}>
+                    <Button variant="contained" color="primary" onClick={handleConsultation}>
                         Start Consultation
                     </Button>
                     <Button variant="outlined" color="error" onClick={() => handleOpenDialog('missed')}>

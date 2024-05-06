@@ -51,6 +51,7 @@ export default defineConfig({
             "context": path.resolve(__dirname, 'src/context'),
             "menu-items": path.resolve(__dirname, 'src/menu-items'),
             "pages": path.resolve(__dirname, 'src/pages'),
+            "hooks": path.resolve(__dirname, 'src/hooks'),
         }
     },
     server: {

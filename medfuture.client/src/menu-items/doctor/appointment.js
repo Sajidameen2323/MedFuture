@@ -32,6 +32,16 @@ const appointmentGroup = {
             hidden: true,
             breadcrumbs: false
         },
+        {
+            id: 'app_consultation',
+            title: 'Appointment Consultation',
+            type: 'item',
+            url: '/doctor/appointments/:appointmentId/consultation',
+            icon: icons.MedicalServicesIcon,
+            target: false,
+            hidden: true,
+            breadcrumbs: false
+        },
     ]
 };
 
