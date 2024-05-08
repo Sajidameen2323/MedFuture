@@ -15,7 +15,7 @@ export default function GetDoctorRoutes(props) {
 
         {
             path: "overview",
-            loader: props.adminOnlyLoader,
+            loader: props.doctorOnlyLoader,
             Component: Weather,
         },
         {

@@ -22,6 +22,31 @@ namespace MedFuture.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MedFuture.Server.Models.AllergyM", b =>
+                {
+                    b.Property<int>("AllergyID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AllergyID"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reaction")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AllergyID");
+
+                    b.HasIndex("PatientID");
+
+                    b.ToTable("Allergies");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
                 {
                     b.Property<DateTime>("StartDateTime")
@@ -95,6 +120,31 @@ namespace MedFuture.Server.Migrations
                             MinimumTimeBeforeCancelingInDays = 3,
                             MinimumTimeBeforeReschedulingInDays = 3
                         });
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DiagnosisM", b =>
+                {
+                    b.Property<int>("DiagnosisID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DiagnosisID"));
+
+                    b.Property<DateTime>("DiagnosisDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DiagnosisID");
+
+                    b.HasIndex("PatientID");
+
+                    b.ToTable("Diagnosis");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
@@ -283,8 +333,14 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientID"));
 
+                    b.Property<int?>("BloodGroup")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("DOB")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("EmergencyNumber")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
@@ -391,6 +447,17 @@ namespace MedFuture.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.AllergyM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.PatientM", "Patient")
+                        .WithMany("Allergies")
+                        .HasForeignKey("PatientID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
@@ -416,6 +483,17 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Patient");
 
                     b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.DiagnosisM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.PatientM", "Patient")
+                        .WithMany("Diagnoses")
+                        .HasForeignKey("PatientID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
@@ -510,6 +588,13 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("WorkDaySchedule");
 
                     b.Navigation("WorkingHours");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
+                {
+                    b.Navigation("Allergies");
+
+                    b.Navigation("Diagnoses");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>

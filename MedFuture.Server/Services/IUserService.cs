@@ -2,6 +2,7 @@
 using MedFuture.Server.DataTransferObjects.Docotor;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
+using System.Security.Claims;
 
 namespace MedFuture.Server.Services
 {
@@ -13,6 +14,6 @@ namespace MedFuture.Server.Services
         public Task<DoctorM> CreateDoctor(DoctorCreateDto doctorDto);
         public Task<UserM> CreateUserFromGoogleAuth(PatientCreateFromGoogleAuthDto patientData);
         public Task<string> GetCustomToken(UserM user, string uid);
-
+        public int GetUserDbIdFromToken(IEnumerable<Claim> userClaims);
     }
 }

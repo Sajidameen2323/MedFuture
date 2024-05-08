@@ -178,7 +178,7 @@ const ConsultationPage = () => {
                             {totalTranscript && <Box display="flex">
                                 <TextField
                                     multiline
-                                    rows={4}
+                                    rows={7}
                                     variant="outlined"
                                     value={totalTranscript}
                                     onChange={(e) => setTotalTranscript(e.target.value)}

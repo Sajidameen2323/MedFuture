@@ -50,6 +50,28 @@ namespace MedFuture.Server.Database
                 .HasConversion<int>();
 
 
+            modelBuilder.Entity<PatientM>()
+                .HasMany(p => p.Allergies)
+                .WithOne(a => a.Patient)
+                .HasForeignKey(a => a.PatientID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<PatientM>()
+                .Property(p => p.BloodGroup)
+                .HasDefaultValue(null);
+
+
+            modelBuilder.Entity<PatientM>()
+                .Property(p => p.BloodGroup)
+                .HasConversion<int>();
+
+            modelBuilder.Entity<PatientM>()
+                .HasMany(p => p.Diagnoses)
+                .WithOne(d => d.Patient)
+                .HasForeignKey(d => d.PatientID)
+                .OnDelete(DeleteBehavior.Cascade);
+
             //model building Doctor table
             modelBuilder.Entity<DoctorM>()    
                 .HasQueryFilter(d => !d.User.IsDeleted);
@@ -173,7 +195,9 @@ namespace MedFuture.Server.Database
 
 
         public DbSet<UserM> Users { get; set; }
+
         public DbSet<PatientM> Patients { get; set; }
+        public DbSet<AllergyM> Allergies { get; set; }
 
         public DbSet<DoctorM> Doctors { get; set; }
         public DbSet<DoctorWorkDayScheduleM> DoctorWorkDaySchedules { get; set; }

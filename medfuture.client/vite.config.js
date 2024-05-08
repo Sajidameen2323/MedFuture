@@ -87,6 +87,10 @@ export default defineConfig({
             '^/api/appointment/*': {
                 target: 'https://localhost:7184/',
                 secure: false
+            },
+            '^/api/patient/*': {
+                target: 'https://localhost:7184/',
+                secure: false
             }
  
         },

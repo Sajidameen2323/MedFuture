@@ -24,6 +24,7 @@ const BookingPage = Loadable(lazy(() => import("pages/Booking")));
 
 import AdminRouteGenerator from '../config/AdminRoutesGenerator.js';
 import DoctorRouteGenerator from '../config/DoctorRoutesGenerator.js';
+import PatientRoutesGenerator from '../config/PatientRoutesGenerator.js';
 
 import NotAuthorized from "../pages/ErrorPages/NotAuthorized";
 
@@ -76,6 +77,21 @@ function CustomRouterProvider() {
                     Component: Weather,
                 },
                 ...DoctorRouteGenerator({ doctorOnlyLoader, protectedLoader })
+
+            ]
+        },
+        {
+            id: "patient",
+            path: '/patient',
+            //loader: protectedLoader,
+            Component: MainLayout,
+            children: [
+                {
+                    index: true,
+                    loader: protectedLoader,
+                    Component: Weather,
+                },
+                ...PatientRoutesGenerator({ patientOnlyLoader, protectedLoader })
 
             ]
         },
@@ -218,6 +234,25 @@ function CustomRouterProvider() {
             return redirect("/auth/verify-email?" + params.toString());
         }
         else if (currentUser && currentUser?.role != "Doctor") {
+
+            return redirect("/error/not-authorized")
+        }
+        return null;
+    }
+
+    function patientOnlyLoader({ request, params }) {
+
+        if (!currentUser) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/login?" + params.toString());
+        }
+        else if (currentUser && !currentUser.email_verified) {
+            let params = new URLSearchParams();
+            params.set("from", new URL(request.url).pathname);
+            return redirect("/auth/verify-email?" + params.toString());
+        }
+        else if (currentUser && currentUser?.role != "Patient") {
 
             return redirect("/error/not-authorized")
         }

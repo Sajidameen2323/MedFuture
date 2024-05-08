@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.DataTransferObjects.Appointment;
+using MedFuture.Server.Services;
 
 namespace MedFuture.Server.Controllers
 {
@@ -19,11 +20,13 @@ namespace MedFuture.Server.Controllers
 
         private readonly IDoctorRepository _doctorRepository;
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IUserService _userService;
 
-        public DoctorController(IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository)
+        public DoctorController(IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository, IUserService userService)
         {
             _doctorRepository = doctorRepository;
             _appointmentRepository = appointmentRepository;
+            _userService = userService;
         }
 
         [Authorize("AdminOnlyPolicy")]
@@ -300,23 +303,13 @@ namespace MedFuture.Server.Controllers
             {
                 var userClaims = User.Claims;
 
-                var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
 
-                if (userIdClaim != null)
-                {
-                    // Access the userId value
-                    string userId = userIdClaim.Value;
-                    int userIdDb = Convert.ToInt32(userId);
+                AppointmentStatus newStatus = (AppointmentStatus)Enum.Parse(typeof(AppointmentStatus), request.Status.ToString());
 
-                    AppointmentStatus newStatus = (AppointmentStatus)Enum.Parse(typeof(AppointmentStatus), request.Status.ToString());
+                await _appointmentRepository.UpdateAppointmentStatusForDoctor(appId, userIdDb, newStatus);
 
-                    await _appointmentRepository.UpdateAppointmentStatusForDoctor(appId, userIdDb, newStatus);
-
-                }
-                else
-                {
-                    return Unauthorized("Invalid Session");
-                }
+           
             }
             catch (ArgumentException ex)
             {
@@ -328,6 +321,7 @@ namespace MedFuture.Server.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return BadRequest(new { message = "Something Went Wrong!" });
             }
 

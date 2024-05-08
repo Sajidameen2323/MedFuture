@@ -233,5 +233,18 @@ namespace MedFuture.Server.Services
 
             return doctor;
         }
+
+        public int GetUserDbIdFromToken(IEnumerable<Claim> userClaims)
+        {
+            var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
+
+            // Access the userId value
+            string userId = userIdClaim.Value;
+            int userIdDb = Convert.ToInt32(userId);
+
+            return userIdDb;
+
+
+        }
     }
 }

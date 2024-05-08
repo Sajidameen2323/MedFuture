@@ -23,6 +23,16 @@ namespace MedFuture.Server.Models
                            ErrorMessage = "Phone number must be 10 digits starting with 0 or 9 (without leading 0).")]
         public string? PhoneNumber { get; set; }
 
+        [RegularExpression(@"^(0|[1-9]\d{9})$",
+                   ErrorMessage = "Emergency number must be 10 digits starting with 0 or 9 (without leading 0).")]
+        public string? EmergencyNumber { get; set; }
+
+        public BloodGroupType? BloodGroup { get; set; }
+
+        public ICollection<AllergyM> Allergies { get; set; }
+
+        public ICollection<DiagnosisM> Diagnoses { get; set; }
+
         public bool IsDeleted { get; set; } = false;
     }
 
@@ -34,4 +44,61 @@ namespace MedFuture.Server.Models
         Female = 2
 
     }
+
+    public enum BloodGroupType
+    {
+        [Description("A+")]
+        APositive = 1,
+        [Description("A-")]
+        ANegative = 2,
+        [Description("B+")]
+        BPositive = 3,
+        [Description("B-")]
+        BNegative = 4,
+        [Description("AB+")]
+        ABPositive = 5,
+        [Description("AB-")]
+        ABNegative = 6,
+        [Description("O+")]
+        OPositive = 7,
+        [Description("O-")]
+        ONegative = 8
+    }
+
+    public class AllergyM
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int AllergyID { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+
+        public string? Reaction { get; set; } = "";
+
+        [Required]
+        public int PatientID { get; set; }
+
+        [ForeignKey("PatientID")]
+        public PatientM Patient { get; set; }
+    }
+
+    [Table("Diagnosis")]
+    public class DiagnosisM
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int DiagnosisID { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        public DateTime DiagnosisDate { get; set; }
+
+        [Required]
+        public int PatientID { get; set; }
+
+        [ForeignKey("PatientID")]
+        public PatientM Patient { get; set; }
+    }
+
 }
