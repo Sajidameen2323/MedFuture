@@ -1,8 +1,10 @@
 import { lazy } from "react";
 import Loadable from 'components/Loadable';
 
+
 const Weather = Loadable(lazy(() => import("pages/Weather")));
 const PatientProfile = Loadable(lazy(() => import("pages/Patient/Profile")));
+const Allergies = Loadable(lazy(() => import("pages/Patient/Allergies")));
 
 
 
@@ -23,7 +25,12 @@ export default function GetPatientRoutes(props) {
             loader: props.patientOnlyLoader,
             Component: PatientProfile
         },
-
+        {
+            id: 'patient_allergies',
+            path: 'allergies',
+            loader: props.patientOnlyLoader,
+            Component: Allergies
+        },
 
     ]
 

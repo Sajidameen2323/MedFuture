@@ -30,6 +30,13 @@ namespace MedFuture.Server.Models
 
         public bool IsDeleted { get; set; } = false;
 
+
+
+        public string GetFullName()
+        {
+            return this.FirstName+" "+this.LastName;
+        }
+
     }
 
  
@@ -42,4 +49,5 @@ namespace MedFuture.Server.Models
         [Description("Doctor")]
         Doctor =3
     }
+
 }

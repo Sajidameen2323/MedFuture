@@ -5,7 +5,6 @@ import { auth, googleProvider } from '../config/firebaseConfig';
 import { signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
 import Spinner from "../shared/components/Spinner/Spinner";
 
-
 const FirebaseAuthContext = createContext({
     currentUser: null,
     setUser: () => { },
@@ -14,43 +13,51 @@ const FirebaseAuthContext = createContext({
     logout: () => { },
     loading: false,
     idToken: "",
-
 });
 
 // eslint-disable-next-line react/prop-types
 function FirebaseAuthProvider({ children }) {
-
     const [loading, setLoading] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [idToken, setIdToken] = useState("");
 
-
     useEffect(() => {
         setLoading(true);
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                user.getIdToken(/* forceRefresh */ false).then(function (idToken) {
-                    // Send token to your backend via HTTPS
-                    console.log(user);
-                    setIdToken(idToken)
-                    getCustomToken(idToken)
-
-                }).catch(function (error) {
-
-                    console.log("Token Error : " + error.message);
-                    setLoading(false);
-                });
-
+                const idToken = await user.getIdToken(/* forceRefresh */ false);
+                setIdToken(idToken);
+                getCustomToken(idToken);
             } else {
-                // User is signed out
-                setIdToken("")
+                setIdToken("");
                 setCurrentUser(null);
                 setLoading(false);
             }
         });
 
-        return unsubscribe;
+        const tokenExpirationInterval = setInterval(async () => {
+            const currentTime = new Date().getTime();
+            const user = auth.currentUser;
+            if (user) {
+                const idTokenResult = await user.getIdTokenResult();
+                const expirationTime = new Date(idTokenResult.expirationTime).getTime();
+                if (currentTime + 5 * 60 * 1000 >= expirationTime) {
+                    try {
+                        const newToken = await user.getIdToken(true);
+                        setIdToken(newToken);
+                    } catch (error) {
+                        console.error('Error refreshing token:', error);
+                        await logout();
+                        window.location.href = '/login';
+                    }
+                }
+            }
+        }, 60000); // Check every minute
+
+        return () => {
+            unsubscribe();
+            clearInterval(tokenExpirationInterval);
+        };
     }, []);
 
     async function getCustomToken(idToken) {
@@ -63,52 +70,45 @@ function FirebaseAuthProvider({ children }) {
             });
 
             if (!response.ok) {
-                setLoading(false)
+                setLoading(false);
                 return;
             }
 
             const data = await response.json();
             const { newToken } = data;
-            // setIdToken(newToken);
-            // console.log(newToken);
 
             signInWithCustomToken(auth, newToken)
                 .then(async (userCredential) => {
-                    // Signed in
                     const user = userCredential.user;
-                    console.log("Successfully logged in with cutom token");
-                    var idTokenResult = await user.getIdTokenResult(true);
+                    console.log("Successfully logged in with custom token");
+                    const idTokenResult = await user.getIdTokenResult(true);
                     setCurrentUser(user);
                     const { role, email, user_id, email_verified, name, picture } = idTokenResult.claims;
-                    console.log(idTokenResult.claims)
+                    console.log(idTokenResult.claims);
 
-                    var newUser = {
+                    const newUser = {
                         role,
                         email,
                         user_id,
                         email_verified,
                         name,
                         picture
-                    }
-                    console.log(newUser)
-                    setCurrentUser(newUser)
+                    };
+                    console.log(newUser);
+                    setCurrentUser(newUser);
                     setLoading(false);
-                    // ...
                 })
                 .catch((error) => {
                     const errorCode = error.code;
                     const errorMessage = error.message;
 
-                    console.log("Error sign in with custom token - code : " + errorCode + "| message : " + errorMessage);
+                    console.log("Error signing in with custom token - code : " + errorCode + "| message : " + errorMessage);
                     setCurrentUser(null);
                     setLoading(false);
                 });
+        } catch (ex) {
+            await logout();
         }
-        catch (ex) {
-               await logout();
-        }
-
-
     }
 
     const login = (email, password) => {
@@ -116,12 +116,13 @@ function FirebaseAuthProvider({ children }) {
     };
 
     const googleLogin = () => {
-
         return signInWithPopup(auth, googleProvider);
-    }
+    };
 
-    const logout = () => {
-        return signOut(auth);
+    const logout = async () => {
+        setCurrentUser(null);
+        setIdToken("");
+        await signOut(auth);
     };
 
     return (
@@ -129,7 +130,6 @@ function FirebaseAuthProvider({ children }) {
             value={{ currentUser, idToken, login, googleLogin, logout, loading }}
         >
             {loading ? <Spinner /> : children}
-
         </FirebaseAuthContext.Provider>
     );
 }

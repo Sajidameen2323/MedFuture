@@ -10,6 +10,7 @@ using MedFuture.Server.DataTransferObjects.Docotor;
 using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.DataTransferObjects.Appointment;
 using MedFuture.Server.Services;
+using MedFuture.Server.DataTransferObjects.Patient;
 
 namespace MedFuture.Server.Controllers
 {
@@ -253,9 +254,21 @@ namespace MedFuture.Server.Controllers
                         patient = new
                         {
 
-                            name = app.Patient.User.FirstName + " " + app.Patient.User.LastName,
+                            name = app.Patient.User.GetFullName(),
                             profilePicture = app.Patient.User.ProfilePic,
                             app.Patient.DOB,
+                            bloodGroup = app.Patient.BloodGroup,
+                            app.Patient.EmergencyNumber,
+                            app.Patient.PhoneNumber,
+                            gender = Enum.GetName((GenderType)app.Patient.Gender),
+                            allergies = app.Patient.Allergies.Select(a=> new AllergyDto
+                            {
+                                Id = a.AllergyID,
+                                Name = a.Name,
+                                Reaction = a.Reaction,
+
+                            }) ?? [],
+                            diagnoses = app.Patient.Diagnoses ?? []
 
                         },
                         app.Service.Name,

@@ -88,7 +88,7 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
 
     const handleConsultation = () => {
 
-        navigate(`/doctor/appointments/${appointment?.appointmentId}/consultation`, { state: { kaaham: 'kaaham' } });
+        navigate(`/doctor/appointments/${appointment?.appointmentId}/consultation`, { state: { patientData: appointment?.patient } });
 
     }
 

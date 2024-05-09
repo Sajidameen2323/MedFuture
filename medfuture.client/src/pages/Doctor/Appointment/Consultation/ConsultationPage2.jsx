@@ -3,10 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, List, ListItem, ListItemText } from '@mui/material';
 import { AudioOutlined, AudioMutedOutlined, ClearOutlined } from '@ant-design/icons';
 import { Button as AntButton, Tooltip } from 'antd';
-import  useSpeechRecognition  from 'hooks/useAzureSpeechRecognition';
+import useSpeechRecognition from 'hooks/useAzureSpeechRecognition';
+import moment from 'moment';
 
+import { useLocation } from "react-router-dom";
 
 const ConsultationPage = () => {
+
+    const location = useLocation();
+    const { patientData } = location.state || {};
+
     const [activeStep, setActiveStep] = useState(0);
     const [summary, setSummary] = useState('');
     const [prescription, setPrescription] = useState('');
@@ -42,6 +48,7 @@ const ConsultationPage = () => {
 
     return (
         <Box sx={{ width: { md: '1100px', xs: '100%' } }}>
+           
             <Stepper activeStep={activeStep}>
                 {steps.map((label) => (
                     <Step key={label}>
@@ -57,9 +64,9 @@ const ConsultationPage = () => {
                             <Card>
                                 <CardContent sx={{ textAlign:'left' }}>
                                     <Box display="flex" alignItems="center" mb={2}>
-                                        <Avatar alt="Patient Name" src="/static/images/avatar/1.jpg" />
+                                        <Avatar alt="Patient Name" src={ patientData?.profilePicture } />
                                         <Typography variant="h6" ml={2}>
-                                            Patient Name
+                                            { patientData?.name }
                                         </Typography>
                                     </Box>
                                     <Grid container spacing={1}>
@@ -67,25 +74,31 @@ const ConsultationPage = () => {
                                             <Typography variant="subtitle1">Age:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Typography variant="body1">35</Typography>
+                                            <Typography variant="body1">{calculateAge(patientData?.dob || "")}</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Typography variant="subtitle1">Gender:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Typography variant="body1">Male</Typography>
+                                            <Typography variant="body1">{ patientData?.gender }</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Typography variant="subtitle1">Contact:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Typography variant="body1">123-456-7890</Typography>
+                                            <Typography variant="body1">{patientData?.phoneNumber}</Typography>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variant="subtitle1">Emergency Contact:</Typography>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Typography variant="body1">{patientData?.emergencyNumber}</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Typography variant="subtitle1">Blood Group:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Typography variant="body1">O+</Typography>
+                                            <Typography variant="body1">{getBloodGroupName(patientData?.bloodGroup) }</Typography>
                                         </Grid>
                                     </Grid>
                                 </CardContent>
@@ -94,46 +107,22 @@ const ConsultationPage = () => {
                         <Grid item xs={12} md={8}>
                             <Card sx={{ maxHeight: '300px', overflowY:'scroll' }}>
                                 <CardContent>
-                                    <Typography variant="h4" gutterBottom>
+                                    <Typography variant="h4" gutterBottom sx={{ textAlign:'left' } }>
                                         Allergies
                                     </Typography>
                                     <List>
-                                        <ListItem>
-                                            <ListItemText
-                                                primary="Pollen"
-                                                secondary="Seasonal allergy causing sneezing and itching."
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText
-                                                primary="Peanuts"
-                                                secondary="Allergic reaction leading to hives or swelling."
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText
-                                                primary="Pollen"
-                                                secondary="Seasonal allergy causing sneezing and itching."
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText
-                                                primary="Peanuts"
-                                                secondary="Allergic reaction leading to hives or swelling."
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText
-                                                primary="Pollen"
-                                                secondary="Seasonal allergy causing sneezing and itching."
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemText
-                                                primary="Peanuts"
-                                                secondary="Allergic reaction leading to hives or swelling."
-                                            />
-                                        </ListItem>
+                                        {patientData?.allergies && patientData.allergies.map(el => {
+                                            return (
+                                                <ListItem key={el.id}>
+                                                    <ListItemText
+                                                        primary={el.name}
+                                                        secondary={el.reaction}
+                                                    />
+                                                </ListItem>
+                                                )
+                                        }) }
+      
+                        
 
                                     </List>
                                 </CardContent>
@@ -233,5 +222,30 @@ const ConsultationPage = () => {
         </Box>
     );
 };
+
+const calculateAge = (dateOfBirth) => {
+
+    const dobMoment = moment(dateOfBirth);
+    const currentMoment = moment();
+    const age = currentMoment.diff(dobMoment, 'years');
+    return age;
+
+};
+
+function getBloodGroupName(key) {
+
+    const BloodGroupDescriptions = {
+        1: "A+",
+        2: "A-",
+        3: "B+",
+        4: "B-",
+        5: "AB+",
+        6: "AB-",
+        7: "O+",
+        8: "O-",
+    };
+
+    return BloodGroupDescriptions[key] || "Unknown"; // Return "Unknown" for invalid keys
+}
 
 export default ConsultationPage;
