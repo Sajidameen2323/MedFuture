@@ -198,6 +198,7 @@ namespace MedFuture.Server.Database
 
         public DbSet<PatientM> Patients { get; set; }
         public DbSet<AllergyM> Allergies { get; set; }
+        public DbSet<DiagnosisM> Diagnoses { get; set; }
 
         public DbSet<DoctorM> Doctors { get; set; }
         public DbSet<DoctorWorkDayScheduleM> DoctorWorkDaySchedules { get; set; }

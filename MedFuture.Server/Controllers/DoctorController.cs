@@ -268,7 +268,12 @@ namespace MedFuture.Server.Controllers
                                 Reaction = a.Reaction,
 
                             }) ?? [],
-                            diagnoses = app.Patient.Diagnoses ?? []
+                            diagnoses = app.Patient.Diagnoses.Select(d=> new DiagnosisDto
+                            {
+                                Id = d.DiagnosisID,
+                                Name = d.Name,
+                                DiagnosisDate = d.DiagnosisDate,
+                            }) ?? []
 
                         },
                         app.Service.Name,

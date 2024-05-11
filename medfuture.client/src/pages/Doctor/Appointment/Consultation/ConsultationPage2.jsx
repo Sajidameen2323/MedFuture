@@ -1,17 +1,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, List, ListItem, ListItemText } from '@mui/material';
-import { AudioOutlined, AudioMutedOutlined, ClearOutlined } from '@ant-design/icons';
+import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, List, ListItem, ListItemText, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { AudioOutlined, AudioMutedOutlined, ClearOutlined, CaretDownOutlined } from '@ant-design/icons'; 
 import { Button as AntButton, Tooltip } from 'antd';
 import useSpeechRecognition from 'hooks/useAzureSpeechRecognition';
 import moment from 'moment';
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ConsultationPage = () => {
 
     const location = useLocation();
     const { patientData } = location.state || {};
+    const navigate = useNavigate();
 
     const [activeStep, setActiveStep] = useState(0);
     const [summary, setSummary] = useState('');
@@ -44,7 +45,17 @@ const ConsultationPage = () => {
         setLanguage(event.target.value);
     };
 
+
     const steps = ['Patient Details', 'Voice Recording', 'Summary & Prescription'];
+
+    useEffect(() => {
+
+        if (!patientData) {
+
+            navigate(`/doctor/appointments/today`, { state: {  } });
+        }
+
+    },[])
 
     return (
         <Box sx={{ width: { md: '1100px', xs: '100%' } }}>
@@ -62,11 +73,11 @@ const ConsultationPage = () => {
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
                             <Card>
-                                <CardContent sx={{ textAlign:'left' }}>
+                                <CardContent sx={{ textAlign: 'left' }}>
                                     <Box display="flex" alignItems="center" mb={2}>
-                                        <Avatar alt="Patient Name" src={ patientData?.profilePicture } />
+                                        <Avatar alt="Patient Name" src={patientData?.profilePicture} />
                                         <Typography variant="h6" ml={2}>
-                                            { patientData?.name }
+                                            {patientData?.name}
                                         </Typography>
                                     </Box>
                                     <Grid container spacing={1}>
@@ -80,7 +91,7 @@ const ConsultationPage = () => {
                                             <Typography variant="subtitle1">Gender:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Typography variant="body1">{ patientData?.gender }</Typography>
+                                            <Typography variant="body1">{patientData?.gender}</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Typography variant="subtitle1">Contact:</Typography>
@@ -98,35 +109,51 @@ const ConsultationPage = () => {
                                             <Typography variant="subtitle1">Blood Group:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Typography variant="body1">{getBloodGroupName(patientData?.bloodGroup) }</Typography>
+                                            <Typography variant="body1">{getBloodGroupName(patientData?.bloodGroup)}</Typography>
                                         </Grid>
                                     </Grid>
                                 </CardContent>
                             </Card>
                         </Grid>
                         <Grid item xs={12} md={8}>
-                            <Card sx={{ maxHeight: '300px', overflowY:'scroll' }}>
-                                <CardContent>
-                                    <Typography variant="h4" gutterBottom sx={{ textAlign:'left' } }>
-                                        Allergies
-                                    </Typography>
-                                    <List>
-                                        {patientData?.allergies && patientData.allergies.map(el => {
-                                            return (
-                                                <ListItem key={el.id}>
-                                                    <ListItemText
-                                                        primary={el.name}
-                                                        secondary={el.reaction}
-                                                    />
-                                                </ListItem>
-                                                )
-                                        }) }
-      
-                        
-
-                                    </List>
-                                </CardContent>
-                            </Card>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<CaretDownOutlined />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography variant="h6">Allergies</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Box sx={{ maxHeight: '200px', overflowY: 'auto', width: '100%', textAlign:'left' }}>
+                                        {patientData?.allergies && patientData.allergies.map(el => (
+                                            <Box key={el.id} mb={1}>
+                                                <Typography variant="body1"><strong>{el.name}</strong></Typography>
+                                                <Typography variant="body2">{el.reaction}</Typography>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<CaretDownOutlined />}
+                                    aria-controls="panel2a-content"
+                                    id="panel2a-header"
+                                >
+                                    <Typography variant="h6">Diagnoses</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Box sx={{ maxHeight: '200px', overflowY: 'auto', width: '100%', textAlign: 'left' }}>
+                                        {patientData?.diagnoses && patientData.diagnoses.map(el => (
+                                            <Box key={el.id} mb={1}>
+                                                <Typography variant="body1"><strong>{el.name}</strong></Typography>
+                                                <Typography variant="body2">Diagnosed on: {moment(el.diagnosisDate).format('YYYY-MM-DD')}</Typography>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </AccordionDetails>
+                            </Accordion>
                         </Grid>
                     </Grid>
                 )}

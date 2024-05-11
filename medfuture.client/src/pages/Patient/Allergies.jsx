@@ -171,11 +171,11 @@ const Allergies = () => {
 
     const handleEditAllergy = (allergy) => {
         setEditingAllergy(allergy);
+        setActiveKey(['1']); // Open the collapse panel
         form.setFieldsValue({
             name: allergy.name,
             reaction: allergy.reaction
         });
-     
     };
 
     const handleUpdateAllergy = (values) => {
@@ -202,9 +202,7 @@ const Allergies = () => {
 
     return (
         <Box sx={{ width: { xs: '100%', md: '1000px' } }} >
-            <Collapse style={{ marginTop: '50px' }}
-           
-            >
+            <Collapse style={{ marginTop: '50px' }} activeKey={activeKey} onChange={(key) => setActiveKey(key)}>
                 <Panel header={editingAllergy ? "Update Allergy" : "Add Allergy"} key="1">
                     <Form form={form} onFinish={editingAllergy ? handleUpdateAllergy : handleAddAllergy} layout="vertical">
                         <Form.Item
@@ -220,14 +218,16 @@ const Allergies = () => {
                         >
                             <Input placeholder="Enter reaction (optional)" />
                         </Form.Item>
-                        <Form.Item style={{ display: 'flex', justifyContent: 'space-evenly' }} >
+                        <Form.Item style={{
+                            display: 'flex', justifyContent: 'space-evenly'
+                        }} >
                             <Button type="primary" htmlType="submit" loading={addingAllergy || updatingAllergy}>
                                 {editingAllergy ? 'Update' : 'Add'}
                             </Button>
                             <Button style={{ marginLeft: '10px' }} onClick={() => {
                                 form.resetFields();
                                 setEditingAllergy(null);
-                              
+                                setActiveKey([]); // Close the collapse panel
                             }}>
                                 Cancel
                             </Button>
@@ -242,22 +242,23 @@ const Allergies = () => {
                 loading={allergyLoading}
                 size="small"
                 header={
-                    <List.Item>
+                    <List.Item style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f0f0f0', padding: '8px 16px' }}>
                         <Typography.Text strong>Name</Typography.Text>
-                        <Typography.Text strong style={{ marginLeft: '20px' }}>Reaction</Typography.Text>
+                        <Typography.Text strong>Reaction</Typography.Text>
                         <Typography.Text strong>Action</Typography.Text>
                     </List.Item>
                 }
                 dataSource={allergies}
                 renderItem={(allergy, index) => (
                     <List.Item
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #e8e8e8' }}
                         actions={[
-                            <EditOutlined key="edit" onClick={() => handleEditAllergy(allergy)} />,
-                            <DeleteOutlined key="delete" onClick={() => handleRemoveAllergy(allergy.id, allergy.name)} />,
+                            <EditOutlined key="edit" onClick={() => handleEditAllergy(allergy)} style={{ color: '#1890ff', cursor: 'pointer' }} />,
+                            <DeleteOutlined key="delete" onClick={() => handleRemoveAllergy(allergy.id, allergy.name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />,
                         ]}
                     >
-                        <Typography.Text>{allergy.name}</Typography.Text>
-                        <Typography.Text>{allergy.reaction}</Typography.Text>
+                        <Typography.Text strong>{allergy.name}</Typography.Text>
+                        <Typography.Text  >{allergy.reaction}</Typography.Text>
                     </List.Item>
                 )}
             />

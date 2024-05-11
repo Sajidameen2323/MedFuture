@@ -12,7 +12,9 @@ namespace MedFuture.Server.Database.Interfaces
         Task UpdateAlelrgy( int patientId, int allergyId, AllergyDto allergy);
         Task DeleteAllergy(int patientId, int allergyId);
         Task<IEnumerable<DiagnosisM>> GetDiagnoses(int patientId);
-
+        Task<DiagnosisM> AddDiagnosis(int patientId, DiagnosisDto diagnosis);
+        Task UpdateDiagnosis(int patientId, int diagnosisId, DiagnosisDto diagnosis);
+        Task DeleteDiagnosis(int patientId, int diagnosisId);
 
 
     }

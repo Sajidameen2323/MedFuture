@@ -215,7 +215,15 @@ namespace MedFuture.Server.Controllers
 
                 var diagnoses = await _patientRepository.GetDiagnoses(userIdDb);
 
-                return Ok(diagnoses);
+                var formattedData = diagnoses.Select(diagnosis => new DiagnosisDto
+                {
+                    Id = diagnosis.DiagnosisID,
+                    Name = diagnosis.Name,
+                    DiagnosisDate = diagnosis.DiagnosisDate,
+
+                }).ToList();
+
+                return Ok(formattedData);
             }
             catch (ArgumentException ex)
             {
@@ -228,6 +236,100 @@ namespace MedFuture.Server.Controllers
                 return BadRequest("Something Went Wrong!");
             }
         }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpPost("me/diagnoses")]
+        public async Task<IActionResult> AddDiagnosis(DiagnosisDto diagnosis)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var newDiagnosis = await _patientRepository.AddDiagnosis(userIdDb, diagnosis);
+
+                var formattedDiagnosis = new {
+                    
+                    newDiagnosis.DiagnosisID,
+                    newDiagnosis.Name,
+                    newDiagnosis.DiagnosisDate
+                
+                };
+
+                return Ok(formattedDiagnosis);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpPut("me/diagnoses/{diagnosisId}")]
+        public async Task<IActionResult> UpdateDiagnosis(int diagnosisId, DiagnosisDto diagnosis)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _patientRepository.UpdateDiagnosis(userIdDb, diagnosisId, diagnosis);
+
+                return Ok(new { message = "Successfully Updated Diagnosis!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpDelete("me/diagnoses/{diagnosisId}")]
+        public async Task<IActionResult> DeleteDiagnosis(int diagnosisId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _patientRepository.DeleteDiagnosis(userIdDb, diagnosisId);
+
+                return Ok(new { message = "Successfully Deleted Diagnosis!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
 
     }
 }

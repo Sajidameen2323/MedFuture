@@ -236,6 +236,7 @@ namespace MedFuture.Server.Database.Repositories
                                 .Include(a => a.Patient)
                                 .Include(a => a.Patient.User)
                                 .Include(a => a.Patient.Allergies)
+                                .Include(a => a.Patient.Diagnoses)
                                 .FirstOrDefault();
 
             if(appointment == null)

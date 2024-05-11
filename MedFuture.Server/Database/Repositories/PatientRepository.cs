@@ -145,5 +145,75 @@ namespace MedFuture.Server.Database.Repositories
             await _context.SaveChangesAsync();
 
         }
+
+        public async Task<DiagnosisM> AddDiagnosis(int patientId, DiagnosisDto diagnosis)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == patientId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User ID");
+            }
+
+            DiagnosisM newDiagnosis = new DiagnosisM()
+            {
+                Name = diagnosis.Name,
+                DiagnosisDate = diagnosis.DiagnosisDate,
+                PatientID = patient.PatientID
+            };
+
+            _context.Diagnoses.Add(newDiagnosis);
+
+            _context.SaveChanges();
+
+            return newDiagnosis;
+
+        }
+
+        public async Task UpdateDiagnosis(int patientId, int diagnosisId, DiagnosisDto diagnosis)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == patientId).FirstOrDefault();
+            var cur_diagnosis = _context.Diagnoses.Where(d => d.DiagnosisID == diagnosisId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User ID");
+            }
+            if (cur_diagnosis == null)
+            {
+                throw new ArgumentException("Invalid Diagnosis Id");
+            }
+            if (cur_diagnosis.PatientID != patient.PatientID)
+            {
+                throw new UnauthorizedAccessException("Do not have access to the resource.");
+            }
+
+            cur_diagnosis.Name = diagnosis.Name;
+            cur_diagnosis.DiagnosisDate = diagnosis.DiagnosisDate;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteDiagnosis(int patientId, int diagnosisId)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == patientId).FirstOrDefault();
+            var cur_diagnosis = _context.Diagnoses.Where(d => d.DiagnosisID == diagnosisId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User ID");
+            }
+            if (cur_diagnosis == null)
+            {
+                throw new ArgumentException("Invalid Diagnosis Id");
+            }
+            if (cur_diagnosis.PatientID != patient.PatientID)
+            {
+                throw new UnauthorizedAccessException("Do not have access to the resource.");
+            }
+
+            _context.Diagnoses.Remove(cur_diagnosis);
+            await _context.SaveChangesAsync();
+        }
     }
 }
