@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
-using MedFuture.Server.Services;
 using MedFuture.Server.Database;
 using MedFuture.Server.Models;
 using FirebaseAdmin;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using MedFuture.Server.Database.Interfaces;
+using MedFuture.Server.Services.User;
 
 namespace MedFuture.Server.Controllers
 {

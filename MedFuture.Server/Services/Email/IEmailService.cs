@@ -1,4 +1,4 @@
-﻿namespace MedFuture.Server.Services
+﻿namespace MedFuture.Server.Services.Email
 {
     public interface IEmailService
     {

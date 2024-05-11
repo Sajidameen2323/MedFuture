@@ -136,31 +136,35 @@ const HolidaySettings = () => {
 
             <Typography.Title style={{ textAlign:'left' } } level={5}> Upcoming Holidays </Typography.Title>
 
-
             <List
                 loading={isLoading}
                 size="small"
                 header={
-                    <List.Item>
-                        <Typography.Text strong>Date</Typography.Text>
-                        <Typography.Text strong style={{ marginLeft: '20px' }}>Day Off name</Typography.Text>
+                    <List.Item style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f0f0f0', padding: '8px 16px' }}>
+                        <Typography.Text strong>Holiday</Typography.Text>
+
                         <Typography.Text strong>Action</Typography.Text>
                     </List.Item>
                 }
                 dataSource={holidays}
                 renderItem={(holiday, index) => (
+
                     <List.Item
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #e8e8e8', textAlign: 'left' }}
                         actions={[
-                            <DeleteOutlined key="delete" onClick={() => handleRemoveHoliday(holiday.id, holiday.name)} />,
+                            <DeleteOutlined key="delete" onClick={() => handleRemoveHoliday(holiday.id, holiday.name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />,
                         ]}
                     >
-                        <Typography.Text>
-                            {holiday?.dateRange[0]?.toLocaleDateString()} - {holiday?.dateRange[1]?.toLocaleDateString()}
-                        </Typography.Text>
-                        <Typography.Text>{holiday.name}</Typography.Text>
+                        <List.Item.Meta
+
+                            title={<Typography.Text strong>{holiday.name}</Typography.Text>}
+                            description={holiday?.dateRange[0]?.toLocaleDateString() +" - "+ holiday?.dateRange[1]?.toLocaleDateString()}
+                        />
                     </List.Item>
+
                 )}
             />
+
             <Popconfirm
                 title={"Confirm Delete - " + confirmationModal.name}
                 description="Are you sure you want to delete this holiday?"

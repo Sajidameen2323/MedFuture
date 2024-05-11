@@ -236,31 +236,37 @@ const Diagnoses = () => {
                 </Panel>
             </Collapse>
 
-            <Typography.Title style={{ textAlign: 'left' }} level={5}> Diagnoses </Typography.Title>
-
             <List
                 loading={diagnosisLoading}
                 size="small"
                 header={
-                    <List.Item>
-                        <Typography.Text strong>Name</Typography.Text>
-                        <Typography.Text strong style={{ marginLeft: '20px' }}>Diagnosis Date</Typography.Text>
+                    <List.Item style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f0f0f0', padding: '8px 16px' }}>
+                        <Typography.Text strong>Diagnosis</Typography.Text>
+
                         <Typography.Text strong>Action</Typography.Text>
                     </List.Item>
                 }
                 dataSource={diagnoses}
                 renderItem={(diagnosis, index) => (
+
                     <List.Item
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #e8e8e8', textAlign: 'left' }}
                         actions={[
-                            <EditOutlined key="edit" onClick={() => handleEditDiagnosis(diagnosis)} />,
-                            <DeleteOutlined key="delete" onClick={() => handleRemoveDiagnosis(diagnosis.id, diagnosis.name)} />,
+                            <EditOutlined key="edit" onClick={() => handleEditDiagnosis(diagnosis)} style={{ color: '#1890ff', cursor: 'pointer' }} />,
+                            <DeleteOutlined key="delete" onClick={() => handleRemoveDiagnosis(diagnosis.id, diagnosis.name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />,
                         ]}
                     >
-                        <Typography.Text>{diagnosis.name}</Typography.Text>
-                        <Typography.Text>{moment(diagnosis.diagnosisDate).format('YYYY-MM-DD')}</Typography.Text>
+                        <List.Item.Meta
+
+                            title={<Typography.Text strong>{diagnosis.name}</Typography.Text>}
+                            description={moment(diagnosis.diagnosisDate).format('YYYY-MM-DD')}
+                        />
                     </List.Item>
+
                 )}
             />
+
+
             <Popconfirm
                 title={"Confirm Delete - " + confirmationModal.name}
                 description="Are you sure you want to delete this diagnosis?"

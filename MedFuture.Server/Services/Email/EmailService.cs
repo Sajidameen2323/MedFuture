@@ -9,7 +9,7 @@ using Org.BouncyCastle.Asn1.Pkcs;
 using static System.Net.Mime.MediaTypeNames;
 
 
-namespace MedFuture.Server.Services
+namespace MedFuture.Server.Services.Email
 {
     public class EmailService(IOptions<MailOptions> mailOptions) : IEmailService
     {
@@ -41,7 +41,7 @@ namespace MedFuture.Server.Services
                     //this is the SmtpClient from the Mailkit.Net.Smtp namespace, not the System.Net.Mail one
                     using (SmtpClient mailClient = new SmtpClient())
                     {
-                        mailClient.Connect(_mailOptions.Server, _mailOptions.Port, MailKit.Security.SecureSocketOptions.StartTls);
+                        mailClient.Connect(_mailOptions.Server, _mailOptions.Port, SecureSocketOptions.StartTls);
                         mailClient.Authenticate(_mailOptions.UserName, _mailOptions.Password);
                         mailClient.Send(emailMessage);
                         mailClient.Disconnect(true);
@@ -51,7 +51,7 @@ namespace MedFuture.Server.Services
 
                 Console.WriteLine("Email Sent Successfully");
             }
-            catch(SmtpCommandException ex)
+            catch (SmtpCommandException ex)
             {
                 Console.WriteLine("!!!Could Not Send -");
                 Console.WriteLine("Error trying to connect: {0}", ex.Message);
@@ -61,15 +61,15 @@ namespace MedFuture.Server.Services
             {
                 Console.WriteLine("!!!Could Not Send -");
                 Console.WriteLine("Protocol error while trying to connect: {0}", ex.Message);
-               
+
             }
             catch (AuthenticationException ex)
             {
                 Console.WriteLine("!!!Could Not Send -");
                 Console.WriteLine("Invalid user name or password.");
-              
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("!!!Could Not Send -");
                 Console.WriteLine("Unknow error - {0}", ex.ToString());
@@ -123,7 +123,7 @@ namespace MedFuture.Server.Services
 
                     using (SmtpClient mailClient = new SmtpClient())
                     {
-                        mailClient.Connect(_mailOptions.Server, _mailOptions.Port, MailKit.Security.SecureSocketOptions.StartTls);
+                        mailClient.Connect(_mailOptions.Server, _mailOptions.Port, SecureSocketOptions.StartTls);
                         mailClient.Authenticate(_mailOptions.UserName, _mailOptions.Password);
                         mailClient.Send(emailMessage);
                         mailClient.Disconnect(true);

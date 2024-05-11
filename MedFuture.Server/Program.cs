@@ -12,6 +12,10 @@ using MedFuture.Server.Services;
 using MedFuture.Server.Options;
 using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.Database.Repositories;
+using MedFuture.Server.Services.Email;
+using MedFuture.Server.Services.User;
+using MedFuture.Server.Services.Translate;
+using MedFuture.Server.Services.Gemini;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +29,12 @@ var fireApp = FirebaseApp.Create(new AppOptions
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
+
+builder.Services.AddHttpClient();
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
+builder.Services.Configure<AzureTranslateOptions>(builder.Configuration.GetSection("AzureTranslate"));
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -65,6 +74,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, AuthRoleHandler>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMyDependency, MyDependency>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<ITranslationService, TranslationService>();
+builder.Services.AddSingleton<ITextGenerationService, TextGenerationService>();
 
 // Registering datbase repositories
 

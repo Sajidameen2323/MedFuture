@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.DataTransferObjects.Appointment;
-using MedFuture.Server.Services;
 using MedFuture.Server.DataTransferObjects.Patient;
+using MedFuture.Server.Services.User;
 
 namespace MedFuture.Server.Controllers
 {

@@ -2,7 +2,7 @@
 using MedFuture.Server.Database.Repositories;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
-using MedFuture.Server.Services;
+using MedFuture.Server.Services.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

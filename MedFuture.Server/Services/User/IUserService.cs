@@ -4,7 +4,7 @@ using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
 using System.Security.Claims;
 
-namespace MedFuture.Server.Services
+namespace MedFuture.Server.Services.User
 {
     public interface IUserService
     {

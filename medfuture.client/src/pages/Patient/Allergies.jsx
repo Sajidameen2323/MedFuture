@@ -236,30 +236,33 @@ const Allergies = () => {
                 </Panel>
             </Collapse>
 
-            <Typography.Title style={{ textAlign: 'left' }} level={5}> Allergies </Typography.Title>
-
             <List
                 loading={allergyLoading}
                 size="small"
                 header={
                     <List.Item style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f0f0f0', padding: '8px 16px' }}>
-                        <Typography.Text strong>Name</Typography.Text>
-                        <Typography.Text strong>Reaction</Typography.Text>
+                        <Typography.Text strong>Allergy</Typography.Text>
+         
                         <Typography.Text strong>Action</Typography.Text>
                     </List.Item>
                 }
                 dataSource={allergies}
                 renderItem={(allergy, index) => (
-                    <List.Item
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #e8e8e8' }}
-                        actions={[
-                            <EditOutlined key="edit" onClick={() => handleEditAllergy(allergy)} style={{ color: '#1890ff', cursor: 'pointer' }} />,
-                            <DeleteOutlined key="delete" onClick={() => handleRemoveAllergy(allergy.id, allergy.name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />,
-                        ]}
-                    >
-                        <Typography.Text strong>{allergy.name}</Typography.Text>
-                        <Typography.Text  >{allergy.reaction}</Typography.Text>
-                    </List.Item>
+                
+                        <List.Item
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #e8e8e8', textAlign:'left' }}
+                            actions={[
+                                <EditOutlined key="edit" onClick={() => handleEditAllergy(allergy)} style={{ color: '#1890ff', cursor: 'pointer' }} />,
+                                <DeleteOutlined key="delete" onClick={() => handleRemoveAllergy(allergy.id, allergy.name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />,
+                            ]}
+                        >
+                            <List.Item.Meta
+                                
+                                title={<Typography.Text strong>{allergy.name}</Typography.Text>}
+                                description={allergy.reaction}
+                            />
+                        </List.Item>
+              
                 )}
             />
             <Popconfirm

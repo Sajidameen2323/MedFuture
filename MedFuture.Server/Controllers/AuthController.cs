@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using MedFuture.Server.Models;
-using MedFuture.Server.Services;
 using FirebaseAdmin.Messaging;
 using Microsoft.Data.SqlClient;
 using FirebaseAdmin;
 using MedFuture.Server.DataTransferObjects.Patient;
+using MedFuture.Server.Services.Email;
+using MedFuture.Server.Services.User;
 
 
 namespace MedFuture.Server.Controllers

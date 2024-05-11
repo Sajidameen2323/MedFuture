@@ -1,11 +1,16 @@
+﻿using Azure;
 using FirebaseAdmin.Auth;
 using MedFuture.Server.Database.Interfaces;
+using MedFuture.Server.DataTransferObjects.GenerateJson;
 using MedFuture.Server.DataTransferObjects.Service;
-using MedFuture.Server.Services;
+using MedFuture.Server.Services.Email;
+using MedFuture.Server.Services.Gemini;
+using MedFuture.Server.Services.Translate;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Security.Claims;
@@ -28,12 +33,17 @@ namespace MedFuture.Server.Controllers
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IEmailService _emailService;
         private readonly IServiceRepository _serviceRepository;
+        private readonly ITranslationService _translationService;
+        private readonly ITextGenerationService _textGenerationService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService, IServiceRepository serviceRepository)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IEmailService emailService, IServiceRepository serviceRepository, ITranslationService translationService,
+            ITextGenerationService textGenerationService)
         {
             _logger = logger;
             _emailService = emailService;
             _serviceRepository = serviceRepository;
+            _translationService = translationService;
+            _textGenerationService = textGenerationService;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -61,71 +71,47 @@ namespace MedFuture.Server.Controllers
            
         }
 
-        [HttpGet("get-services")]
-        public async Task<IActionResult> GetServices()
+        [HttpPost("translate")]
+        public async Task<IActionResult> TranslateText([FromBody] TextGenFormRequestDto request)
         {
-            var obj = await _serviceRepository.GetAllServices();
-
-            return Ok(obj);
-
-        }
-        [HttpGet("get-doctors-for-service/{id}")]
-        public async Task<IActionResult> GetDoctorsForService(int id)
-        {
-            var obj = await _serviceRepository.GetDoctorsForService(id);
-
-            return Ok(obj);
-
-        }
-
-        [HttpGet("get-time-slots")]
-        public async Task<ObjectResult> GetTimeSlots()
-        {
-            DateTime startTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0); // 9 am
-            DateTime endTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 17, 0, 0); // 5 pm
-
-            List<string> timeSlots = new List<string>();
-
-            DateTime currentTime = startTime;
-
-            TimeSpan interval = TimeSpan.FromMinutes(30);
-
-            // Define booked time slots
-            List<(DateTime, DateTime)> bookedTimeSlots = new List<(DateTime, DateTime)>();
-            bookedTimeSlots.Add((new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 30, 0), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 10, 0, 0))); // 9:30 am - 10 am
-            bookedTimeSlots.Add((new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 14, 0, 0), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 14, 30, 0)));
-
-            // Loop through time slots
-            while (currentTime < endTime)
+            try
             {
-                bool isBooked = false;
+                var translatedText = request.Text;
 
-                // Check if the current time slot falls within any booked range
-                foreach (var bookedSlot in bookedTimeSlots)
+                if (request.language != "en")
                 {
-                    if (currentTime >= bookedSlot.Item1 && currentTime < bookedSlot.Item2)
-                    {
-                        isBooked = true;
-                        break;
-                    }
-                }
-
-                // If the current time slot is not booked, add it to the list of available slots
-                if (!isBooked)
-                {
-                    //timeSlots.Add(currentTime.ToString("hh:mm tt"));
-                    DateTime endTimeSlot = currentTime.Add(interval);
-                    timeSlots.Add($"{currentTime.ToString("hh:mm tt")} - {endTimeSlot.ToString("hh:mm tt")}");
+                    translatedText = await _translationService.TranslateTextAsync(translatedText, "en");
 
                 }
 
-                currentTime = currentTime.Add(interval);
+                var response = await _textGenerationService.GenerateTextAsync(translatedText);
+
+                Console.WriteLine(response);
+
+                MedicationPrescription prescription = JsonConvert.DeserializeObject<MedicationPrescription>(response);
+
+                return Ok(prescription);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
             }
 
-
-            return Ok(timeSlots);
-
         }
+
+        public class MedicationPrescription
+        {
+            public string Summary { get; set; }
+            public List<Medication> Medications { get; set; } = [];
+        }
+
+        public class Medication
+        {
+            public string Name { get; set; }
+            public string Instruction { get; set; }
+        }
+
 
     }
 }

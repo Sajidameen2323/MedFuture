@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MedFuture.Server.Services;
 using System.Globalization;
+using MedFuture.Server.Services.User;
 
 namespace MedFuture.Server.Controllers
 {

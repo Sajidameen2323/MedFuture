@@ -4,21 +4,23 @@ using MedFuture.Server.Database;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
+using MedFuture.Server.Services.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 
-namespace MedFuture.Server.Services
+namespace MedFuture.Server.Services.User
 {
-    public class UserService: IUserService
+    public class UserService : IUserService
     {
         private readonly ApplicationDbContext _dbcontext;
         private readonly IEmailService _emailService;
-   
-        public UserService(ApplicationDbContext dbcontext, IEmailService emailService) { 
-        
+
+        public UserService(ApplicationDbContext dbcontext, IEmailService emailService)
+        {
+
             _dbcontext = dbcontext;
             _emailService = emailService;
 
@@ -29,7 +31,7 @@ namespace MedFuture.Server.Services
             try
             {
                 // Use FirstOrDefault instead of First to handle the case where no user is found
-                UserM? user = _dbcontext.Users.Where(u => u.FirebaseID == (string)firebaseId).FirstOrDefault();
+                UserM? user = _dbcontext.Users.Where(u => u.FirebaseID == firebaseId).FirstOrDefault();
 
                 if (user == null)
                 {
@@ -50,8 +52,8 @@ namespace MedFuture.Server.Services
             catch (SqlException ex) when (ex.Number == -2) // Check for timeout error code
             {
                 // Handle timeout exception
-            
-                throw new Exception(("Database timeout occurred: "+ ex.Message));
+
+                throw new Exception("Database timeout occurred: " + ex.Message);
                 // You can retry the operation with increased timeout or provide a fallback behavior
             }
             catch (Exception ex) // Catch general exceptions
@@ -89,7 +91,7 @@ namespace MedFuture.Server.Services
             {
                 // Handle timeout exception
 
-                throw new Exception(("Database timeout occurred: " + ex.Message));
+                throw new Exception("Database timeout occurred: " + ex.Message);
                 // You can retry the operation with increased timeout or provide a fallback behavior
             }
             catch (Exception ex) // Catch general exceptions
@@ -103,7 +105,7 @@ namespace MedFuture.Server.Services
         public async Task<string> GetCustomToken(UserM user, string uid)
         {
 
-            string definedRole = ((UserRole)user.Role).ToString();
+            string definedRole = user.Role.ToString();
             // Retrieve user ID from Firebase authentication token
 
             // Set custom claims using Firebase Admin SDK
@@ -112,7 +114,7 @@ namespace MedFuture.Server.Services
             var additionalClaims = new Dictionary<string, object> {
 
                             { "role", definedRole },
-                            { "userIdDb", (int)user.UserID },
+                            { "userIdDb", user.UserID },
 
                         };
 
@@ -128,34 +130,46 @@ namespace MedFuture.Server.Services
         public async Task<UserM> CreateUserFromGoogleAuth(PatientCreateFromGoogleAuthDto patientData)
         {
 
-       
-                UserM user = new UserM() { Email=patientData.Email, FirebaseID = patientData.FirebaseID, FirstName = patientData.FirstName,
-                LastName = patientData.LastName, ProfilePic= patientData.ProfilePic, Role=patientData.Role};
 
-                PatientM patient = new PatientM() { DOB = patientData.DOB, Gender = patientData.Gender, User=user, UserID=user.UserID };
+            UserM user = new UserM()
+            {
+                Email = patientData.Email,
+                FirebaseID = patientData.FirebaseID,
+                FirstName = patientData.FirstName,
+                LastName = patientData.LastName,
+                ProfilePic = patientData.ProfilePic,
+                Role = patientData.Role
+            };
 
-                _dbcontext.Add(user);
-                _dbcontext.Add(patient);
-                await _dbcontext.SaveChangesAsync();
+            PatientM patient = new PatientM() { DOB = patientData.DOB, Gender = patientData.Gender, User = user, UserID = user.UserID };
 
-                return user;
-            
+            _dbcontext.Add(user);
+            _dbcontext.Add(patient);
+            await _dbcontext.SaveChangesAsync();
+
+            return user;
+
 
         }
 
 
-        public async Task<PatientM> CreatePatient( PatientCreateDto patientDto)
+        public async Task<PatientM> CreatePatient(PatientCreateDto patientDto)
         {
-           
+
             var properties = typeof(PatientCreateDto).GetProperties();
             string output = string.Join(", ", properties.Select(p => $"{p.Name}: {p.GetValue(patientDto)}"));
 
             Console.WriteLine(output);
 
             // Map DTO to UserM
-            UserM user = new UserM() { Email=patientDto.Email, FirstName = patientDto.FirstName,
-            LastName = patientDto.LastName, ProfilePic = ""};
-            PatientM patient = new PatientM() { DOB= patientDto.DOB, Gender = patientDto.Gender };
+            UserM user = new UserM()
+            {
+                Email = patientDto.Email,
+                FirstName = patientDto.FirstName,
+                LastName = patientDto.LastName,
+                ProfilePic = ""
+            };
+            PatientM patient = new PatientM() { DOB = patientDto.DOB, Gender = patientDto.Gender };
 
 
             UserRecordArgs args = new UserRecordArgs()
