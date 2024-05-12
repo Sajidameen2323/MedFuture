@@ -71,47 +71,6 @@ namespace MedFuture.Server.Controllers
            
         }
 
-        [HttpPost("translate")]
-        public async Task<IActionResult> TranslateText([FromBody] TextGenFormRequestDto request)
-        {
-            try
-            {
-                var translatedText = request.Text;
-
-                if (request.language != "en")
-                {
-                    translatedText = await _translationService.TranslateTextAsync(translatedText, "en");
-
-                }
-
-                var response = await _textGenerationService.GenerateTextAsync(translatedText);
-
-                Console.WriteLine(response);
-
-                MedicationPrescription prescription = JsonConvert.DeserializeObject<MedicationPrescription>(response);
-
-                return Ok(prescription);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return BadRequest("Something Went Wrong!");
-            }
-
-        }
-
-        public class MedicationPrescription
-        {
-            public string Summary { get; set; }
-            public List<Medication> Medications { get; set; } = [];
-        }
-
-        public class Medication
-        {
-            public string Name { get; set; }
-            public string Instruction { get; set; }
-        }
-
-
+ 
     }
 }

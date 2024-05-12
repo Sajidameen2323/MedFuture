@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, List, ListItem, ListItemText, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, StepButton, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { AudioOutlined, AudioMutedOutlined, ClearOutlined, CaretDownOutlined } from '@ant-design/icons'; 
 import { Button as AntButton, Tooltip } from 'antd';
 import useSpeechRecognition from 'hooks/useAzureSpeechRecognition';
 import moment from 'moment';
-
+import axios from 'axios';
+import { useMutation } from 'react-query';
 import { useLocation, useNavigate } from "react-router-dom";
+import ConsultationSummary from './ConsultationSummary';
 
 const ConsultationPage = () => {
 
@@ -16,8 +18,8 @@ const ConsultationPage = () => {
 
     const [activeStep, setActiveStep] = useState(0);
     const [summary, setSummary] = useState('');
-    const [prescription, setPrescription] = useState('');
-    const [additionalNotes, setAdditionalNotes] = useState('');
+    const [medications, setMedications] = useState([]);
+    const [additionalNote, setAdditionalNote] = useState('');
     const [language, setLanguage] = useState('en-US'); 
 
     const {
@@ -33,8 +35,44 @@ const ConsultationPage = () => {
         totalTranscript
     } = useSpeechRecognition(language);
 
+    const { mutate: generateSummary, isLoading: isGenerating } = useMutation(
+        async () => {
+            const response = await axios.post(
+                '/api/consultation/get-summary',
+                { text: totalTranscript , language },
+                {
+                    headers: {
+                        Authorization: 'Bearer YOUR_AUTH_TOKEN_HERE',
+                    },
+                }
+            );
+            return response.data;
+        },
+        {
+            onSuccess: (data) => {
+                setSummary(data.summary);
+                setMedications(data.medications);
+            },
+            onSettled: () => {
+
+                setActiveStep(steps.length - 1);
+            }
+        }
+    );
+
+
     const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        if (activeStep === 1) {
+
+            stopListening();
+            generateSummary();
+
+        }
+        else {
+
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        }
+     
     };
 
     const handleBack = () => {
@@ -60,10 +98,12 @@ const ConsultationPage = () => {
     return (
         <Box sx={{ width: { md: '1100px', xs: '100%' } }}>
            
-            <Stepper activeStep={activeStep}>
-                {steps.map((label) => (
+            <Stepper nonLinear activeStep={activeStep}>
+                {steps.map((label,index) => (
                     <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
+                        <StepLabel color="inherit" sx={{ cursor:'pointer' }} onClick={() => { setActiveStep(index) } }>
+                            {label}
+                        </StepLabel>
                     </Step>
                 ))}
             </Stepper>
@@ -226,7 +266,7 @@ const ConsultationPage = () => {
                 )}
                 {activeStep === 2 && (
                     // ... (Summary & Prescription)
-                    <h2>sad</h2>
+                    <ConsultationSummary summary={summary} setSummary={setSummary} medications={medications} setMedications={setMedications} additionalNote={additionalNote} setAdditionalNote={setAdditionalNote} generateSummary={generateSummary} isGenerating={ isGenerating } />
                 )}
                 <Box mt={3} display="flex" justifyContent="space-between">
                     <Button
@@ -236,14 +276,16 @@ const ConsultationPage = () => {
                     >
                         Back
                     </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
+                    <AntButton
+                        loading={ isGenerating }
+                        type="primary"                 
                         onClick={handleNext}
                         disabled={activeStep === steps.length - 1}
                     >
-                        {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                    </Button>
+                        {activeStep === 0 && 'Next'}
+                        {activeStep === steps.length - 1 && 'Finish'}
+                        {activeStep === steps.length - 2 && 'Generate'}
+                    </AntButton>
                 </Box>
             </Box>
         </Box>
