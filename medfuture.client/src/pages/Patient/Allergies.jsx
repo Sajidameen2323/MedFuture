@@ -200,41 +200,49 @@ const Allergies = () => {
         setConfirmationModal({ visible: false, allergyId: null, name: null });
     };
 
+    const collapseItems = [
+        {
+            key: '1',
+            label: editingAllergy ? "Update Allergy" : "Add Allergy",
+            children: (
+                <Form form={form} onFinish={editingAllergy ? handleUpdateAllergy : handleAddAllergy} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Allergy Name"
+                        rules={[{ required: true, message: 'Please enter an allergy name' }]}
+                    >
+                        <Input placeholder="Enter allergy name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="reaction"
+                        label="Reaction"
+                    >
+                        <Input placeholder="Enter reaction (optional)" />
+                    </Form.Item>
+                    <Form.Item style={{
+                        display: 'flex', justifyContent: 'space-evenly'
+                    }} >
+                        <Button type="primary" htmlType="submit" loading={addingAllergy || updatingAllergy}>
+                            {editingAllergy ? 'Update' : 'Add'}
+                        </Button>
+                        <Button style={{ marginLeft: '10px' }} onClick={() => {
+                            form.resetFields();
+                            setEditingAllergy(null);
+                            setActiveKey([]); // Close the collapse panel
+                        }}>
+                            Cancel
+                        </Button>
+                    </Form.Item>
+                </Form>
+            ),
+        },
+
+    ];
+
+
     return (
         <Box sx={{ width: { xs: '100%', md: '1000px' } }} >
-            <Collapse style={{ marginTop: '50px' }} activeKey={activeKey} onChange={(key) => setActiveKey(key)}>
-                <Panel header={editingAllergy ? "Update Allergy" : "Add Allergy"} key="1">
-                    <Form form={form} onFinish={editingAllergy ? handleUpdateAllergy : handleAddAllergy} layout="vertical">
-                        <Form.Item
-                            name="name"
-                            label="Allergy Name"
-                            rules={[{ required: true, message: 'Please enter an allergy name' }]}
-                        >
-                            <Input placeholder="Enter allergy name" />
-                        </Form.Item>
-                        <Form.Item
-                            name="reaction"
-                            label="Reaction"
-                        >
-                            <Input placeholder="Enter reaction (optional)" />
-                        </Form.Item>
-                        <Form.Item style={{
-                            display: 'flex', justifyContent: 'space-evenly'
-                        }} >
-                            <Button type="primary" htmlType="submit" loading={addingAllergy || updatingAllergy}>
-                                {editingAllergy ? 'Update' : 'Add'}
-                            </Button>
-                            <Button style={{ marginLeft: '10px' }} onClick={() => {
-                                form.resetFields();
-                                setEditingAllergy(null);
-                                setActiveKey([]); // Close the collapse panel
-                            }}>
-                                Cancel
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
-            </Collapse>
+            <Collapse style={{ marginTop: '50px' }} items={collapseItems} defaultActiveKey={[]} activeKey={activeKey} onChange={(key) => setActiveKey(key)} />
 
             <List
                 loading={allergyLoading}

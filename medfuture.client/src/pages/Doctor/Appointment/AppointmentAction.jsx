@@ -8,6 +8,7 @@ import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { useNavigate } from "react-router-dom";
 
 const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
+
     const [open, setOpen] = useState(false);
     const [action, setAction] = useState(null);
     const queryClient = useQueryClient();
@@ -88,7 +89,14 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
 
     const handleConsultation = () => {
 
-        navigate(`/doctor/appointments/${appointment?.appointmentId}/consultation`, { state: { patientData: appointment?.patient } });
+        navigate(`/doctor/appointments/${appointment?.appointmentId}/consultation`, {
+
+            state: {
+                patientData: appointment?.patient,
+                consultationData: appointment?.consultation,
+                appointmentData: { appointmentId: appointment?.appointmentId } 
+            }
+        });
 
     }
 
@@ -138,7 +146,7 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
             ) : (
                 <>
                     <Button variant="contained" color="primary" onClick={handleConsultation}>
-                        Start Consultation
+                                {appointment?.consultation ? "Edit Consultation" : "Start Consultation" }
                     </Button>
                     <Button variant="outlined" color="error" onClick={() => handleOpenDialog('missed')}>
                         Mark as Missed

@@ -201,40 +201,49 @@ const Diagnoses = () => {
         setConfirmationModal({ visible: false, diagnosisId: null, name: null });
     };
 
+
+    const collapseItems = [
+        {
+            key: '1',
+            label: editingDiagnosis ? "Update Diagnosis" : "Add Diagnosis",
+            children: (
+                <Form form={form} onFinish={editingDiagnosis ? handleUpdateDiagnosis : handleAddDiagnosis} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Diagnosis Name"
+                        rules={[{ required: true, message: 'Please enter a diagnosis name' }]}
+                    >
+                        <Input placeholder="Enter diagnosis name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="diagnosisDate"
+                        label="Diagnosis Date"
+                        rules={[{ required: true, message: 'Please select a diagnosis date' }]}
+                    >
+                        <DatePicker />
+                    </Form.Item>
+                    <Form.Item style={{ display: 'flex', justifyContent: 'space-evenly' }} >
+                        <Button type="primary" htmlType="submit" loading={addingDiagnosis || updatingDiagnosis}>
+                            {editingDiagnosis ? 'Update' : 'Add'}
+                        </Button>
+                        <Button style={{ marginLeft: '10px' }} onClick={() => {
+                            form.resetFields();
+                            setEditingDiagnosis(null);
+                            setActiveKey([]); // Close the collapse panel
+                        }}>
+                            Cancel
+                        </Button>
+                    </Form.Item>
+                </Form>
+            ),
+        },
+
+    ];
+
     return (
         <Box sx={{ width: { xs: '100%', md: '1000px' } }} >
-            <Collapse style={{ marginTop: '50px' }} activeKey={activeKey} onChange={(key) => setActiveKey(key)}>
-                <Panel header={editingDiagnosis ? "Update Diagnosis" : "Add Diagnosis"} key="1">
-                    <Form form={form} onFinish={editingDiagnosis ? handleUpdateDiagnosis : handleAddDiagnosis} layout="vertical">
-                        <Form.Item
-                            name="name"
-                            label="Diagnosis Name"
-                            rules={[{ required: true, message: 'Please enter a diagnosis name' }]}
-                        >
-                            <Input placeholder="Enter diagnosis name" />
-                        </Form.Item>
-                        <Form.Item
-                            name="diagnosisDate"
-                            label="Diagnosis Date"
-                            rules={[{ required: true, message: 'Please select a diagnosis date' }]}
-                        >
-                            <DatePicker />
-                        </Form.Item>
-                        <Form.Item style={{ display: 'flex', justifyContent: 'space-evenly' }} >
-                            <Button type="primary" htmlType="submit" loading={addingDiagnosis || updatingDiagnosis}>
-                                {editingDiagnosis ? 'Update' : 'Add'}
-                            </Button>
-                            <Button style={{ marginLeft: '10px' }} onClick={() => {
-                                form.resetFields();
-                                setEditingDiagnosis(null);
-                                setActiveKey([]); // Close the collapse panel
-                            }}>
-                                Cancel
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
-            </Collapse>
+            <Collapse style={{ marginTop: '50px' }} items={collapseItems} defaultActiveKey={[]} activeKey={activeKey} onChange={(key) => setActiveKey(key)} />
+             
 
             <List
                 loading={diagnosisLoading}

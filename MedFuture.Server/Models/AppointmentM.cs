@@ -24,6 +24,11 @@ namespace MedFuture.Server.Models
         public int PatientId { get; set; }
         public PatientM Patient { get; set; }  // Navigation property for Patient
 
+        public int? ConsultationId { get; set; }
+
+        [ForeignKey("ConsultationId")]
+        public ConsultationM Consultation { get; set; }
+
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
     }

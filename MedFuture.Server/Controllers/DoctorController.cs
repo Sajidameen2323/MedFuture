@@ -253,7 +253,6 @@ namespace MedFuture.Server.Controllers
                         app.AppointmentId,
                         patient = new
                         {
-
                             name = app.Patient.User.GetFullName(),
                             profilePicture = app.Patient.User.ProfilePic,
                             app.Patient.DOB,
@@ -261,20 +260,29 @@ namespace MedFuture.Server.Controllers
                             app.Patient.EmergencyNumber,
                             app.Patient.PhoneNumber,
                             gender = Enum.GetName((GenderType)app.Patient.Gender),
-                            allergies = app.Patient.Allergies.Select(a=> new AllergyDto
+                            allergies = app.Patient.Allergies.Select(a => new AllergyDto
                             {
                                 Id = a.AllergyID,
                                 Name = a.Name,
                                 Reaction = a.Reaction,
-
                             }) ?? [],
-                            diagnoses = app.Patient.Diagnoses.Select(d=> new DiagnosisDto
+                            diagnoses = app.Patient.Diagnoses.Select(d => new DiagnosisDto
                             {
                                 Id = d.DiagnosisID,
                                 Name = d.Name,
                                 DiagnosisDate = d.DiagnosisDate,
-                            }) ?? []
+                            }) ?? [],
 
+                        },
+                        consultation = app.Consultation == null ? null : new
+                        {
+                            app.Consultation.Summary,
+                            app.Consultation.AdditionalNote,
+                            medications = app.Consultation.Medications.Select(m => new
+                            {
+                                m.Name,
+                                m.Instruction
+                            }) ?? []
                         },
                         app.Service.Name,
                         status = Enum.GetName(typeof(AppointmentStatus), app?.Status),

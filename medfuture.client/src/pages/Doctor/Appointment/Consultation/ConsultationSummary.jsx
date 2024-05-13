@@ -2,14 +2,13 @@
 import React, { useState } from 'react';
 import { List, Typography, Input, Button, Popconfirm, Form, Modal, Collapse, DatePicker } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import { Box } from '@mui/material';
 
-
-const { Panel } = Collapse;
 const { TextArea } = Input;
 
-const HealthcareConsultationSummary = ({ summary, setSummary, medications, setMedications, additionalNote, setAdditionalNote, generateSummary, isGenerating }) => {
+const HealthcareConsultationSummary = (props) => {
+
+    const { summary, setSummary, medications, setMedications, additionalNote, setAdditionalNote, generateSummary, isGenerating } = props;
 
     const [isEditing, setIsEditing] = useState(null);
     const [editingMedication, setEditingMedication] = useState(null);
@@ -51,6 +50,45 @@ const HealthcareConsultationSummary = ({ summary, setSummary, medications, setMe
         generateSummary()
     };
 
+    const collapseItems = [
+        {
+            key: '1',
+            label:  isEditing? 'Edit Medication': 'Add Medication' ,
+            children: (
+                <Form form={form} onFinish={isEditing ? handleUpdateMedication : handleAddMedication}>
+                    <Form.Item
+                        name="name"
+                        label="Medication Name"
+                        rules={[{ required: true, message: 'Please enter a medication name' }]}
+                    >
+                        <Input placeholder="Enter medication name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="instruction"
+                        label="Instructions"
+                        rules={[{ required: true, message: 'Please enter instructions' }]}
+                    >
+                        <TextArea placeholder="Enter instructions" rows={3} />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            {isEditing ? 'Update' : 'Add'}
+                        </Button>
+                        <Button style={{ marginLeft: '10px' }} onClick={() => {
+                            form.resetFields();
+                            setIsEditing(false);
+                            setEditingMedication(null);
+                        }}>
+                            Cancel
+                        </Button>
+                    </Form.Item>
+                </Form>
+            ),
+        },
+
+    ];
+
+
     return (
         <Box sx={{ textAlign:'left'} }>
             <Typography.Title level={4}>Consultation Summary</Typography.Title>
@@ -75,41 +113,11 @@ const HealthcareConsultationSummary = ({ summary, setSummary, medications, setMe
             <Typography.Title level={4} style={{ marginTop: '20px' }}>
                 Prescribed Medications
             </Typography.Title>
-            <Collapse>
-                <Panel
-                    header={isEditing ? 'Edit Medication' : 'Add Medication'}
-                    key="1"
-                >
-                    <Form form={form} onFinish={isEditing ? handleUpdateMedication : handleAddMedication}>
-                        <Form.Item
-                            name="name"
-                            label="Medication Name"
-                            rules={[{ required: true, message: 'Please enter a medication name' }]}
-                        >
-                            <Input placeholder="Enter medication name" />
-                        </Form.Item>
-                        <Form.Item
-                            name="instruction"
-                            label="Instructions"
-                            rules={[{ required: true, message: 'Please enter instructions' }]}
-                        >
-                            <TextArea placeholder="Enter instructions" rows={3} />
-                        </Form.Item>
-                        <Form.Item>
-                            <Button type="primary" htmlType="submit">
-                                {isEditing ? 'Update' : 'Add'}
-                            </Button>
-                            <Button style={{ marginLeft: '10px' }} onClick={() => {
-                                form.resetFields();
-                                setIsEditing(false);
-                                setEditingMedication(null);
-                            }}>
-                                Cancel
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
-            </Collapse>
+
+
+            <Collapse items={collapseItems} defaultActiveKey={[]} />
+
+          
             {medications.length === 0 ? (
                 <Typography.Text>No medications prescribed.</Typography.Text>
             ) : (

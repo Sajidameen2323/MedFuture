@@ -1,6 +1,10 @@
-﻿using MedFuture.Server.DataTransferObjects.GenerateJson;
+﻿using MedFuture.Server.Database.Interfaces;
+using MedFuture.Server.DataTransferObjects.Consultation;
+using MedFuture.Server.DataTransferObjects.GenerateJson;
 using MedFuture.Server.Services.Gemini;
 using MedFuture.Server.Services.Translate;
+using MedFuture.Server.Services.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,13 +19,18 @@ namespace MedFuture.Server.Controllers
 
         private readonly ITranslationService _translationService;
         private readonly ITextGenerationService _textGenerationService;
+        private readonly IConsultationRepository _consultationRepository;
+        private readonly IUserService _userService;
 
-        public ConsultationController(ITranslationService translationService, ITextGenerationService textGenerationService)
+        public ConsultationController(ITranslationService translationService, ITextGenerationService textGenerationService, IConsultationRepository consultationRepository, IUserService userService)
         {
             _translationService = translationService;
             _textGenerationService = textGenerationService;
+            _consultationRepository = consultationRepository;
+            _userService = userService;
         }
 
+        [Authorize("DoctorOnlyPolicy")]
         [HttpPost("get-summary")]
         public async Task<IActionResult> GetSummaryFromText([FromBody] TextGenFormRequestDto request)
         {
@@ -46,6 +55,36 @@ namespace MedFuture.Server.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpPost("add-consultation")]
+        public async Task<IActionResult> AddConsultation([FromBody] ConsultationRequest consultationRequest)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _consultationRepository.AddOrUpdateConsultationAsync(userIdDb, consultationRequest);
+
+                return Ok(new { message = "Success" });
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
                 return BadRequest("Something Went Wrong!");
             }
 

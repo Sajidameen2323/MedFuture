@@ -157,6 +157,18 @@ namespace MedFuture.Server.Database
                 
                 });
 
+            modelBuilder.Entity<AppointmentM>()
+                .HasOne(a => a.Consultation)
+                .WithOne(c => c.Appointment)
+                .HasForeignKey<AppointmentM>(a => a.ConsultationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ConsultationM>()
+                .HasMany(c => c.Medications)
+                .WithOne(m => m.Consultation)
+                .HasForeignKey(m => m.ConsultationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -212,5 +224,8 @@ namespace MedFuture.Server.Database
         public DbSet<AppointmentM> Appointments { get; set; }
         public DbSet<AppointmentSettingsM> AppointmentSettings { get; set; }
         public DbSet<HolidayM> Holidays { get; set; }
+
+        public DbSet<ConsultationM> Consultations { get; set; }
+        public DbSet<MedicationM> Medications { get; set; }
     }
 }

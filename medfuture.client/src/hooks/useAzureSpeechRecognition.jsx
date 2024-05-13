@@ -45,12 +45,13 @@ const useSpeechRecognition = (language = 'en-US') => {
             // Event handlers
             speechRecognizer.current.recognizing = (_, event) => {
                 partialTranscription.current = event.result.text;
-                console.log(event.result)
+                setTranscript(partialTranscription.current); // Update transcript with accumulated text
+                //console.log(event.result)
             };
 
             speechRecognizer.current.recognized = (_, event) => {
                 partialTranscription.current += ` ${event.result.text}`;
-                setTranscript(partialTranscription.current); // Update transcript with accumulated text
+                setTranscript(""); // Update transcript with accumulated text
 
                 if (event.result.text) {
                     //const translation = event.result.translations.get('si-LK');

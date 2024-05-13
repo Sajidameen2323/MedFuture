@@ -100,39 +100,46 @@ const HolidaySettings = () => {
         setConfirmationModal({ visible: false, holidayId: null, name: null });
     };
 
+    const collapseItems = [
+        {
+            key: '1',
+            label: 'Add Day Off',
+            children: (
+                <Form form={form} onFinish={handleAddHoliday} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="Day Off name"
+                        rules={[{ required: true, message: 'Please enter a holiday or day off name' }]}
+                    >
+                        <Input placeholder="Enter holiday or day off name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="dateRange"
+                        label="Date"
+                        rules={[{ required: true, message: 'Please select a date range' }]}
+
+                    >
+                        <RangePicker size="small" format="MM/DD/YYYY" />
+                    </Form.Item>
+
+                    <Form.Item style={{ display: 'flex', justifyContent: 'space-evenly' }} >
+                        <Button type="primary" htmlType="submit">
+                            Add Day Off
+                        </Button>
+                        <Button style={{ marginLeft: '10px' }} onClick={() => form.resetFields()}>
+                            Cancel
+                        </Button>
+                    </Form.Item>
+                </Form>
+            ),
+        },
+
+    ];
+
     return (
         <Box sx={{ width: { xs: '100%', md: '1000px' } }} >
 
-            <Collapse style={{ marginTop:'50px' }} >
-                <Panel header="Add Day Off" key="1">
-                    <Form form={form} onFinish={handleAddHoliday} layout="vertical">
-                        <Form.Item
-                            name="name"
-                            label="Day Off name"
-                            rules={[{ required: true, message: 'Please enter a holiday or day off name' }]}
-                        >
-                            <Input placeholder="Enter holiday or day off name" />
-                        </Form.Item>
-                        <Form.Item
-                            name="dateRange"
-                            label="Date"
-                            rules={[{ required: true, message: 'Please select a date range' }]}
-                          
-                        >
-                            <RangePicker  size="small" format="MM/DD/YYYY" />
-                        </Form.Item>
-
-                        <Form.Item style={{ display: 'flex', justifyContent:'space-evenly' } } >
-                            <Button type="primary" htmlType="submit">
-                                Add Day Off
-                            </Button>
-                            <Button style={{ marginLeft: '10px' }} onClick={() => form.resetFields()}>
-                                Cancel
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
-            </Collapse>
+            <Collapse style={{ marginTop: '50px' }} items={collapseItems} defaultActiveKey={[]} />
 
             <Typography.Title style={{ textAlign:'left' } } level={5}> Upcoming Holidays </Typography.Title>
 

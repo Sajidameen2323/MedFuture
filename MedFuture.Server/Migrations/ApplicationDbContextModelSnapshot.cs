@@ -64,6 +64,9 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"));
 
+                    b.Property<int?>("ConsultationId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
@@ -77,6 +80,10 @@ namespace MedFuture.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("StartDateTime", "EndDateTime");
+
+                    b.HasIndex("ConsultationId")
+                        .IsUnique()
+                        .HasFilter("[ConsultationId] IS NOT NULL");
 
                     b.HasIndex("DoctorId");
 
@@ -120,6 +127,32 @@ namespace MedFuture.Server.Migrations
                             MinimumTimeBeforeCancelingInDays = 3,
                             MinimumTimeBeforeReschedulingInDays = 3
                         });
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.ConsultationM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdditionalNote")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Consultations");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DiagnosisM", b =>
@@ -325,6 +358,34 @@ namespace MedFuture.Server.Migrations
                     b.ToTable("Holidays");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.MedicationM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConsultationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Instruction")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationId");
+
+                    b.ToTable("Medications");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
                 {
                     b.Property<int>("PatientID")
@@ -460,6 +521,11 @@ namespace MedFuture.Server.Migrations
 
             modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
                 {
+                    b.HasOne("MedFuture.Server.Models.ConsultationM", "Consultation")
+                        .WithOne("Appointment")
+                        .HasForeignKey("MedFuture.Server.Models.AppointmentM", "ConsultationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
@@ -477,6 +543,8 @@ namespace MedFuture.Server.Migrations
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Consultation");
 
                     b.Navigation("Doctor");
 
@@ -568,6 +636,17 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Doctor");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.MedicationM", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.ConsultationM", "Consultation")
+                        .WithMany("Medications")
+                        .HasForeignKey("ConsultationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Consultation");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.UserM", "User")
@@ -577,6 +656,14 @@ namespace MedFuture.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.ConsultationM", b =>
+                {
+                    b.Navigation("Appointment")
+                        .IsRequired();
+
+                    b.Navigation("Medications");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>

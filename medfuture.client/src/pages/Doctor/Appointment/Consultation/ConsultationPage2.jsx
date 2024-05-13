@@ -1,20 +1,23 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, StepButton, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { AudioOutlined, AudioMutedOutlined, ClearOutlined, CaretDownOutlined } from '@ant-design/icons'; 
-import { Button as AntButton, Tooltip } from 'antd';
+import { Button as AntButton, Tooltip, notification } from 'antd';
 import useSpeechRecognition from 'hooks/useAzureSpeechRecognition';
 import moment from 'moment';
 import axios from 'axios';
 import { useMutation } from 'react-query';
 import { useLocation, useNavigate } from "react-router-dom";
 import ConsultationSummary from './ConsultationSummary';
+import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
 const ConsultationPage = () => {
 
     const location = useLocation();
-    const { patientData } = location.state || {};
+    const { patientData, consultationData, appointmentData } = location.state || {};
     const navigate = useNavigate();
+
+    const { idToken } = useContext(FirebaseAuthContext);
 
     const [activeStep, setActiveStep] = useState(0);
     const [summary, setSummary] = useState('');
@@ -42,7 +45,7 @@ const ConsultationPage = () => {
                 { text: totalTranscript , language },
                 {
                     headers: {
-                        Authorization: 'Bearer YOUR_AUTH_TOKEN_HERE',
+                        Authorization: `Bearer ${idToken}`,
                     },
                 }
             );
@@ -60,12 +63,71 @@ const ConsultationPage = () => {
         }
     );
 
+    const { mutate: saveSummary, isLoading: savingSummary } = useMutation(
+        async () => {
+            const response = await axios.post(
+                '/api/consultation/add-consultation',
+                {
+                    appointmentId: appointmentData?.appointmentId,
+                    summary: summary,
+                    additionalNote: additionalNote,
+                    medications: medications
+
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${idToken}`,
+                    },
+                }
+            );
+            return response.data;
+        },
+        {
+            onSuccess: (data) => {
+
+                console.log(data);
+
+                notification.success({
+                    key: 'saving_con',
+                    message: 'Saving Consultation',
+                    description: 'Successfully Saved Consultation!',
+                    duration: 2,
+                });
+
+                navigate(`/doctor/appointments/today`, { state: {} });
+            },
+            onError: () => {
+                notification.error({
+                    key: 'saving_con',
+                    message: 'Saving Consultation',
+                    description: 'Failed to Save Consultation!',
+                    duration: 2,
+                });
+            },
+            onSettled: () => {
+
+                console.log("Done running")
+            }
+        }
+    );
+
 
     const handleNext = () => {
         if (activeStep === 1) {
 
             stopListening();
             generateSummary();
+
+        }
+        else if (activeStep == 2) {
+
+            notification.warning({
+                key: 'saving_con',
+                message: 'Saving Consultation',
+                description: 'Saving Consultation for Appointment!',
+                duration: 2,
+            });
+            saveSummary();
 
         }
         else {
@@ -88,10 +150,18 @@ const ConsultationPage = () => {
 
     useEffect(() => {
 
-        if (!patientData) {
+        if (!patientData || !appointmentData) {
 
             navigate(`/doctor/appointments/today`, { state: {  } });
         }
+        if (consultationData) {
+
+            setSummary(consultationData?.summary ?? "")
+            setMedications(consultationData?.medications ?? [])
+            setAdditionalNote(consultationData?.additionalNote ?? "")
+        }
+       // console.log(consultationData)
+       // console.log(appointmentData)
 
     },[])
 
@@ -231,6 +301,9 @@ const ConsultationPage = () => {
                             <Typography variant="body1" gutterBottom>
                                 Transcript
                             </Typography>
+                            <Typography variant="body2" gutterBottom>
+                                { transcript }
+                            </Typography>
                             {totalTranscript && <Box display="flex">
                                 <TextField
                                     multiline
@@ -277,10 +350,10 @@ const ConsultationPage = () => {
                         Back
                     </Button>
                     <AntButton
-                        loading={ isGenerating }
+                        loading={isGenerating || savingSummary }
                         type="primary"                 
                         onClick={handleNext}
-                        disabled={activeStep === steps.length - 1}
+                        disabled={false}
                     >
                         {activeStep === 0 && 'Next'}
                         {activeStep === steps.length - 1 && 'Finish'}
