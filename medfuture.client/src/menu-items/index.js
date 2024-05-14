@@ -13,9 +13,10 @@ import doctorDashboard from './doctor/dashboard';
 // patient imports
 import patientProfile from './patient/profile';
 import patientMedicalNav from './patient/medical';
+import patientAppointments from './patient/appointment';
 
 const items = {
-    items: [adminDashboard, services, manageDoctors, doctorDashboard, manageAppointments, DoctorAppointmentGroup, appointmentDoctor, patientProfile, patientMedicalNav]
+    items: [adminDashboard, services, manageDoctors, doctorDashboard, manageAppointments, DoctorAppointmentGroup, appointmentDoctor, patientProfile, patientMedicalNav, patientAppointments]
 };
 
 const getMenuItems = (role) => {
@@ -32,7 +33,7 @@ const getMenuItems = (role) => {
     }
     else if (role === "Patient") {
         return {
-            items: [patientProfile, patientMedicalNav ]
+            items: [patientProfile, patientMedicalNav, patientAppointments ]
         }
     }
     else {

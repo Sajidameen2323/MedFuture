@@ -139,20 +139,12 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
         <>
        
             <Stack direction="row" spacing={2}>
-            {appointment?.con ? (
-                <Button variant="contained" color="primary" onClick={() => handleOpenDialog('consultation')}>
-                    View Consultation
+                <Button variant="contained" color="primary" onClick={handleConsultation}>
+                    {appointment?.consultation ? "Edit Consultation" : "Start Consultation"}
                 </Button>
-            ) : (
-                <>
-                    <Button variant="contained" color="primary" onClick={handleConsultation}>
-                                {appointment?.consultation ? "Edit Consultation" : "Start Consultation" }
-                    </Button>
-                    <Button variant="outlined" color="error" onClick={() => handleOpenDialog('missed')}>
-                        Mark as Missed
-                    </Button>
-                </>
-            )}
+                <Button variant="outlined" color="error" onClick={() => handleOpenDialog('missed')}>
+                    Mark as Missed
+                </Button>
             <Button variant="contained" color="success" onClick={() => handleOpenDialog('complete')}>
                 Complete Appointment
             </Button>

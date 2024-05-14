@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import { useContext, useState } from 'react';
 import { useFormik } from 'formik';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
@@ -16,7 +17,6 @@ const GeneralSettings = () => {
 
 
 
-
     const updateAppointmentSettings = useCallback(async (formData) => {
         // Send data to your API or server
         const response = await fetch('/api/appointment/settings', {
@@ -31,7 +31,7 @@ const GeneralSettings = () => {
             return response.json();
         }
         else {
-
+       
             // Assuming the response provides error data
             const errorMessage = response.status === 400
                 ? 'Validation error: Please check your input.'
@@ -72,10 +72,10 @@ const GeneralSettings = () => {
     });
 
     const validationSchema = Yup.object().shape({
-        minimumTimeBeforeBookingInDays: Yup.number().required('Minimum time before booking is required').min(0, 'Minimum time before booking must be a non-negative value'),
-        minimumTimeBeforeCancelingInDays: Yup.number().required('Minimum time before canceling is required').min(0, 'Minimum time before canceling must be a non-negative value'),
-        minimumTimeBeforeReschedulingInDays: Yup.number().required('Minimum time before rescheduling is required').min(0, 'Minimum time before rescheduling must be a non-negative value'),
-        bookingPeriodInDays: Yup.number().required('Booking period is required').min(0, 'Booking period must be a non-negative value'),
+        minimumTimeBeforeBookingInDays: Yup.number().required('Minimum time before booking is required').min(1, 'Minimum time before booking must be a non-negative value'),
+        minimumTimeBeforeCancelingInDays: Yup.number().required('Minimum time before canceling is required').min(1, 'Minimum time before canceling must be a non-negative value'),
+        minimumTimeBeforeReschedulingInDays: Yup.number().required('Minimum time before rescheduling is required').min(1, 'Minimum time before rescheduling must be a non-negative value'),
+        bookingPeriodInDays: Yup.number().required('Booking period is required').min(1, 'Booking period must be a non-negative value'),
     });
 
     const formik = useFormik({
@@ -88,8 +88,10 @@ const GeneralSettings = () => {
 
         },
         validationSchema,
-        onSubmit: (values) => {
-            mutate(values);
+        onSubmit: (values, actions) => {
+
+           // console.log(actions)
+            mutate(values, actions.setErrors);
 
         },
     });

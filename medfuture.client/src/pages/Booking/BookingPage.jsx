@@ -72,7 +72,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
             let min = minDateObj.toISOString();
             let max = maxDateObj.toISOString();
 
-            //setMinDate(min);
+            setMinDate(min);
             setMaxDate(max);
 
             console.log("min max date set from db")

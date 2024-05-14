@@ -1,4 +1,5 @@
-﻿using MedFuture.Server.Database;
+﻿using FirebaseAdmin.Auth;
+using MedFuture.Server.Database;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
@@ -13,7 +14,7 @@ namespace MedFuture.Server.Services.User
         public Task<PatientM> CreatePatient(PatientCreateDto patientDto);
         public Task<DoctorM> CreateDoctor(DoctorCreateDto doctorDto);
         public Task<UserM> CreateUserFromGoogleAuth(PatientCreateFromGoogleAuthDto patientData);
-        public Task<string> GetCustomToken(UserM user, string uid);
+        public Task<string> GetCustomToken(UserM user, UserRecord firebaseUser, string uid);
         public int GetUserDbIdFromToken(IEnumerable<Claim> userClaims);
     }
 }

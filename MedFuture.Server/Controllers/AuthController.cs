@@ -48,7 +48,7 @@ namespace MedFuture.Server.Controllers
             if (decoded.Claims.TryGetValue("user_id", out userId))
             {
                 UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync((string)userId);
-
+            
                 string? signInMethod = "password";
 
                 var firstProviderInfo = userRecord.ProviderData[0];
@@ -65,7 +65,7 @@ namespace MedFuture.Server.Controllers
                         // Retrieve user ID from Firebase authentication token
                         var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                        string customToken = await _userService.GetCustomToken(user, (string)uid);
+                        string customToken = await _userService.GetCustomToken(user, userRecord, (string)uid);
 
                         return Ok(new { Message = "Custom claims set successfully", newToken = customToken });
 
@@ -85,7 +85,7 @@ namespace MedFuture.Server.Controllers
                         UserM dbUser = await _userService.CreateUserFromGoogleAuth(patientCreateFromGoogleAuth);
                         var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                        string customToken = await _userService.GetCustomToken(dbUser, (string)uid);
+                        string customToken = await _userService.GetCustomToken(dbUser, userRecord, (string)uid);
 
                         return Ok(new { Message = "Custom claims set successfully", newToken = customToken });
                     }

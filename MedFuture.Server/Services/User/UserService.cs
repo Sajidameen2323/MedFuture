@@ -102,7 +102,7 @@ namespace MedFuture.Server.Services.User
 
 
         }
-        public async Task<string> GetCustomToken(UserM user, string uid)
+        public async Task<string> GetCustomToken(UserM user, UserRecord firebaseUser, string uid)
         {
 
             string definedRole = user.Role.ToString();
@@ -115,6 +115,8 @@ namespace MedFuture.Server.Services.User
 
                             { "role", definedRole },
                             { "userIdDb", user.UserID },
+                            { "name", user.GetFullName() },
+                            { "picture", user?.ProfilePic ?? firebaseUser.PhotoUrl }
 
                         };
 

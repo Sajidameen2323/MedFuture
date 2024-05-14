@@ -6,6 +6,7 @@ using MedFuture.Server.Services.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace MedFuture.Server.Controllers
 {
@@ -330,6 +331,114 @@ namespace MedFuture.Server.Controllers
             }
         }
 
+        [Authorize("PatientOnlyPolicy")]
+        [HttpGet("me/appointments")]
+        public async Task<IActionResult> GetMyAppointments(string startDate, string endDate)
+        {
+            // Parse start and end dates (assuming format is YYYY-MM-DD)
+            DateTime parsedStartDate;
+            if (!DateTime.TryParseExact(startDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedStartDate))
+            {
+                return BadRequest("Invalid start date format. Please use YYYY-MM-DD");
+            }
+
+            DateTime parsedEndDate;
+            if (!DateTime.TryParseExact(endDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedEndDate))
+            {
+                return BadRequest("Invalid end date format. Please use YYYY-MM-DD");
+            }
+
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var apps = await _appointmentRepository.GetAppointmentsForPatient(userIdDb,parsedStartDate, parsedEndDate);
+
+                var formattedObj = apps.OrderByDescending(a=> a.AppointmentDate).Select(a => new { 
+                
+                    a.AppointmentId,
+                    a.AppointmentDate,
+                    a.Service.Name,
+                    status = Enum.GetName(typeof(AppointmentStatus), a?.Status),
+                    a.StartDateTime,
+                    EndDateTime = a.StartDateTime.AddMinutes(a.Service.Duration),
+                    Doctor = new {
+                    
+                        name = a.Doctor.User.GetFullName(),
+                        profilePicture = a.Doctor.User.ProfilePic,
+                        email = a.Doctor.User.Email
+                    }
+                });
+
+                return Ok(formattedObj);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpGet("appointments/{appId}/details")]
+        public async Task<IActionResult> GetAppointmentDetails(int appId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+
+                var app = await _appointmentRepository.GetAppointmentDetailsForPatient(appId, userIdDb);
+
+                var obj = new
+                    {
+                        app.AppointmentId,
+                        doctor = new {
+
+                            name = app.Doctor.User.GetFullName(),
+                            email = app.Doctor.User.Email
+
+                        },
+                        consultation = app.Consultation == null ? null : new
+                        {
+                            app.Consultation.Summary,
+                            app.Consultation.AdditionalNote,
+                            medications = app.Consultation.Medications.Select(m => new
+                            {
+                                m.Name,
+                                m.Instruction
+                            }) ?? []
+                        },
+                        app.Service.Name,
+                        status = Enum.GetName(typeof(AppointmentStatus), app?.Status),
+                        app.StartDateTime,
+                        EndDateTime = app.StartDateTime.AddMinutes(app.Service.Duration)
+                    };
+
+                    return Ok(obj);
+
+            }
+            catch (ArgumentException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized("Resource not authorized");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Something Went Wrong!" });
+            }
+
+        }
 
     }
 }

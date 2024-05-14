@@ -281,5 +281,54 @@ namespace MedFuture.Server.Database.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<AppointmentM>> GetAppointmentsForPatient(int userId, DateTime startDate, DateTime endDate)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == userId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            var appointments = _context.Appointments.Where(a => a.PatientId == patient.PatientID &&  a.Status != AppointmentStatus.Cancelled && a.AppointmentDate >= DateOnly.FromDateTime(startDate) && a.AppointmentDate <= DateOnly.FromDateTime(endDate))
+                .Include(a => a.Service)
+                .Include(a => a.Doctor)
+                .ThenInclude(d => d.User)
+                .ToList();
+
+            return appointments;
+        }
+
+        public async Task<AppointmentM> GetAppointmentDetailsForPatient(int appId, int userId)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == userId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId)
+                                .Include(a => a.Service)
+                                .Include(a => a.Doctor)
+                                .ThenInclude(d => d.User)
+                                .Include(a => a.Consultation)
+                                .ThenInclude(c => c.Medications)
+                                .FirstOrDefault();
+
+            if (appointment == null)
+            {
+                throw new ArgumentException("Invalid Appointment Id");
+            }
+
+            if (appointment.PatientId != patient.PatientID)
+            {
+                throw new UnauthorizedAccessException("No Access To This Resource");
+
+            }
+
+            return appointment;
+        }
     }
 }

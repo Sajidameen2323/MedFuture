@@ -8,6 +8,7 @@ namespace MedFuture.Server.Database.Interfaces
 
         Task<IEnumerable<AppointmentM>> GetAppointmentsForNextSchedule(int docId);
         Task<AppointmentM> CreateAppointment(CreateAppointmentDto createAppointmentDto);
+       
         Task<IEnumerable<AppointmentM>> GetAppointmentsForDateRange(DateTime startDate, DateTime endDate);
         Task<int> DeleteAppointmentsByIdList(IEnumerable<int> appointmentIdList);
         Task<int> BulkUpdateAppointmentStatus(IEnumerable<int> appointmentIdList, AppointmentStatus newStatus);
@@ -20,5 +21,8 @@ namespace MedFuture.Server.Database.Interfaces
         Task<IEnumerable<AppointmentM>> GetTodaysAppointmentsForDoctor(int userId);
         Task<AppointmentM> GetAppointmentDetailsForDoctor(int appId, int userId);
         Task UpdateAppointmentStatusForDoctor(int appId, int userId, AppointmentStatus newStatus);
+
+        Task<IEnumerable<AppointmentM>> GetAppointmentsForPatient(int userId, DateTime startDate, DateTime endDate);
+        Task<AppointmentM> GetAppointmentDetailsForPatient(int appId, int userId);
     }
 }
