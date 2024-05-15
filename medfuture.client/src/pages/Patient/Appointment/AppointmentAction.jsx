@@ -16,9 +16,9 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
     const { idToken } = useContext(FirebaseAuthContext);
     const navigate = useNavigate();
 
-    const updateAppointmentStatus = async (appointmentId, status) => {
+    const updateAppointmentStatus = async (appointmentId) => {
 
-        const response = await axios.put(`/api/doctor/appointments/${appointmentId}/status/update`, { status }, {
+        const response = await axios.put(`/api/patient/appointments/${appointmentId}/cancel`, {  }, {
             headers: {
                 'Authorization': `Bearer ${idToken}`,
                 'Content-Type': 'application/json'
@@ -27,51 +27,32 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
         return response.data;
     };
 
-    const { mutate: UpdateStatus } = useMutation(
+    const { mutate: CancelAppointment } = useMutation(
 
-        (status) => updateAppointmentStatus(appointment?.appointmentId, status),
+        () => updateAppointmentStatus(appointment?.appointmentId),
         {
             onSuccess: () => {
                 queryClient.invalidateQueries('ApiGetAppointmentForDoctor');
-                if (action === 'missed') {
+          
                     notification.success({
-                        key: 'missed',
-                        message: 'Missed Appointment',
-                        description: 'Successfully Marked as Missed.',
+                        key: 'cancel',
+                        message: 'Cancelled Appointment',
+                        description: 'Successfully cancelled appointment.',
                         duration: 2,
                     });
-                }
-                else if (action === "complete") {
-
-                    notification.success({
-                        key: 'complete',
-                        message: 'Appointment Completed',
-                        description: 'Appointment has been completed.',
-                        duration: 2,
-                    });
-                }
-
+                
             },
             onError: (error) => {
                 console.error('Error updating appointment status:', error);
 
-                if (action === 'missed') {
                     notification.error({
-                        key: 'missed',
+                        key: 'cancel',
                         message: 'Error',
-                        description: 'Failed to update appointment status.',
+                        description: 'Failed to cancel appointment.',
                         duration: 2,
                     });
-                }
-                else if (action === "complete") {
+                
 
-                    notification.error({
-                        key: 'complete',
-                        message: 'Error',
-                        description: 'Failed to update appointment status.',
-                        duration: 2,
-                    });
-                }
 
             },
         }
@@ -101,27 +82,19 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
     }
 
     const handleConfirmAction = () => {
-        if (action === 'missed') {
+
+        if (action === 'cancel') {
             // Mark appointment as missed
             notification.warning({
-                key: 'missed',
-                message: 'Missed Appointment',
-                description: 'Marking appointment as missed...',
+                key: 'cancel',
+                message: 'Cancel Appointment',
+                description: 'Cancelling Appointment...',
                 duration: 2,
             });
-            UpdateStatus(3)
-
-
-        } else if (action === 'complete') {
-            // Complete appointment
-            onAppointmentComplete(appointment.id);
-            notification.warning({
-                key: 'complete',
-                message: 'Completing Appointment',
-                description: 'Marking appointment as Completed...',
-                duration: 2,
-            });
-            UpdateStatus(4)
+            CancelAppointment()
+        }
+        else if (action === "reschedule") {
+            navigate("/patient/appointment/reschedule", { state: { id:1 }})
         }
 
         handleCloseDialog();
@@ -148,12 +121,12 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
                 {appointment?.status === "Pending" && 
             
                     <>
-                    <Button variant="contained" color="info" onClick={() => handleOpenDialog('complete')}>
+                    {appointment?.canRescedule && <Button variant="contained" color="info" onClick={() => handleOpenDialog('reschedule')}>
                         Reschedule Appointment
-                    </Button>
-                    <Button variant="outlined" color="error" onClick={() => handleOpenDialog('missed')}>
+                    </Button>}
+                    {appointment?.canCancel && <Button variant="outlined" color="error" onClick={() => handleOpenDialog('cancel')}>
                         Cancel Appointment
-                    </Button>
+                    </Button>}
                 </>
                 }
 
@@ -161,19 +134,19 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
             </Stack>
             <Dialog open={open} onClose={handleCloseDialog}>
                 <DialogTitle>
-                    {action === 'consultation'
-                        ? 'Start Consultation'
-                        : action === 'missed'
-                            ? 'Mark as Missed'
-                            : 'Complete Appointment'}
+                    {action === 'cancel'
+                        ? 'Cancel Appointment'
+                        : action === 'reschedule'
+                            ? 'Reschedule Appointment'
+                            : ''}
                 </DialogTitle>
                 <DialogContent>
                     <Typography>
-                        {action === 'consultation'
-                            ? 'Are you sure you want to start a consultation for this appointment?'
-                            : action === 'missed'
-                                ? 'Are you sure you want to mark this appointment as missed?'
-                                : 'Are you sure you want to complete this appointment?'}
+                        {action === 'cancel'
+                            ? 'Are you sure you want to canel this appointment?'
+                            : action === 'reschedule'
+                                ? 'Are you sure you want to reschedule this appointment?'
+                                : ''}
                     </Typography>
                 </DialogContent>
                 <DialogActions>

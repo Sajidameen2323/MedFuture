@@ -396,6 +396,9 @@ namespace MedFuture.Server.Controllers
 
 
                 var app = await _appointmentRepository.GetAppointmentDetailsForPatient(appId, userIdDb);
+                var app_settings = await _appointmentRepository.GetAppointmentSettings();
+                DateTime earliestRescheduleDate = DateTime.Now.AddDays(app_settings.MinimumTimeBeforeReschedulingInDays);
+                DateTime earliestCancelDate = DateTime.Now.AddDays(app_settings.MinimumTimeBeforeCancelingInDays);
 
                 var obj = new
                     {
@@ -419,8 +422,12 @@ namespace MedFuture.Server.Controllers
                         app.Service.Name,
                         status = Enum.GetName(typeof(AppointmentStatus), app?.Status),
                         app.StartDateTime,
-                        EndDateTime = app.StartDateTime.AddMinutes(app.Service.Duration)
-                    };
+                        app.AppointmentDate,
+                        EndDateTime = app.StartDateTime.AddMinutes(app.Service.Duration),
+                        canRescedule = app.AppointmentDate > DateOnly.FromDateTime(earliestRescheduleDate),
+                        canCancel = app.AppointmentDate > DateOnly.FromDateTime(earliestCancelDate)
+       
+                };
 
                     return Ok(obj);
 
@@ -438,6 +445,34 @@ namespace MedFuture.Server.Controllers
                 return BadRequest(new { message = "Something Went Wrong!" });
             }
 
+        }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpPut("appointments/{appId}/cancel")]
+        public async Task<IActionResult> CancelAppointment(int appId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _appointmentRepository.UpdateAppointmentStatusForPatient(appId, userIdDb, AppointmentStatus.Cancelled);
+
+                return Ok();
+
+            }
+            catch (ArgumentException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized("Resource not authorized");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Something Went Wrong!" });
+            }
         }
 
     }

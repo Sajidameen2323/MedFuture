@@ -212,7 +212,7 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseStatusDialog} disabled={isUpdating}>Cancel</Button>
-                    <Button onClick={handleConfirmStatus} disabled={isUpdating} loading={isUpdating}>Confirm</Button>
+                    <Button onClick={handleConfirmStatus} disabled={isUpdating} >Confirm</Button>
                 </DialogActions>
             </Modal>
         </Box>

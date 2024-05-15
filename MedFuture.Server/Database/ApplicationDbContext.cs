@@ -132,8 +132,9 @@ namespace MedFuture.Server.Database
 
             //model building for appointment table
 
-            modelBuilder.Entity<AppointmentM>()
-                .HasKey(a => new { a.StartDateTime, a.EndDateTime });
+            //modelBuilder.Entity<AppointmentM>()
+            //    .HasIndex(a => new { a.StartDateTime, a.EndDateTime, a.Status, a.DoctorId })
+            //    .IsUnique();
 
             modelBuilder.Entity<AppointmentM>()
                 .HasOne<ServiceM>(a => a.Service);

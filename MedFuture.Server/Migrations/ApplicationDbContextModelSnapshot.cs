@@ -49,20 +49,14 @@ namespace MedFuture.Server.Migrations
 
             modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
                 {
-                    b.Property<DateTime>("StartDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EndDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateOnly>("AppointmentDate")
-                        .HasColumnType("date");
-
                     b.Property<int>("AppointmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"));
+
+                    b.Property<DateOnly>("AppointmentDate")
+                        .HasColumnType("date");
 
                     b.Property<int?>("ConsultationId")
                         .HasColumnType("int");
@@ -70,16 +64,22 @@ namespace MedFuture.Server.Migrations
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("StartDateTime", "EndDateTime");
+                    b.HasKey("AppointmentId");
 
                     b.HasIndex("ConsultationId")
                         .IsUnique()

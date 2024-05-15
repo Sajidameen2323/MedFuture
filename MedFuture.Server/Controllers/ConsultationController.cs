@@ -1,4 +1,5 @@
 ﻿using MedFuture.Server.Database.Interfaces;
+using MedFuture.Server.Database.Repositories;
 using MedFuture.Server.DataTransferObjects.Consultation;
 using MedFuture.Server.DataTransferObjects.GenerateJson;
 using MedFuture.Server.Services.Gemini;
@@ -20,14 +21,17 @@ namespace MedFuture.Server.Controllers
         private readonly ITranslationService _translationService;
         private readonly ITextGenerationService _textGenerationService;
         private readonly IConsultationRepository _consultationRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
         private readonly IUserService _userService;
 
-        public ConsultationController(ITranslationService translationService, ITextGenerationService textGenerationService, IConsultationRepository consultationRepository, IUserService userService)
+        public ConsultationController(ITranslationService translationService, ITextGenerationService textGenerationService,
+            IConsultationRepository consultationRepository, IUserService userService, IAppointmentRepository appointmentRepository)
         {
             _translationService = translationService;
             _textGenerationService = textGenerationService;
             _consultationRepository = consultationRepository;
             _userService = userService;
+            _appointmentRepository = appointmentRepository;
         }
 
         [Authorize("DoctorOnlyPolicy")]
@@ -70,6 +74,8 @@ namespace MedFuture.Server.Controllers
                 int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
 
                 await _consultationRepository.AddOrUpdateConsultationAsync(userIdDb, consultationRequest);
+
+                await _appointmentRepository.UpdateAppointmentStatusForDoctor(consultationRequest.AppointmentId, userIdDb, AppointmentStatus.Completed);
 
                 return Ok(new { message = "Success" });
             }

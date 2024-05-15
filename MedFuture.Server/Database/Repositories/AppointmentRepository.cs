@@ -34,13 +34,21 @@ namespace MedFuture.Server.Database.Repositories
             var endDate = today.AddDays(maxDaysForBooking);
 
             var appointments = _context.Appointments
-                .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate && a.DoctorId == docId ).IgnoreQueryFilters();
+                .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate <= endDate && a.DoctorId == docId && a.Status != AppointmentStatus.Cancelled).IgnoreQueryFilters();
 
             return appointments;
         }
 
         public async Task<AppointmentM> CreateAppointment(CreateAppointmentDto createAppointmentDto)
         {
+
+            var doesAppExists = _context.Appointments.Where(a=> a.StartDateTime ==  createAppointmentDto.StartDateTime && a.DoctorId == createAppointmentDto.DoctorId && a.Status != AppointmentStatus.Cancelled).FirstOrDefault();
+
+            if(doesAppExists != null)
+            {
+                throw new ArgumentException("Slot is not empty");
+            }
+
             AppointmentM appointment = new AppointmentM()
             {
                 AppointmentDate = DateOnly.FromDateTime(createAppointmentDto.AppointmentDate),
@@ -329,6 +337,32 @@ namespace MedFuture.Server.Database.Repositories
             }
 
             return appointment;
+        }
+
+        public async Task UpdateAppointmentStatusForPatient(int appId, int userId, AppointmentStatus newStatus)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == userId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId).FirstOrDefault();
+            if (appointment == null)
+            {
+                throw new ArgumentException("Invalid Appointment Id");
+            }
+
+            if (appointment.PatientId != patient.PatientID)
+            {
+                throw new UnauthorizedAccessException("Access to the resource is unauthorized.");
+
+            }
+
+            appointment.Status = newStatus;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

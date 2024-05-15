@@ -166,6 +166,11 @@ namespace MedFuture.Server.Controllers
 
                 return Ok(new { data = appointment, message="Successfully Booked Appointment!" });
             }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { error = true, message = "Slot is already booked" });
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);

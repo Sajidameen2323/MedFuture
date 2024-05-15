@@ -98,6 +98,9 @@ const AppointmentActionPage = () => {
                         <Divider />
                         <Box mt={2} sx={{ textAlign: 'left' }}>
                             <Typography variant="body1">
+                                <strong>Date:</strong> {moment(new Date(appointment?.appointmentDate)).format("DD-MM-Y")}
+                            </Typography>
+                            <Typography variant="body1">
                                 <strong>Time:</strong> {moment(new Date(appointment?.startDateTime), 'HH:mm').format("HH:mm")} - {moment(new Date(appointment?.endDateTime), 'HH:mm').format("HH:mm")}
                             </Typography>
                             <Typography variant="body1">
