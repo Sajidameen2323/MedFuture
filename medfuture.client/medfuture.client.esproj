@@ -17,6 +17,7 @@
     <Folder Include="src\pages\Admin\Appointment\Settings\General\" />
     <Folder Include="src\pages\Admin\Service\List\" />
     <Folder Include="src\pages\ErrorPages\" />
+    <Folder Include="src\pages\Patient\Appointment\Reschedule\" />
     <Folder Include="src\pages\Patient\Profile\" />
     <Folder Include="src\Shared\Components\" />
   </ItemGroup>

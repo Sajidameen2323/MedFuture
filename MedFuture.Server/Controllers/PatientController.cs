@@ -1,5 +1,6 @@
 ﻿using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.Database.Repositories;
+using MedFuture.Server.DataTransferObjects.Appointment;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
 using MedFuture.Server.Services.User;
@@ -404,7 +405,7 @@ namespace MedFuture.Server.Controllers
                     {
                         app.AppointmentId,
                         doctor = new {
-
+                            id = app.Doctor.DoctorID,
                             name = app.Doctor.User.GetFullName(),
                             email = app.Doctor.User.Email
 
@@ -420,6 +421,8 @@ namespace MedFuture.Server.Controllers
                             }) ?? []
                         },
                         app.Service.Name,
+                        app.Service.ServiceID,
+                        app.Service.Duration,
                         status = Enum.GetName(typeof(AppointmentStatus), app?.Status),
                         app.StartDateTime,
                         app.AppointmentDate,
@@ -459,6 +462,35 @@ namespace MedFuture.Server.Controllers
                 await _appointmentRepository.UpdateAppointmentStatusForPatient(appId, userIdDb, AppointmentStatus.Cancelled);
 
                 return Ok();
+
+            }
+            catch (ArgumentException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized("Resource not authorized");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Something Went Wrong!" });
+            }
+        }
+
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpPut("appointments/{appId}/reschedule")]
+        public async Task<IActionResult> RescheduleAppointment(int appId, AppRescheduleDto appRescheduleDto)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _appointmentRepository.RescheduleAppointment(appId, userIdDb, appRescheduleDto.StartDateTime);
+
+                return Ok(new {message="Successfully Rescheduled Appointment!"});
 
             }
             catch (ArgumentException ex)

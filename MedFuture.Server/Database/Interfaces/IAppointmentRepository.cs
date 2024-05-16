@@ -25,6 +25,7 @@ namespace MedFuture.Server.Database.Interfaces
         Task<IEnumerable<AppointmentM>> GetAppointmentsForPatient(int userId, DateTime startDate, DateTime endDate);
         Task<AppointmentM> GetAppointmentDetailsForPatient(int appId, int userId);
         Task UpdateAppointmentStatusForPatient(int appId, int userId, AppointmentStatus newStatus);
+        Task RescheduleAppointment(int appId, int userId, DateTime newDateTime);
 
     }
 }

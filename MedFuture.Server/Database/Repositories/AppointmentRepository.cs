@@ -364,5 +364,33 @@ namespace MedFuture.Server.Database.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task RescheduleAppointment(int appId, int userId, DateTime newDateTime)
+        {
+            var patient = _context.Patients.Where(p => p.UserID == userId).FirstOrDefault();
+
+            if (patient == null)
+            {
+                throw new ArgumentException("Invalid User Id");
+            }
+
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId).FirstOrDefault();
+            if (appointment == null)
+            {
+                throw new ArgumentException("Invalid Appointment Id");
+            }
+
+            if (appointment.PatientId != patient.PatientID)
+            {
+                throw new UnauthorizedAccessException("Access to the resource is unauthorized.");
+
+            }
+
+            appointment.StartDateTime = newDateTime;
+            appointment.AppointmentDate = DateOnly.FromDateTime(newDateTime);
+
+            await _context.SaveChangesAsync();
+
+        }
     }
 }

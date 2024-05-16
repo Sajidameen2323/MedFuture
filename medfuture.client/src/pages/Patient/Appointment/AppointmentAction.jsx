@@ -94,7 +94,17 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
             CancelAppointment()
         }
         else if (action === "reschedule") {
-            navigate("/patient/appointment/reschedule", { state: { id:1 }})
+            navigate(`/patient/appointments/${appointment?.appointmentId}/reschedule`, {
+                state: {
+                    rescheduleData: { 
+                        serviceId: appointment?.serviceID,
+                        doctorId: appointment?.doctor?.id,
+                        appointmentId: appointment?.appointmentId,
+                        startDateTime: appointment?.startDateTime,
+                        duration: appointment?.duration
+                    }
+                }
+            })
         }
 
         handleCloseDialog();

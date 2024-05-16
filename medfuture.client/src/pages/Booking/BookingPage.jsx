@@ -72,7 +72,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
             let min = minDateObj.toISOString();
             let max = maxDateObj.toISOString();
 
-            setMinDate(min);
+            //setMinDate(min);
             setMaxDate(max);
 
             console.log("min max date set from db")
@@ -84,17 +84,7 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
     const handlePageLoadingDatetime = useCallback((args) => {
 
-        const invalid = [
-
-            //{
-            //    recurring: {
-            //        repeat: 'yearly',
-            //        day: 23,
-            //        month: 5
-            //    }
-            //},
-  
-        ];
+        const invalid = [];
         const labels = [];
 
         let holidays = scheduleData?.holidays || [];
@@ -147,38 +137,44 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
     return (
         <Box sx={{ my: 4, height: isLoading?'500px':'100%' }}>
 
-                <Datepicker
+            <Card>
+                <CardContent>
+                    <Typography variant="h5" component="div" gutterBottom>
+                        Select Date & Time
+                    </Typography>
+                    <Datepicker
+                        display="inline"
+                        dateFormat="DD.MM.YYYY"
+                        controls={['calendar', 'timegrid']}
+                        min={minDate}
+                        max={maxDate}
+                        minTime={scheduleData?.doctorWorkingHours.startTime ?? '08:00'}
+                        maxTime={scheduleData?.doctorWorkingHours.endTime ?? '18:00'}
+                        stepMinute={selectedService.duration || 15}
+                        width={null}
+                        labels={datetimeLabels}
+                        invalid={datetimeInvalid}
+                        onPageLoading={handlePageLoadingDatetime}
+                        cssClass="booking-datetime"
+                        onChange={(event) => {
+                            const selectedDatetime = event.value;
+                            // Process the selectedDatetime (format, etc.) as needed
 
-                display="inline"
-                dateFormat="DD.MM.YYYY"
-                    controls={['calendar', 'timegrid']}
-                    min={minDate}
-                    max={maxDate}
-                    minTime={scheduleData?.doctorWorkingHours.startTime ?? "08:00"}
-                    maxTime={scheduleData?.doctorWorkingHours.endTime ?? "18:00"}
-                    stepMinute={selectedService?.duration || 15}
-                    width={null}
-                    labels={datetimeLabels}
-                    invalid={datetimeInvalid}
-                    onPageLoading={handlePageLoadingDatetime}
-                    cssClass="booking-datetime"
-                    onChange={(event) => {
-                        const selectedDatetime = event.value;
-                        // Process the selectedDatetime (format, etc.) as needed
-                        
-                        console.log('Selected datetime:', selectedDatetime.toLocaleString());
-                       // const formattedDate = `${selectedDatetime.getFullYear()}-${selectedDatetime.getMonth() + 1}-${selectedDatetime.getDate()}T${selectedDatetime.getHours()}:${selectedDatetime.getMinutes()}:00.000Z`;
+                            console.log('Selected datetime:', selectedDatetime.toLocaleString());
+                            // const formattedDate = `${selectedDatetime.getFullYear()}-${selectedDatetime.getMonth() + 1}-${selectedDatetime.getDate()}T${selectedDatetime.getHours()}:${selectedDatetime.getMinutes()}:00.000Z`;
 
-                        let formattedDate = formatDate(selectedDatetime);
-                        console.log('ISO datetime:', selectedDatetime.toISOString());
-                        console.log('Formatted datetime:', formattedDate);
+                            let formattedDate = formatDate(selectedDatetime);
+                            console.log('ISO datetime:', selectedDatetime.toISOString());
+                            console.log('Formatted datetime:', formattedDate);
 
-                        setSelectedDateTime(formattedDate)
-                        console.log(datetimeInvalid)
-                        console.log("min max dates - "+ minDate+" , "+ maxDate)
-                }}
+                            setSelectedDateTime(formattedDate)
+                            console.log(datetimeInvalid)
+                            console.log("min max dates - " + minDate + " , " + maxDate)
+                        }}
+                    />
 
-                />
+                </CardContent>
+            </Card>
      
 
         </Box>

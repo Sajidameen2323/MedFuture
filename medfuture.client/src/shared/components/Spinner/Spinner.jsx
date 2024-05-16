@@ -1,8 +1,19 @@
 import React from 'react';
 import { Box, useTheme, Divider, CircularProgress } from '@mui/material';
+import Lottie from 'react-lottie';
+import animationData from 'lotties/blood-line';
 
 const FullScreenLoadingSpinner = () => {
     const theme = useTheme();
+
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice"
+        }
+    };
 
     return (
         <Box
@@ -23,8 +34,12 @@ const FullScreenLoadingSpinner = () => {
                 orientation="horizontal"
                 sx={{ width: '100%', my: 2 }}
             >
-                <CircularProgress size={36} />
-
+                { /* <CircularProgress size={36} /> */}
+                <Lottie
+                    options={defaultOptions}
+                    height={200}
+                    width={200}
+                />
             </Divider>
         </Box>
     );

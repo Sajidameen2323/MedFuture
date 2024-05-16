@@ -9,10 +9,10 @@ namespace MedFuture.Server.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(500)]
+        [MaxLength(1500)]
         public string Summary { get; set; }
 
-        [MaxLength(1000)]
+        [MaxLength(1500)]
         public string AdditionalNote { get; set; }
 
         [Required]
@@ -30,11 +30,11 @@ namespace MedFuture.Server.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(100)]
+        [MaxLength(200)]
         public string Name { get; set; }
 
         [Required]
-        [MaxLength(500)]
+        [MaxLength(750)]
         public string Instruction { get; set; }
 
         [Required]

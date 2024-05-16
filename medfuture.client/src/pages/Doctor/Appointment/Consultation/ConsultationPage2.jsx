@@ -339,7 +339,10 @@ const ConsultationPage = () => {
                 )}
                 {activeStep === 2 && (
                     // ... (Summary & Prescription)
-                    <ConsultationSummary summary={summary} setSummary={setSummary} medications={medications} setMedications={setMedications} additionalNote={additionalNote} setAdditionalNote={setAdditionalNote} generateSummary={generateSummary} isGenerating={ isGenerating } />
+                    <ConsultationSummary
+                        summary={summary} setSummary={setSummary} medications={medications} setMedications={setMedications}
+                        additionalNote={additionalNote} setAdditionalNote={setAdditionalNote} generateSummary={generateSummary}
+                        isGenerating={isGenerating} totalTranscript={totalTranscript } />
                 )}
                 <Box mt={3} display="flex" justifyContent="space-between">
                     <Button

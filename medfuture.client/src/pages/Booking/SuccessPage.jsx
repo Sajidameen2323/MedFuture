@@ -3,6 +3,7 @@ import { Button, Typography, Card, CardContent, CardActions, Grid, Container, St
 import EventIcon from '@mui/icons-material/Event';
 import { Result } from 'antd';
 import AnimateButton from 'components/@extended/AnimateButton';
+import { Link as RouterLink } from 'react-router-dom';
 
 const SuccessfulBooking = ({ selectedService: service, selectedDoctor: doctor, appointmentDetails, handleReset }) => {
     const taxRate = 0.1; // Assuming a tax rate of 10%
@@ -114,7 +115,8 @@ const SuccessfulBooking = ({ selectedService: service, selectedDoctor: doctor, a
             </AnimateButton>
             <AnimateButton >
                 <Button
-
+                    component={RouterLink}
+                    to="/patient/appointments"
                     size="medium"
                     variant="contained"
                     color="primary"

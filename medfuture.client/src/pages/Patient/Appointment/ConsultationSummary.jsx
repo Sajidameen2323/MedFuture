@@ -5,9 +5,18 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const StyledCard = styled(Card)`
   background-color: #ffffc0;
-  padding: 16px;
-  border-radius: 8px;
+  padding: 10px;
+  border-radius: 5px 0px 5px 0px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+`;
+
+const StyledCard2 = styled(Card)`
+  background-color: #a7c8fc;
+  padding: 10px;
+  border-radius: 5px 0px 5px 0px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
 `;
 
 const StyledTitle = styled(Typography.Title)`
@@ -52,9 +61,9 @@ const HealthcareConsultationSummary = () => {
     return (
         <Box sx={{ textAlign: 'left', padding: '24px', width: { xs:'100%', md:'1100px' } }}>
             <StyledTitle level={4}>Consultation Summary</StyledTitle>
-            <StyledCard>
+            <StyledCard2>
                 {summary}
-            </StyledCard>
+            </StyledCard2>
 
             <StyledTitle level={4} style={{ marginTop: '24px' }}>
                 Prescribed Medications

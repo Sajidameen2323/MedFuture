@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import Stack from '@mui/material/Stack';
 import { Box, Button, DialogTitle, DialogContent, DialogContentText, DialogActions, MenuItem, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Modal, Input, Popconfirm } from 'antd';
+import { Modal, Input, Popconfirm, Button as AntButton } from 'antd';
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
 import { FirebaseAuthContext } from "context/FirebaseAuthProvider";
@@ -62,6 +62,8 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
             onSuccess: () => {
                 setPrevDateRange(null);
                 queryClient.invalidateQueries(['apiGetAppointmentsForRange']);
+                setDeleteConfirmation("");
+                setConfirmLoading(deleteError !== "");
             },
             onError: (error) => {
                 setDeleteError(error.message);
@@ -140,8 +142,7 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
 
             await deleteRows(rowSelectionModel);
 
-            setDeleteConfirmation("");
-            setConfirmLoading(deleteError !== "");
+
         } catch (error) {
             console.error('Error deleting rows:', error);
             setDeleteConfirmation("");
@@ -180,7 +181,8 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
                     open={confirmLoading}
                     onConfirm={handleDeleteOk}
                     onCancel={handleDeleteCancel}
-                    okButtonProps={{ disabled: deleteConfirmation.toLowerCase() !== 'delete' }}
+                    okButtonProps={{
+                        disabled: deleteConfirmation.toLowerCase() !== 'delete', loading: isDeleting }}
                     cancelButtonProps={{ disabled: false }}
                     overlayStyle={{ zIndex: 1550 }}
                 >
@@ -211,8 +213,8 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
 
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseStatusDialog} disabled={isUpdating}>Cancel</Button>
-                    <Button onClick={handleConfirmStatus} disabled={isUpdating} >Confirm</Button>
+                    <Button color="error" onClick={handleCloseStatusDialog} disabled={isUpdating}>Cancel</Button>
+                    <AntButton type="primary" onClick={handleConfirmStatus} disabled={isUpdating} loading={ isUpdating}>Confirm</AntButton>
                 </DialogActions>
             </Modal>
         </Box>

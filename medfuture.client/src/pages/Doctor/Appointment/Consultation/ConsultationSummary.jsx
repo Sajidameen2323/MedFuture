@@ -8,8 +8,9 @@ const { TextArea } = Input;
 
 const HealthcareConsultationSummary = (props) => {
 
-    const { summary, setSummary, medications, setMedications, additionalNote, setAdditionalNote, generateSummary, isGenerating } = props;
+    const { summary, setSummary, medications, setMedications, additionalNote, setAdditionalNote, generateSummary, isGenerating, totalTranscript } = props;
 
+    const [activeKey, setActiveKey] = useState([]);
     const [isEditing, setIsEditing] = useState(null);
     const [editingMedication, setEditingMedication] = useState(null);
     const [form] = Form.useForm();
@@ -23,6 +24,7 @@ const HealthcareConsultationSummary = (props) => {
     const handleEditMedication = (medication) => {
         setIsEditing(true);
         setEditingMedication(medication);
+        setActiveKey(['1']); // Open the collapse panel
         form.setFieldsValue(medication);
     };
 
@@ -98,24 +100,27 @@ const HealthcareConsultationSummary = (props) => {
                 disabled={isGenerating}
                 rows={4}
             />
-            <Button
-                type="primary"
-                onClick={handleRegenerateSummary}
-                disabled={isGenerating}
-                style={{
-                    marginTop: '20px',
-                    borderRadius: '4px',
-                }}
-            >
-                {isGenerating ? 'Regenerating...' : 'Regenerate Summary'}
-            </Button>
+            {totalTranscript &&  
+                <Button
+                    type="primary"
+                    onClick={handleRegenerateSummary}
+                    disabled={isGenerating}
+                    style={{
+                        marginTop: '20px',
+                        borderRadius: '4px',
+                    }}
+                >
+                    {isGenerating ? 'Regenerating...' : 'Regenerate Summary'}
+                </Button>    
+            }
+
 
             <Typography.Title level={4} style={{ marginTop: '20px' }}>
                 Prescribed Medications
             </Typography.Title>
 
 
-            <Collapse items={collapseItems} defaultActiveKey={[]} />
+            <Collapse items={collapseItems} defaultActiveKey={[]} activeKey={activeKey} onChange={(key) => setActiveKey(key)} />
 
           
             {medications.length === 0 ? (

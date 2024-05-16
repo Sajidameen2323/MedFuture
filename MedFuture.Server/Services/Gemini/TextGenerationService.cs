@@ -4,6 +4,7 @@ using Microsoft.Identity.Client;
 using Mscc.GenerativeAI;
 using Newtonsoft.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MedFuture.Server.Services.Gemini
 {
@@ -20,10 +21,12 @@ namespace MedFuture.Server.Services.Gemini
 
         public async Task<string> GenerateTextAsync(string textContent)
         {
-            string instruction = "You are a bot that returns only json object in the structure {summary, medications:[{ name, instruction }]}. if you could not extract information please return  json object with empty values";
+            string instruction = "You are a bot that returns only json object in the structure {summary, medications:[{ name, instruction }]}. if you could not extract information please return  json object with empty values." +
+                " do not include headers in response text as the response text should be a valid JSON object that is parsed in C# code";
 
             string prompt = $"{instruction}\n\nThe following is a voice transcription of doctor patient conversation. from this text generate a brief summary and" +
-                $" if doctor has prescribed any medication inculde that in the medication array. the text may contain unintended words please correct them.when generating summary include only medical related parts. ignore personal stories. text - {textContent}";
+                $" if doctor has prescribed any medication inculde that in the medication array. the text may contain unintended words please correct them." +
+                $"when generating summary include only medical related parts. ignore personal stories. Keep the identity of the patient secret to adhere to HIPAA .text - {textContent}";
 
             var googleAI = new GoogleAI(apiKey: _apiKey);
             var model = googleAI.GenerativeModel(model: Model.GeminiPro);
@@ -31,6 +34,33 @@ namespace MedFuture.Server.Services.Gemini
             var response = model.GenerateContent(prompt).Result;
 
             return response.Text;
+
+            //string pattern = @"```.*?\r?\n(.*?)\r?\n```";
+            //Match match = Regex.Match(response.Text, pattern, RegexOptions.Singleline);
+
+            //if (match.Success)
+            //{
+            //    string extractedContent = match.Groups[1].Value.Trim();
+            //    try
+            //    {
+            //        JsonConvert.DeserializeObject(extractedContent);
+            //        Console.WriteLine(extractedContent);
+
+            //        return extractedContent;
+            //    }
+            //    catch (JsonException)
+            //    {
+            //        Console.WriteLine("The extracted content is not a valid JSON object.");
+            //        throw new ArgumentException("The extracted content is not a valid JSON object.");
+            //    }
+            //}
+            //else
+            //{
+            //    Console.WriteLine("JSON content not found.");
+            //    throw new ArgumentException("The extracted content is not a valid JSON object.");
+            //}
+
+           
         }
     }
 
