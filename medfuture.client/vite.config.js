@@ -73,7 +73,7 @@ export default defineConfig({
                 target: 'https://localhost:7184/',
                 secure: false
             },
-            '^/api/admin/create-doctor': {
+            '^/api/admin/*': {
                 target: 'https://localhost:7184/',
                 secure: false
             },

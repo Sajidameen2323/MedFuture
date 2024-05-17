@@ -7,9 +7,11 @@ using FirebaseAdmin;
 using MedFuture.Server.DataTransferObjects.Docotor;
 using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.Services.User;
+using MedFuture.Server.DataTransferObjects.Payment;
 
 namespace MedFuture.Server.Controllers
 {
+    [Authorize("AdminOnlyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -18,16 +20,21 @@ namespace MedFuture.Server.Controllers
         private readonly ApplicationDbContext _dbcontext;
         private readonly IUserService _userService;
         private readonly IDoctorRepository _doctorRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IPaymentRepository _paymentRepository;
 
-        public AdminController(ILogger<AdminController> logger, ApplicationDbContext dbcontext, IUserService userService, IDoctorRepository doctorRepository)
+        public AdminController(ILogger<AdminController> logger, ApplicationDbContext dbcontext, IUserService userService,
+            IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository, IPaymentRepository paymentRepository)
         {
             _logger = logger;
             _dbcontext = dbcontext;
             _userService = userService;
             _doctorRepository = doctorRepository;
+            _appointmentRepository = appointmentRepository;
+            _paymentRepository = paymentRepository;
         }
 
-        [Authorize("AdminOnlyPolicy")]
+
         [HttpPost("create-doctor")]
         public async Task<IActionResult> CreateDoctor(DoctorCreateDto doctorCreateDto)
         {
@@ -54,6 +61,27 @@ namespace MedFuture.Server.Controllers
             public T Data { get; set; }
         }
 
+
+        [HttpPost("add-payment")]
+        public async Task<IActionResult> AddPaymentForAppointment(AddPaymentDto paymentDto)
+        {
+            try
+            {
+                PaymentM payment = await _paymentRepository.AddPayment(paymentDto);
+
+                return Ok(new { message = "Successfully Added Payment!", payment = new { payment.PaymentId, payment.PaymentDate, payment.Amount } });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { error = "Invalid Appointment Id" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+        }
 
 
     }

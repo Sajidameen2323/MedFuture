@@ -70,6 +70,9 @@ namespace MedFuture.Server.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
@@ -88,6 +91,10 @@ namespace MedFuture.Server.Migrations
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("PaymentId")
+                        .IsUnique()
+                        .HasFilter("[PaymentId] IS NOT NULL");
 
                     b.HasIndex("ServiceId");
 
@@ -139,16 +146,16 @@ namespace MedFuture.Server.Migrations
 
                     b.Property<string>("AdditionalNote")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
 
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
 
                     b.HasKey("Id");
 
@@ -371,13 +378,13 @@ namespace MedFuture.Server.Migrations
 
                     b.Property<string>("Instruction")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(750)
+                        .HasColumnType("nvarchar(750)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -421,6 +428,37 @@ namespace MedFuture.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("Patient");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.PaymentM", b =>
+                {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsTaxIncluded")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentMode")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("PaymentId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>
@@ -538,6 +576,11 @@ namespace MedFuture.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MedFuture.Server.Models.PaymentM", "Payment")
+                        .WithOne("Appointment")
+                        .HasForeignKey("MedFuture.Server.Models.AppointmentM", "PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("MedFuture.Server.Models.ServiceM", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -549,6 +592,8 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+
+                    b.Navigation("Payment");
 
                     b.Navigation("Service");
                 });
@@ -682,6 +727,12 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Allergies");
 
                     b.Navigation("Diagnoses");
+                });
+
+            modelBuilder.Entity("MedFuture.Server.Models.PaymentM", b =>
+                {
+                    b.Navigation("Appointment")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>

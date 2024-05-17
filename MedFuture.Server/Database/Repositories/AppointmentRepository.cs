@@ -1,5 +1,6 @@
 ﻿using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.DataTransferObjects.Appointment;
+using MedFuture.Server.DataTransferObjects.Payment;
 using MedFuture.Server.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,7 @@ namespace MedFuture.Server.Database.Repositories
                                        .Include(a => a.Doctor.User)
                                        .Include(a => a.Patient.User)
                                        .Include(a => a.Service)
+                                       .Include(a => a.Payment)
                                        .IgnoreQueryFilters();
 
             return appointments;

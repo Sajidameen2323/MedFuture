@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
-import * as React from 'react';
-import { useQuery } from 'react-query';
+
+import { useState, useContext, useCallback, useEffect } from 'react';
+
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import { Stack, IconButton, Box } from '@mui/material';
@@ -14,18 +16,26 @@ dayjs.extend(customParseFormat);
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-import { useState, useContext } from 'react';
 
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { Empty } from 'antd';
-import { useCallback } from 'react';
 
 import { Descriptions } from 'antd';
 
 import CloseIcon from '@mui/icons-material/Close';
 import DataGridOptions from './DataGridOptions';
 
+import AddPaymentDialog from './AddPaymentDialog';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import {  notification  } from 'antd';
+import axios from 'axios';
+
 export default function DataTable({ props }) {
+
+    const queryClient = useQueryClient();
+
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+    const [notificationApi, contextHolder] = notification.useNotification();
 
 
     const columns = [
@@ -67,6 +77,17 @@ export default function DataTable({ props }) {
                 //    onClick={() => { }}
                 //    showInMenu
                 ///>,
+                <GridActionsCellItem
+                    icon={<AttachMoneyIcon />}
+                    label="Add Payment"
+                    onClick={() => {
+                        let { outputObject } = data;
+                        let app = outputObject.filter((el) => el?.appointmentId === params.row.id)[0];
+                        setPaymentApp(app);
+                        setOpenPaymentDialog(true);
+                    }}
+                    showInMenu
+                />,
 
             ],
         },
@@ -74,12 +95,19 @@ export default function DataTable({ props }) {
 
 
     const [rows, setRows] = useState([]);
-    const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+    const [rowSelectionModel, setRowSelectionModel] = useState([]);
 
     const { idToken } = useContext(FirebaseAuthContext);
     const { dateRange, statusFilter, prevDateRange, setPrevDateRange } = props;
 
     const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [paymentApp, setPaymentApp] = useState(null);
+
+    const handlePaymentAdded = (paymentData) => {
+        // Handle the payment data, e.g., send it to the server
+        console.log('Payment added:', paymentData);
+        addPayment(paymentData)
+    };
 
     // data fetching logic
     const fetchAppointmentsByRange = useCallback(async () => {
@@ -118,10 +146,46 @@ export default function DataTable({ props }) {
             // Update the prevDateRange state after a successful query
             setPrevDateRange(dateRange);
         },
+        onerror: (error) => { 
+
+            console.log(error)
+        }
     });
 
+    const { mutate: addPayment, isLoading: isAddingPayment } = useMutation(
+        async (paymentData) => {
+            const response = await axios.post('/api/admin/add-payment', paymentData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                },
+            });
+            return response.data;
+        },
+        {
+            onSuccess: () => {
+                setPrevDateRange(null)
+                queryClient.invalidateQueries('apiGetAppointmentsForRange');
+                setOpenPaymentDialog(false)
+                notification["success"]({
+                    message: 'Payment',
+                    description:
+                        'Payment for Appointment Added Successfully!',
+                });
+            },
+            onError: (error) => {
+                notification["error"]({
+                    message: 'Payment',
+                    description:
+                        'Something Went Wrong, Could not Add Payment!',
+                });
+                console.log(error)
+            }
+        }
+    );
 
-    React.useEffect(() => {
+
+    useEffect(() => {
 
         // console.log(data);
         if (data) {
@@ -145,6 +209,8 @@ export default function DataTable({ props }) {
                         date: el?.appointmentDate,
                         start_at: el?.startDateTime,
                         status: el?.status,
+                        price: el?.price,
+                        paymentMode: el?.paymentMode
                     })
 
                 })
@@ -209,7 +275,13 @@ export default function DataTable({ props }) {
                     />
                 </Box>
                 {rowSelectionModel && rowSelectionModel.length > 0 && <DataGridOptions rowSelectionModel={rowSelectionModel} setPrevDateRange={setPrevDateRange} />}
-
+                <AddPaymentDialog
+                    open={openPaymentDialog}
+                    onClose={() => setOpenPaymentDialog(false)}
+                    appointment={paymentApp}
+                    onPaymentAdded={handlePaymentAdded}
+                    isAddingPayment={isAddingPayment}
+                />
             </Stack>
   
         </>
@@ -275,7 +347,12 @@ function DetailView({ selectedAppointment, setSelectedAppointment }) {
         {
             key: '11',
             label: 'Price',
-            children: "Rs. "+ (selectedAppointment?.price ?? "200.00"),
+            children: "Rs. "+ (selectedAppointment?.price ?? "0.00"),
+        },
+        {
+            key: '13',
+            label: 'Payment Mode',
+            children: (selectedAppointment?.paymentMode ?? "N/A"),
         },
     ];
 

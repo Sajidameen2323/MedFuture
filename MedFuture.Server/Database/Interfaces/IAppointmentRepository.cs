@@ -1,4 +1,5 @@
 ﻿using MedFuture.Server.DataTransferObjects.Appointment;
+using MedFuture.Server.DataTransferObjects.Payment;
 using MedFuture.Server.Models;
 
 namespace MedFuture.Server.Database.Interfaces
@@ -26,6 +27,8 @@ namespace MedFuture.Server.Database.Interfaces
         Task<AppointmentM> GetAppointmentDetailsForPatient(int appId, int userId);
         Task UpdateAppointmentStatusForPatient(int appId, int userId, AppointmentStatus newStatus);
         Task RescheduleAppointment(int appId, int userId, DateTime newDateTime);
+
+    
 
     }
 }
