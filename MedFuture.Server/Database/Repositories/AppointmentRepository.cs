@@ -45,16 +45,23 @@ namespace MedFuture.Server.Database.Repositories
 
             var doesAppExists = _context.Appointments.Where(a=> a.StartDateTime ==  createAppointmentDto.StartDateTime && a.DoctorId == createAppointmentDto.DoctorId && a.Status != AppointmentStatus.Cancelled).FirstOrDefault();
 
+            var service = _context.Services.Where(s => s.ServiceID == createAppointmentDto.ServiceId).FirstOrDefault();
+
             if(doesAppExists != null)
             {
                 throw new ArgumentException("Slot is not empty");
+            }
+
+            if(service == null)
+            {
+                throw new ArgumentException("Invalid Service Id");
             }
 
             AppointmentM appointment = new AppointmentM()
             {
                 AppointmentDate = DateOnly.FromDateTime(createAppointmentDto.AppointmentDate),
                 DoctorId = createAppointmentDto.DoctorId,
-                EndDateTime = createAppointmentDto.EndDateTime,
+                EndDateTime = createAppointmentDto.StartDateTime.AddMinutes((double)service.ServiceCharge),
                 StartDateTime = createAppointmentDto.StartDateTime,
                 PatientId = createAppointmentDto.PatientId,
                 ServiceId = createAppointmentDto.ServiceId
@@ -321,10 +328,13 @@ namespace MedFuture.Server.Database.Repositories
 
             var appointment = _context.Appointments.Where(a => a.AppointmentId == appId)
                                 .Include(a => a.Service)
+                                .Include (a => a.Patient)
+                                .ThenInclude(p => p.User)
                                 .Include(a => a.Doctor)
                                 .ThenInclude(d => d.User)
                                 .Include(a => a.Consultation)
                                 .ThenInclude(c => c.Medications)
+                                .Include(a => a.Payment)
                                 .FirstOrDefault();
 
             if (appointment == null)

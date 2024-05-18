@@ -6,12 +6,13 @@ import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { useNavigate } from "react-router-dom";
-import { app } from '../../../config/firebaseConfig';
+import InvoiceDialog from 'components/Invoice/InvoiceDialog';
 
 const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
 
     const [open, setOpen] = useState(false);
     const [action, setAction] = useState(null);
+    const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
     const queryClient = useQueryClient();
     const { idToken } = useContext(FirebaseAuthContext);
     const navigate = useNavigate();
@@ -139,7 +140,12 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
                     </Button>}
                 </>
                 }
+                {appointment?.hasPayment &&
 
+                    <Button variant="outlined" color="success" onClick={() => setOpenInvoiceDialog(true) }>
+                        Invoice
+                    </Button>
+                }
 
             </Stack>
             <Dialog open={open} onClose={handleCloseDialog}>
@@ -166,6 +172,11 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <InvoiceDialog
+                open={openInvoiceDialog}
+                onClose={() => setOpenInvoiceDialog(false)}
+                appointment={appointment}
+            />
         </>
     );
 };

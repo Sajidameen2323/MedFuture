@@ -26,15 +26,20 @@ import CloseIcon from '@mui/icons-material/Close';
 import DataGridOptions from './DataGridOptions';
 
 import AddPaymentDialog from './AddPaymentDialog';
+
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+
 import {  notification  } from 'antd';
 import axios from 'axios';
+import InvoiceDialog from 'components/Invoice/InvoiceDialog';
 
 export default function DataTable({ props }) {
 
     const queryClient = useQueryClient();
 
     const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+    const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
     const [notificationApi, contextHolder] = notification.useNotification();
 
 
@@ -55,41 +60,48 @@ export default function DataTable({ props }) {
             field: 'actions',
             type: 'actions',
             flex: 1,
-            getActions: (params) => [
+            getActions: (params) => {
+                let { outputObject } = data;
 
-                <GridActionsCellItem
-                    icon={<VisibilityIcon />}
-                    label="View"
-                    onClick={() => {
-                        let { outputObject } = data;
+                let app = outputObject.filter((el) => el?.appointmentId === params.row.id)[0]
 
-                        let app = outputObject.filter((el) => el?.appointmentId === params.row.id)[0]
+                console.log(app)
 
-                        console.log(app)
+                return [
 
-                        setSelectedAppointment(app)
-                    }}
-                />
-                ,
-                //<GridActionsCellItem
-                //    icon={<SecurityIcon />}
-                //    label="Set Status"
-                //    onClick={() => { }}
-                //    showInMenu
-                ///>,
-                <GridActionsCellItem
-                    icon={<AttachMoneyIcon />}
-                    label="Add Payment"
-                    onClick={() => {
-                        let { outputObject } = data;
-                        let app = outputObject.filter((el) => el?.appointmentId === params.row.id)[0];
-                        setPaymentApp(app);
-                        setOpenPaymentDialog(true);
-                    }}
-                    showInMenu
-                />,
+                    <GridActionsCellItem
+                        icon={<VisibilityIcon />}
+                        label="View"
+                        onClick={() => {
 
-            ],
+                            setSelectedAppointment(app)
+                        }}
+                    />,
+                    <GridActionsCellItem
+                        icon={<AttachMoneyIcon />}
+                        label="Add Payment"
+                        disabled={ !app?.payment?.canAddPayment }
+                        onClick={() => {
+
+                            setPaymentApp(app);
+                            setOpenPaymentDialog(true);
+                        }}
+                        showInMenu
+                    />,
+                    <GridActionsCellItem
+                        icon={<ReceiptIcon />}
+                        label="Invoice"
+                        disabled={!app?.payment?.canViewInvoice}
+                        onClick={() => {
+                            setInvoiceApp(app)
+                            setOpenInvoiceDialog(true)
+                        }}
+                        showInMenu
+                    />,
+
+                ]
+
+            },
         },
     ];
 
@@ -102,6 +114,7 @@ export default function DataTable({ props }) {
 
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [paymentApp, setPaymentApp] = useState(null);
+    const [invoiceApp, setInvoiceApp] = useState(null);
 
     const handlePaymentAdded = (paymentData) => {
         // Handle the payment data, e.g., send it to the server
@@ -210,7 +223,7 @@ export default function DataTable({ props }) {
                         start_at: el?.startDateTime,
                         status: el?.status,
                         price: el?.price,
-                        paymentMode: el?.paymentMode
+                        paymentMode: el?.payment?.paymentMode
                     })
 
                 })
@@ -282,6 +295,11 @@ export default function DataTable({ props }) {
                     onPaymentAdded={handlePaymentAdded}
                     isAddingPayment={isAddingPayment}
                 />
+                <InvoiceDialog
+                    open={openInvoiceDialog}
+                    onClose={() => setOpenInvoiceDialog(false)}
+                    appointment={invoiceApp}
+                />
             </Stack>
   
         </>
@@ -337,7 +355,7 @@ function DetailView({ selectedAppointment, setSelectedAppointment }) {
         {
             key: '9',
             label: 'Payment Status',
-            children: selectedAppointment?.paymentStatus ?? "N/A",
+            children: selectedAppointment?.payment?.paymentStatus ?? "N/A",
         },
         {
             key: '10',
@@ -352,7 +370,7 @@ function DetailView({ selectedAppointment, setSelectedAppointment }) {
         {
             key: '13',
             label: 'Payment Mode',
-            children: (selectedAppointment?.paymentMode ?? "N/A"),
+            children: (selectedAppointment?.payment?.paymentMode ?? "N/A"),
         },
     ];
 

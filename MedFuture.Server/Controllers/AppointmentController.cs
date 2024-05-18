@@ -327,13 +327,19 @@ namespace MedFuture.Server.Controllers
                 a.AppointmentDate,
                 a.StartDateTime,
                 a.EndDateTime,
-                a.PaymentId,
+    
                 service = new { a.Service.Name, a.Service.Duration  },
-                doctor = new { a.Doctor.User.FirstName, a.Doctor.User.LastName, a.Doctor.User.ProfilePic },
+                doctor = new { a.Doctor.User.FirstName, a.Doctor.User.LastName, a.Doctor.User.ProfilePic, name = a.Doctor.User.GetFullName() },
                 patient = new { a.Patient.User.FirstName, a.Patient.User.LastName, a.Patient.User.Email, a.Patient.PhoneNumber, a.Patient.User.ProfilePic },
                 status = Enum.GetName(typeof(AppointmentStatus), a.Status),
-                paymentStatus = a.PaymentId.HasValue  ? "Paid" : "Pending",
-                paymentMode = a?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), a?.Payment.PaymentMode),
+                payment = new {
+                    a.PaymentId,
+                    amount = a?.Payment?.Amount ?? null,
+                    paymentStatus = a.PaymentId.HasValue ? "Paid" : "Pending",
+                    paymentMode = a?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), a?.Payment.PaymentMode),
+                    canAddPayment = a.Status != AppointmentStatus.Cancelled && a.Status != AppointmentStatus.Missed,
+                    canViewInvoice = a.PaymentId.HasValue ? true : false,
+                },
                 price = a?.Service.ServiceCharge
 
             }).ToList();

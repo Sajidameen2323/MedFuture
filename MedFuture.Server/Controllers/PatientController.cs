@@ -410,7 +410,8 @@ namespace MedFuture.Server.Controllers
                             email = app.Doctor.User.Email
 
                         },
-                        consultation = app.Consultation == null ? null : new
+                    patient = new { app.Patient.User.FirstName, app.Patient.User.LastName },
+                    consultation = app.Consultation == null ? null : new
                         {
                             app.Consultation.Summary,
                             app.Consultation.AdditionalNote,
@@ -420,9 +421,20 @@ namespace MedFuture.Server.Controllers
                                 m.Instruction
                             }) ?? []
                         },
-                        app.Service.Name,
-                        app.Service.ServiceID,
-                        app.Service.Duration,
+                        hasPayment = app.PaymentId.HasValue,
+                    payment =  new
+                    {
+                        PaymentId = app?.Payment?.PaymentId ?? null,  // Replace 0 with default value for PaymentId
+                        Amount = app?.Payment?.Amount ?? null,     // Replace 0.0 with default value for Amount
+                        PaymentDate = app?.Payment?.PaymentDate ?? null, // Or a suitable default date
+                        paymentMode = app?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), app?.Payment.PaymentMode),
+                    },
+                        service = new {
+                            app.Service.Name,
+                            app.Service.ServiceID,
+                            app.Service.Duration,
+                        },
+
                         status = Enum.GetName(typeof(AppointmentStatus), app?.Status),
                         app.StartDateTime,
                         app.AppointmentDate,
