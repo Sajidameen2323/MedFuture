@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback } from 'react';
-import { List, Collapse, Typography, Button, Form, Input, Popconfirm, DatePicker } from 'antd';
+import { List, Collapse, Typography, Button, Form, Input, Popconfirm, DatePicker, notification } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Box } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from 'react-query';
@@ -58,10 +58,15 @@ const HolidaySettings = () => {
         }
     });
 
-    const { mutate: addHoliday } = useMutation(addHolidayMutation, {
+    const { mutate: addHoliday, isLoading: isAdding } = useMutation(addHolidayMutation, {
 
         onSuccess: () => {
             queryClient.invalidateQueries('holidays');
+            notification.success({
+                message: 'Success',
+                description: 'Holiday added successfully',
+                duration: 2,
+            });
         },
     });
     const { mutate: removeHoliday, isLoading: isDeleting } = useMutation(removeHolidayMutation, {
@@ -80,9 +85,10 @@ const HolidaySettings = () => {
     const handleAddHoliday = (values) => {
         const newHoliday = {
             name: values.name,
-            startDate: values.dateRange[0].toISOString(),
-            endDate: values.dateRange[1].toISOString()
+            startDate: formatDate(values.dateRange[0]?.$d),
+            endDate: formatDate(values.dateRange[1]?.$d)
         };
+        console.log(newHoliday)
         addHoliday(newHoliday);
         form.resetFields();
     };
@@ -123,7 +129,7 @@ const HolidaySettings = () => {
                     </Form.Item>
 
                     <Form.Item style={{ display: 'flex', justifyContent: 'space-evenly' }} >
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType="submit" loading={isAdding }>
                             Add Day Off
                         </Button>
                         <Button style={{ marginLeft: '10px' }} onClick={() => form.resetFields()}>
@@ -195,7 +201,16 @@ const fetchHolidays = async () => {
     return response.json();
 };
 
+function formatDate(date) {
+    const year = date.getFullYear().toString().padStart(4, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
 
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+}
 
 
 export default HolidaySettings;

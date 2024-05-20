@@ -98,7 +98,7 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
             navigate(`/patient/appointments/${appointment?.appointmentId}/reschedule`, {
                 state: {
                     rescheduleData: { 
-                        serviceId: appointment?.serviceID,
+                        serviceId: appointment?.service.serviceID,
                         doctorId: appointment?.doctor?.id,
                         appointmentId: appointment?.appointmentId,
                         startDateTime: appointment?.startDateTime,

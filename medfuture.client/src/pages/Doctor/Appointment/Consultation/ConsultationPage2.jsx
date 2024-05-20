@@ -251,7 +251,7 @@ const ConsultationPage = () => {
                                     aria-controls="panel2a-content"
                                     id="panel2a-header"
                                 >
-                                    <Typography variant="h6">Diagnoses</Typography>
+                                    <Typography variant="h6">Past Diagnoses</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Box sx={{ maxHeight: '200px', overflowY: 'auto', width: '100%', textAlign: 'left' }}>
@@ -259,6 +259,25 @@ const ConsultationPage = () => {
                                             <Box key={el.id} mb={1}>
                                                 <Typography variant="body1"><strong>{el.name}</strong></Typography>
                                                 <Typography variant="body2">Diagnosed on: {moment(el.diagnosisDate).format('YYYY-MM-DD')}</Typography>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<CaretDownOutlined />}
+                                    aria-controls="panel2a-content"
+                                    id="panel2a-header"
+                                >
+                                    <Typography variant="h6">Current Medications</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Box sx={{ maxHeight: '200px', overflowY: 'auto', width: '100%', textAlign: 'left' }}>
+                                        {patientData?.currentMedications && patientData.currentMedications.map(el => (
+                                            <Box key={el.id} mb={1}>
+                                                <Typography variant="body1"><strong>{el.name}</strong></Typography>
+                                                <Typography variant="body2">Dosage: { el.dosage } </Typography>
                                             </Box>
                                         ))}
                                     </Box>

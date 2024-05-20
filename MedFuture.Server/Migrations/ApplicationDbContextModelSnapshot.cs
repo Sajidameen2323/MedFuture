@@ -109,6 +109,9 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("AppointmentTaxPercentage")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("BookingPeriodInDays")
                         .HasColumnType("int");
 
@@ -129,6 +132,7 @@ namespace MedFuture.Server.Migrations
                         new
                         {
                             Id = 1,
+                            AppointmentTaxPercentage = 0m,
                             BookingPeriodInDays = 30,
                             MinimumTimeBeforeBookingInDays = 3,
                             MinimumTimeBeforeCancelingInDays = 3,
@@ -461,6 +465,44 @@ namespace MedFuture.Server.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.ReminderMedication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Dosage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("ReminderTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("reminderMedications");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>
                 {
                     b.Property<int>("ServiceID")
@@ -703,6 +745,17 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MedFuture.Server.Models.ReminderMedication", b =>
+                {
+                    b.HasOne("MedFuture.Server.Models.PatientM", "Patient")
+                        .WithMany("reminderMedications")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("MedFuture.Server.Models.ConsultationM", b =>
                 {
                     b.Navigation("Appointment")
@@ -727,6 +780,8 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Allergies");
 
                     b.Navigation("Diagnoses");
+
+                    b.Navigation("reminderMedications");
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.PaymentM", b =>

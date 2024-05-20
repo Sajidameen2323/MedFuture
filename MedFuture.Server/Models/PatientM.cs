@@ -33,6 +33,8 @@ namespace MedFuture.Server.Models
 
         public ICollection<DiagnosisM> Diagnoses { get; set; }
 
+        public ICollection<ReminderMedication> reminderMedications { get; set; }
+
         public bool IsDeleted { get; set; } = false;
     }
 

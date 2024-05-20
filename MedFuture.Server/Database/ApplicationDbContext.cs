@@ -72,6 +72,12 @@ namespace MedFuture.Server.Database
                 .HasForeignKey(d => d.PatientID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<PatientM>()
+                .HasMany(p => p.reminderMedications)
+                .WithOne(d => d.Patient)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             //model building Doctor table
             modelBuilder.Entity<DoctorM>()    
                 .HasQueryFilter(d => !d.User.IsDeleted);
@@ -218,7 +224,6 @@ namespace MedFuture.Server.Database
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-
         public DbSet<UserM> Users { get; set; }
 
         public DbSet<PatientM> Patients { get; set; }
@@ -242,5 +247,7 @@ namespace MedFuture.Server.Database
         public DbSet<MedicationM> Medications { get; set; }
 
         public DbSet<PaymentM> Payments { get; set; }
+
+        public DbSet<ReminderMedication> reminderMedications { get; set; }
     }
 }

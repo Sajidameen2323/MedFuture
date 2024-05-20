@@ -11,6 +11,10 @@ const { RangePicker } = DatePicker;
 
 const rangePresets = [
     {
+        label: 'Today',
+        value: [dayjs(), dayjs()],
+    },
+    {
         label: 'Last 7 Days',
         value: [dayjs().add(-7, 'd'), dayjs()],
     },

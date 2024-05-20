@@ -19,14 +19,25 @@ namespace MedFuture.Server.Database.Repositories
 
             var app = _context.Appointments.Where(a=> a.AppointmentId == paymentDto.AppointmentId)
                 .Include(a=> a.Payment)
-                .FirstOrDefault();   
+                .FirstOrDefault();
+
+            var app_sett = _context.AppointmentSettings.FirstOrDefault();
 
             if (app == null)
             {
                 throw new ArgumentException("Invalid Appointment Id");
             }
 
-            decimal taxAmount = (0/100) * paymentDto.Amount;
+            decimal taxRate = app_sett?.AppointmentTaxPercentage ?? 0;
+            decimal taxAmount = (taxRate/100) * paymentDto.Amount;
+
+            Console.WriteLine("------------- TAX ----------------");
+            Console.WriteLine(taxRate);
+            Console.WriteLine(taxAmount);
+            Console.WriteLine(paymentDto.Amount);
+            Console.WriteLine("------------- TAX ----------------");
+
+
             PaymentM paymentM;
             if (app.PaymentId.HasValue)
             {

@@ -9,6 +9,7 @@ const AppointmentsList = Loadable(lazy(() => import("pages/Patient/Appointment/I
 const AppointmentActionPage = Loadable(lazy(() => import("pages/Patient/Appointment/AppointmentActionPage")));
 const HealthcareConsultationSummary = Loadable(lazy(() => import("pages/Patient/Appointment/ConsultationSummary")));
 const AppointmentReschedule = Loadable(lazy(() => import("pages/Patient/Appointment/Reschedule/Reschedule")));
+const MedicationReminders = Loadable(lazy(() => import("pages/Patient/MedicationReminders")));
 
 export default function GetPatientRoutes(props) {
 
@@ -60,6 +61,12 @@ export default function GetPatientRoutes(props) {
             path: 'appointments/:appointmentId/reschedule',
             loader: props.doctorOnlyLoader,
             Component: AppointmentReschedule
+        },
+        {
+            id: 'patient_reminders',
+            path: 'medications',
+            loader: props.patientOnlyLoader,
+            Component: MedicationReminders
         },
     ]
 

@@ -18,5 +18,8 @@ namespace MedFuture.Server.Models
 
         [Range(0, int.MaxValue, ErrorMessage = "Booking period must be a non-negative value.")]
         public int BookingPeriodInDays { get; set; }
+
+        [Range(0, 100, ErrorMessage = "Appointment Tax Percentage must be a non-negative value between 0 and 100.")]
+        public Decimal AppointmentTaxPercentage { get; set; } = 0;
     }
 }

@@ -36,6 +36,9 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
+const baseUrl = 'https://localhost:7184/';
+//const baseUrl = 'http://localhost:5044/';
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
@@ -58,43 +61,43 @@ export default defineConfig({
     server: {
         proxy: {
             '^/weatherforecast': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/auth/authorize-user': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/auth/create-patient': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/auth/get-verification-mail': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/api/admin/*': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/api/doctor/*': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/api/service/*': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/api/appointment/*': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/api/patient/*': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             },
             '^/api/consultation/*': {
-                target: 'https://localhost:7184/',
+                target: baseUrl,
                 secure: false
             }
  

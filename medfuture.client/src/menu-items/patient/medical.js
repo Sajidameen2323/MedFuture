@@ -1,9 +1,10 @@
 // assets
-import { UnorderedListOutlined } from '@ant-design/icons';
+import { UnorderedListOutlined, ClockCircleOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-    UnorderedListOutlined
+    UnorderedListOutlined,
+    ClockCircleOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -27,6 +28,14 @@ const medicalNavs = {
             type: 'item',
             url: '/patient/diognoses',
             icon: icons.UnorderedListOutlined,
+            breadcrumbs: false
+        },
+        {
+            id: 'reminders',
+            title: 'Medication & Reminders',
+            type: 'item',
+            url: '/patient/medications',
+            icon: icons.ClockCircleOutlined,
             breadcrumbs: false
         },
     ]

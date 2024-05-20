@@ -20,13 +20,15 @@ namespace MedFuture.Server.Controllers
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IPatientRepository _patientRepository;
         private readonly IUserService _userService;
+        private readonly IMedicationReminderRepository _medicationReminderRepository;
 
 
-        public PatientController(IAppointmentRepository appointmentRepository, IUserService userService, IPatientRepository patientRepository)
+        public PatientController(IAppointmentRepository appointmentRepository, IUserService userService, IPatientRepository patientRepository, IMedicationReminderRepository medicationReminderRepository )
         {
             _appointmentRepository = appointmentRepository;
             _userService = userService;
             _patientRepository = patientRepository;
+            _medicationReminderRepository = medicationReminderRepository;
         }
 
         [Authorize("PatientOnlyPolicy")]
@@ -425,9 +427,10 @@ namespace MedFuture.Server.Controllers
                     payment =  new
                     {
                         PaymentId = app?.Payment?.PaymentId ?? null,  // Replace 0 with default value for PaymentId
-                        Amount = app?.Payment?.Amount ?? null,     // Replace 0.0 with default value for Amount
+                        Amount = (app?.Payment?.Amount != null && app?.Payment?.TaxAmount != null) ? (app?.Payment?.Amount - app?.Payment.TaxAmount) : null,    // Replace 0.0 with default value for Amount
                         PaymentDate = app?.Payment?.PaymentDate ?? null, // Or a suitable default date
                         paymentMode = app?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), app?.Payment.PaymentMode),
+                        taxPercentage = (app?.Payment?.Amount != null && app?.Payment?.TaxAmount != null) ? Math.Round((decimal)(app.Payment.TaxAmount / (app.Payment.Amount - app.Payment.TaxAmount)), 2) : 0m
                     },
                         service = new {
                             app.Service.Name,
@@ -518,6 +521,161 @@ namespace MedFuture.Server.Controllers
                 return BadRequest(new { message = "Something Went Wrong!" });
             }
         }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpGet("me/medication-reminders")]
+        public async Task<IActionResult> GetReminders()
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var reminders = await _medicationReminderRepository.GetAllAsync(userIdDb);
+
+                var formattedData = reminders.Select(reminder => new MedicationReminderDto
+                {
+                    Id = reminder.Id,
+                    Name = reminder.Name,
+                    Dosage = reminder.Dosage,
+                    ReminderTime = reminder.ReminderTime,
+                    IsActive = reminder.IsActive,
+                    MedicationType = reminder.Type,
+                    Visible = reminder.Visible,
+
+                }).ToList();
+
+                return Ok(formattedData);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpPost("me/medication-reminders")]
+        public async Task<IActionResult> AddReminder(MedicationReminderDto medicationReminderDto)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var reminder =  await _medicationReminderRepository.AddAsync(userIdDb, medicationReminderDto);
+
+                var formattedObj = new {
+                    
+                    reminder.Id,
+                    reminder.Name,
+                    reminder.Dosage,
+                    reminder.ReminderTime,
+                    reminder.IsActive,
+                    reminder.Type,
+                    reminder.Visible
+                
+                };
+
+                return Ok(new { message = "Successfully Added Reminder!", data = formattedObj });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpPut("me/medication-reminders/{reminderId}")]
+        public async Task<IActionResult> UpdateReminder(int reminderId,MedicationReminderDto medicationReminderDto)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var reminder = await _medicationReminderRepository.UpdateAsync(userIdDb,reminderId,medicationReminderDto);
+
+                var formattedObj = new
+                {
+
+                    reminder.Id,
+                    reminder.Name,
+                    reminder.Dosage,
+                    reminder.ReminderTime,
+                    reminder.IsActive,
+                    reminder.Type,
+                    reminder.Visible
+
+                };
+
+                return Ok(new { message = "Successfully Updated Reminder!", data = formattedObj });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("PatientOnlyPolicy")]
+        [HttpDelete("me/medication-reminders/{reminderId}")]
+        public async Task<IActionResult> DeleteReminder(int reminderId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _medicationReminderRepository.DeleteAsync(userIdDb, reminderId);
+
+
+                return Ok(new { message = "Successfully Deleted Reminder!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
 
     }
 }

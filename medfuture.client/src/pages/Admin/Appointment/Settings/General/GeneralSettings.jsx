@@ -54,6 +54,7 @@ const GeneralSettings = () => {
                 minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
                 minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
                 bookingPeriodInDays: data?.bookingPeriodInDays || 30,
+                appointmentTaxPercentage: data?.appointmentTaxPercentage || 0
             });
         }
     });
@@ -76,6 +77,7 @@ const GeneralSettings = () => {
         minimumTimeBeforeCancelingInDays: Yup.number().required('Minimum time before canceling is required').min(1, 'Minimum time before canceling must be a non-negative value'),
         minimumTimeBeforeReschedulingInDays: Yup.number().required('Minimum time before rescheduling is required').min(1, 'Minimum time before rescheduling must be a non-negative value'),
         bookingPeriodInDays: Yup.number().required('Booking period is required').min(1, 'Booking period must be a non-negative value'),
+        appointmentTaxPercentage: Yup.number().required('Tax Amount is required').min(0, 'Tax must be a non-negative value').max(100, 'Tax must be in between 0 and 100'),
     });
 
     const formik = useFormik({
@@ -85,6 +87,7 @@ const GeneralSettings = () => {
             minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
             minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
             bookingPeriodInDays: data?.bookingPeriodInDays || 30,
+            appointmentTaxPercentage: data?.appointmentTaxPercentage || 0
 
         },
         validationSchema,
@@ -104,6 +107,7 @@ const GeneralSettings = () => {
             minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
             minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
             bookingPeriodInDays: data?.bookingPeriodInDays || 30,
+            appointmentTaxPercentage: data?.appointmentTaxPercentage || 0
         });
 
     }, [data]);
@@ -117,6 +121,7 @@ const GeneralSettings = () => {
                 minimumTimeBeforeCancelingInDays: data?.minimumTimeBeforeCancelingInDays || 1,
                 minimumTimeBeforeReschedulingInDays: data?.minimumTimeBeforeReschedulingInDays || 1,
                 bookingPeriodInDays: data?.bookingPeriodInDays || 30,
+                appointmentTaxPercentage: data?.appointmentTaxPercentage || 0
             },
         });
     };
@@ -209,6 +214,23 @@ const GeneralSettings = () => {
                 />
                 {formik.touched.bookingPeriodInDays && formik.errors.bookingPeriodInDays && (
                     <FormHelperText error>{formik.errors.bookingPeriodInDays}</FormHelperText>
+                )}
+            </Stack>
+
+            <Stack spacing={1}>
+                <InputLabel htmlFor="appointmentTaxPercentage">Tax Amount for Appointment Booking*</InputLabel>
+                <OutlinedInput
+                    id="appointmentTaxPercentage"
+                    type="number"
+                    value={formik.values.appointmentTaxPercentage}
+                    name="appointmentTaxPercentage"
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    fullWidth
+                    error={Boolean(formik.touched.appointmentTaxPercentage && formik.errors.appointmentTaxPercentage)}
+                />
+                {formik.touched.appointmentTaxPercentage && formik.errors.appointmentTaxPercentage && (
+                    <FormHelperText error>{formik.errors.appointmentTaxPercentage}</FormHelperText>
                 )}
             </Stack>
 

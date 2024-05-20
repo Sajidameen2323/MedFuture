@@ -272,6 +272,12 @@ namespace MedFuture.Server.Controllers
                                 Name = d.Name,
                                 DiagnosisDate = d.DiagnosisDate,
                             }) ?? [],
+                            currentMedications = app.Patient.reminderMedications.Where(rm => rm.Visible).Select(rm => new 
+                            {
+                                id = rm.Id,
+                                name = rm.Name,
+                                dosage = rm.Dosage,
+                            }) ?? [],
 
                         },
                         consultation = app.Consultation == null ? null : new

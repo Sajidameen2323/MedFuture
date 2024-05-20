@@ -103,7 +103,8 @@ namespace MedFuture.Server.Controllers
                     MinimumTimeBeforeBookingInDays = settings.MinimumTimeBeforeBookingInDays,
                     MinimumTimeBeforeCancelingInDays = settings.MinimumTimeBeforeCancelingInDays,
                     MinimumTimeBeforeReschedulingInDays = settings.MinimumTimeBeforeReschedulingInDays,
-                    BookingPeriodInDays = settings.BookingPeriodInDays
+                    BookingPeriodInDays = settings.BookingPeriodInDays,
+                    AppointmentTaxPercentage = settings.AppointmentTaxPercentage
                 };
 
                 await _appointmentRepository.UpdateAppointmentSettingsAsync(newSettings);
@@ -320,6 +321,7 @@ namespace MedFuture.Server.Controllers
             }
 
             IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForDateRange(parsedStartDate, parsedEndDate);
+            var appSettings = await _appointmentRepository.GetAppointmentSettings();
 
             var outputObject = appointments.Select(a => new { 
 
@@ -334,13 +336,15 @@ namespace MedFuture.Server.Controllers
                 status = Enum.GetName(typeof(AppointmentStatus), a.Status),
                 payment = new {
                     a.PaymentId,
-                    amount = a?.Payment?.Amount ?? null,
+                    amount = (a?.Payment?.Amount != null && a?.Payment?.TaxAmount != null) ? (a?.Payment?.Amount - a?.Payment.TaxAmount) : null,
                     paymentStatus = a.PaymentId.HasValue ? "Paid" : "Pending",
                     paymentMode = a?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), a?.Payment.PaymentMode),
                     canAddPayment = a.Status != AppointmentStatus.Cancelled && a.Status != AppointmentStatus.Missed,
                     canViewInvoice = a.PaymentId.HasValue ? true : false,
+                    taxPercentage = (a?.Payment?.Amount != null && a?.Payment?.TaxAmount != null) ? Math.Round((decimal)(a.Payment.TaxAmount / (a.Payment.Amount - a.Payment.TaxAmount)), 2) : 0m
                 },
-                price = a?.Service.ServiceCharge
+                price = a?.Service.ServiceCharge,
+                tax = appSettings?.AppointmentTaxPercentage ?? 0,
 
             }).ToList();
 

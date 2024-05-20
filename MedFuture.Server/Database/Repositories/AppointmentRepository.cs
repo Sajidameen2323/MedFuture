@@ -61,7 +61,7 @@ namespace MedFuture.Server.Database.Repositories
             {
                 AppointmentDate = DateOnly.FromDateTime(createAppointmentDto.AppointmentDate),
                 DoctorId = createAppointmentDto.DoctorId,
-                EndDateTime = createAppointmentDto.StartDateTime.AddMinutes((double)service.ServiceCharge),
+                EndDateTime = createAppointmentDto.StartDateTime.AddMinutes(service.Duration),
                 StartDateTime = createAppointmentDto.StartDateTime,
                 PatientId = createAppointmentDto.PatientId,
                 ServiceId = createAppointmentDto.ServiceId
@@ -167,6 +167,7 @@ namespace MedFuture.Server.Database.Repositories
                 existingSettings.MinimumTimeBeforeCancelingInDays = newAppointmentSettings.MinimumTimeBeforeCancelingInDays;
                 existingSettings.MinimumTimeBeforeReschedulingInDays = newAppointmentSettings.MinimumTimeBeforeReschedulingInDays;
                 existingSettings.BookingPeriodInDays = newAppointmentSettings.BookingPeriodInDays;
+                existingSettings.AppointmentTaxPercentage = newAppointmentSettings.AppointmentTaxPercentage;
             }
 
             await _context.SaveChangesAsync();
@@ -216,7 +217,7 @@ namespace MedFuture.Server.Database.Repositories
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            var doc = _context.Doctors.Where(d=> d.UserID == userId).FirstOrDefault();
+            var doc = await _context.Doctors.Where(d=> d.UserID == userId).FirstOrDefaultAsync();
 
             if(doc == null)
             {
@@ -230,7 +231,7 @@ namespace MedFuture.Server.Database.Repositories
                 .Include(a=> a.Service)
                 .Include(a=> a.Doctor)
                 .Include(a=> a.Patient)
-                .Include(a=> a.Patient.User)
+                .ThenInclude(p => p.User)
                 .ToList();    
 
             return appointments;
@@ -251,11 +252,12 @@ namespace MedFuture.Server.Database.Repositories
                                 .Include(a => a.Service)
                                 .Include(a => a.Doctor)
                                 .Include(a => a.Patient)
-                                .Include(a => a.Patient.User)
+                                .ThenInclude(p => p.User)
                                 .Include(a => a.Patient.Allergies)
                                 .Include(a => a.Patient.Diagnoses)
                                 .Include(a => a.Consultation)
                                 .ThenInclude(c => c.Medications)
+                                .Include(a => a.Patient.reminderMedications)
                                 .FirstOrDefault();
 
             if(appointment == null)

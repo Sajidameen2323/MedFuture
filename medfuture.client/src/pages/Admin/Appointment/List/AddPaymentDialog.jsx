@@ -26,6 +26,14 @@ const AddPaymentDialog = ({ open, onClose, appointment, onPaymentAdded, isAdding
                     value={appointment?.price}
                     fullWidth
                 />
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    label="Tax Amount"
+                    type="number"
+                    value={(appointment?.tax ?? 0) / 100 * (appointment?.price)}
+                    fullWidth
+                />
                 <FormControl fullWidth margin="dense">
                     <InputLabel>Payment Mode</InputLabel>
                     <Select
