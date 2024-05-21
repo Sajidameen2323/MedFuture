@@ -1,9 +1,13 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { List, Collapse, Typography, Button, Form, Input, Popconfirm, DatePicker, notification } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { Box } from "@mui/material";
+import { Box, Button as MuiButton } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
+import { useNavigate } from 'react-router-dom';
+import {
+    ArrowLeftOutlined
+} from '@ant-design/icons';
 
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
@@ -13,7 +17,7 @@ const HolidaySettings = () => {
 
     const { idToken } = useContext(FirebaseAuthContext);
     const queryClient = useQueryClient();
-
+    const navigate = useNavigate();
 
     // Add holiday mutation
     const addHolidayMutation = useCallback(async (newHoliday) => {
@@ -40,7 +44,7 @@ const HolidaySettings = () => {
         return response.json();
     },[idToken]);
 
-    const { data: holidaysFromServer, isLoading } = useQuery('holidays', fetchHolidays, {
+    const { isLoading } = useQuery('holidays', fetchHolidays, {
         refetchOnWindowFocus: false,
         onSuccess: (data) => {
 
@@ -105,7 +109,9 @@ const HolidaySettings = () => {
     const handleCancelRemove = () => {
         setConfirmationModal({ visible: false, holidayId: null, name: null });
     };
-
+    const handleGoBack = () => {
+        navigate(-1);
+    };
     const collapseItems = [
         {
             key: '1',
@@ -144,7 +150,18 @@ const HolidaySettings = () => {
 
     return (
         <Box sx={{ width: { xs: '100%', md: '1000px' } }} >
+            <Box sx={{ my: 2 }}>
+                <MuiButton
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    onClick={handleGoBack}
+                    startIcon={<ArrowLeftOutlined />}
+                >
+                    Go Back
+                </MuiButton>
 
+            </Box>
             <Collapse style={{ marginTop: '50px' }} items={collapseItems} defaultActiveKey={[]} />
 
             <Typography.Title style={{ textAlign:'left' } } level={5}> Upcoming Holidays </Typography.Title>

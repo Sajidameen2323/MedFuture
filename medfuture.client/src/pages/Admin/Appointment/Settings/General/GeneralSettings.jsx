@@ -7,14 +7,17 @@ import * as Yup from 'yup';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import {
+    ArrowLeftOutlined
+} from '@ant-design/icons';
 const GeneralSettings = () => {
 
     const { idToken } = useContext(FirebaseAuthContext);
     const queryClient = useQueryClient();
     const [successMessage, setSuccessMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
-
+    const navigate = useNavigate();
 
 
     const updateAppointmentSettings = useCallback(async (formData) => {
@@ -125,6 +128,9 @@ const GeneralSettings = () => {
             },
         });
     };
+    const handleGoBack = () => {
+        navigate(-1);
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -147,8 +153,18 @@ const GeneralSettings = () => {
                 </Box>
             </>
             }
-            
+            <Box sx={{ my: 2 }}>
+                <Button
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    onClick={handleGoBack}
+                    startIcon={<ArrowLeftOutlined />}
+                >
+                    Go Back
+                </Button>
 
+            </Box>
             <Stack spacing={1}>
                 <InputLabel htmlFor="minimumTimeBeforeBookingInDays">Minimum time required before booking*</InputLabel>
                 <OutlinedInput

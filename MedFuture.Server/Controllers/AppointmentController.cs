@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using MedFuture.Server.Services.User;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace MedFuture.Server.Controllers
 {
@@ -119,6 +120,7 @@ namespace MedFuture.Server.Controllers
         }
 
         [Authorize("PatientOnlyPolicy")]
+        [EnableRateLimiting("BookingAppointmentLimiter")]
         [HttpPost("create-appointment")]
         public async Task<IActionResult> CreateAppointment(CreateAppointmentDto createAppointmentDto)
         {
@@ -164,8 +166,9 @@ namespace MedFuture.Server.Controllers
                 }
 
                 AppointmentM appointment = await _appointmentRepository.CreateAppointment(createAppointmentDto);
+                var app_settings = await _appointmentRepository.GetAppointmentSettings();
 
-                return Ok(new { data = appointment, message="Successfully Booked Appointment!" });
+                return Ok(new { data = appointment, message="Successfully Booked Appointment!", tax = app_settings.AppointmentTaxPercentage });
             }
             catch (ArgumentException ex)
             {

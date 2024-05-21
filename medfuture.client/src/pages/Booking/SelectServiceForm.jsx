@@ -19,7 +19,9 @@ const fetchServices = async () => {
 
 const ServiceSelectionPage = ({ selectedService, setSelectedService }) => {
 
-    const { data: services, isLoading, isError } = useQuery('services', fetchServices);
+    const { data: services, isLoading, isError } = useQuery('services', fetchServices, {
+        refetchOnWindowFocus: false,
+    });
 
     const [selectedServiceId, setSelectedServiceId] = useState(selectedService.serviceID || "");
 

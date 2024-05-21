@@ -1,7 +1,7 @@
 // AppointmentStepper.js
 
 import { useState, useContext } from 'react';
-import { Stepper, Step, StepLabel, Button, Container, Box, Typography, Link } from '@mui/material';
+import { Stepper, Step, StepLabel, Button, Container, Box, Typography, Link, Alert } from '@mui/material';
 import SelectServiceForm from "./SelectServiceForm";
 import SelectDoctorForm from "./SelectDoctorForm";
 import BookingPage from './BookingPage';
@@ -12,7 +12,9 @@ import { FirebaseAuthContext } from "context/FirebaseAuthProvider";
 import { Link as RouterLink } from 'react-router-dom';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { Button as AntButton } from 'antd';
-
+import {
+    HomeOutlined
+} from '@ant-design/icons';
 const steps = ['Service', 'Doctor', 'Date & Time', 'Success'];
 
 const AppointmentStepper = () => {
@@ -93,18 +95,22 @@ const AppointmentStepper = () => {
                 console.log("Not Authorized for This Role");
                 setFormError("Not Authorized for This Role");
             }
+            else if (response.status === 429) {
+                console.log("Rate Limitted");
+                setFormError("Too many requests! Please try again later");
+            }
             else {
                 const { error, message } = await response.json()
                 if (error) {
                     console.log(message)
-                    setFormError(error)
+                    setFormError(message)
                 }
                
             }
         
         } catch (err) {
             console.error(err);
-
+            setFormError("Server erro! Please try again later.")
         }
 
         setProcessing(false);
@@ -130,6 +136,9 @@ const AppointmentStepper = () => {
                 ))}
             </Stepper>
 
+                <Box sx={{ mt: 2 }}>
+                    {formError && <Alert onClose={() => setFormError(null)} severity="error">{formError}</Alert>}
+                </Box>
             {/* Render step content based on activeStep */}
 
                 {activeStep === 0 && <SelectServiceForm selectedService={selectedService} setSelectedService={ setSelectedService } />}
@@ -140,9 +149,7 @@ const AppointmentStepper = () => {
 
                 {/* Navigation buttons */}
 
-                {formError && <Typography variant="subtitle2" color="error" component="h2">
-                    {formError}
-                </Typography> }
+
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
 
@@ -152,10 +159,12 @@ const AppointmentStepper = () => {
 
                     {activeStep == steps.length - 1 && 
                         <Box sx={{ display: 'flex', justifyContent: 'center', width: { sm: '90%', md: '50%' } } } >
-        
-                            <Link component={RouterLink} to="/" variant="body2" sx={{ ml: 2 }}>
-                                Home
-                            </Link>
+
+                            <AnimateButton> 
+                                <Button startIcon={<HomeOutlined />} component={RouterLink} to="/" size="small" variant="contained" sx={{ mt: 1 }}>
+                                         Home
+                                </Button>
+                            </AnimateButton>
                         </Box>    
                     
                     }

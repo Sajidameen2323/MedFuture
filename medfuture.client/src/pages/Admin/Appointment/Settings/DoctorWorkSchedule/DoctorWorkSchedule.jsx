@@ -10,7 +10,10 @@ import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
-
+import { useNavigate } from 'react-router-dom';
+import {
+    ArrowLeftOutlined
+} from '@ant-design/icons';
 
 
 
@@ -18,6 +21,7 @@ const DoctorSchedule = () => {
 
     const { idToken } = useContext(FirebaseAuthContext);
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const fetchData = useCallback( async () => {
     
@@ -173,7 +177,9 @@ const DoctorSchedule = () => {
         };
         DoctorScheduleMutate(formData)
     };
-
+    const handleGoBack = () => {
+        navigate(-1);
+    };
     const getStepContent = (step) => {
         switch (step) {
             case 0:
@@ -238,6 +244,18 @@ const DoctorSchedule = () => {
 
     return (
         <Box sx={{ maxWidth: { xs: 'auto', md: 1100 }, mx: 'auto', mt: 4 }}>
+            <Box sx={{ my: 2 }}>
+                <Button
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    onClick={handleGoBack}
+                    startIcon={<ArrowLeftOutlined />}
+                >
+                    Go Back
+                </Button>
+
+            </Box>
             <Stepper activeStep={activeStep}>
                 {['Select Doctor', 'Update Schedule'].map((label, index) => (
                     <Step key={label}>

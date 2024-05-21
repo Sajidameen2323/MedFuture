@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.Database;
-using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using MedFuture.Server.Authorization;
 using MedFuture.Server.Services;
@@ -16,6 +15,9 @@ using MedFuture.Server.Services.Email;
 using MedFuture.Server.Services.User;
 using MedFuture.Server.Services.Translate;
 using MedFuture.Server.Services.Gemini;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +55,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Role Bsed Policy Declaration
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnlyPolicy", policy =>
@@ -70,6 +74,26 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, AuthRoleHandler>();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter(policyName: "BookingAppointmentLimiter", options =>
+    {
+        options.PermitLimit = 3;
+        options.Window = TimeSpan.FromHours(24);
+        //options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        //options.QueueLimit = 2; //remove this if you want the RejectionStatusCode and the OnRejected to be invoked. 
+
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, _) =>
+    {
+        Console.WriteLine("---------- ON REJECT METHOD ---------");
+        await context.HttpContext.Response.WriteAsync("too many request");
+      
+    };
+});
+
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMyDependency, MyDependency>();
@@ -98,6 +122,7 @@ var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
