@@ -257,7 +257,7 @@ namespace MedFuture.Server.Controllers
                         invalid = group.Select(a => new // Create "invalid" object for each appointment
                         {
                             start = a.StartDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Format date and time
-                            end = a.EndDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
+                            end = a.EndDateTime.AddMinutes(-1).ToString("yyyy-MM-ddTHH:mm:ssZ")
                         })// Convert the appointment group to a List
                     })
                     .ToList();
@@ -344,7 +344,7 @@ namespace MedFuture.Server.Controllers
                     paymentMode = a?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), a?.Payment.PaymentMode),
                     canAddPayment = a.Status != AppointmentStatus.Cancelled && a.Status != AppointmentStatus.Missed,
                     canViewInvoice = a.PaymentId.HasValue ? true : false,
-                    taxPercentage = (a?.Payment?.Amount != null && a?.Payment?.TaxAmount != null) ? Math.Round((decimal)(a.Payment.TaxAmount / (a.Payment.Amount - a.Payment.TaxAmount)), 2) : 0m
+                    taxPercentage = (a?.Payment?.Amount != null && a?.Payment?.TaxAmount != null) ? Math.Round((decimal)(a.Payment.TaxAmount / (a.Payment.Amount - a.Payment.TaxAmount)), 4) : 0m
                 },
                 price = a?.Service.ServiceCharge,
                 tax = appSettings?.AppointmentTaxPercentage ?? 0,

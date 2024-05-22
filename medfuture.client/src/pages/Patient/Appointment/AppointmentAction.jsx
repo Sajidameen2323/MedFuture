@@ -102,7 +102,7 @@ const AppointmentAction = ({ appointment, onAppointmentComplete }) => {
                         doctorId: appointment?.doctor?.id,
                         appointmentId: appointment?.appointmentId,
                         startDateTime: appointment?.startDateTime,
-                        duration: appointment?.duration
+                        duration: appointment?.service?.duration
                     }
                 }
             })

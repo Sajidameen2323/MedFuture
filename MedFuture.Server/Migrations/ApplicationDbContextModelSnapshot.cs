@@ -44,7 +44,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("PatientID");
 
-                    b.ToTable("Allergies");
+                    b.ToTable("Allergies", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.AppointmentM", b =>
@@ -98,7 +98,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.AppointmentSettingsM", b =>
@@ -126,7 +126,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppointmentSettings");
+                    b.ToTable("AppointmentSettings", (string)null);
 
                     b.HasData(
                         new
@@ -163,7 +163,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Consultations");
+                    b.ToTable("Consultations", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DiagnosisM", b =>
@@ -188,7 +188,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("PatientID");
 
-                    b.ToTable("Diagnosis");
+                    b.ToTable("Diagnosis", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorM", b =>
@@ -219,7 +219,7 @@ namespace MedFuture.Server.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Doctor");
+                    b.ToTable("Doctor", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorQualificationM", b =>
@@ -246,7 +246,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("DoctorID");
 
-                    b.ToTable("DoctorQualifications");
+                    b.ToTable("DoctorQualifications", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorServiceM", b =>
@@ -267,7 +267,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("ServiceID");
 
-                    b.ToTable("DoctorService");
+                    b.ToTable("DoctorService", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
@@ -294,7 +294,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("DoctorID");
 
-                    b.ToTable("DoctorSpecialties");
+                    b.ToTable("DoctorSpecialties", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorWorkDayScheduleM", b =>
@@ -318,7 +318,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("DoctorId", "DayOfWeek");
 
-                    b.ToTable("DoctorWorkDaySchedule");
+                    b.ToTable("DoctorWorkDaySchedule", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.DoctorWorkingHours", b =>
@@ -343,7 +343,7 @@ namespace MedFuture.Server.Migrations
                     b.HasIndex("DoctorId")
                         .IsUnique();
 
-                    b.ToTable("DoctorWorkingHours");
+                    b.ToTable("DoctorWorkingHours", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.HolidayM", b =>
@@ -366,7 +366,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Holidays");
+                    b.ToTable("Holidays", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.MedicationM", b =>
@@ -394,7 +394,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("ConsultationId");
 
-                    b.ToTable("Medications");
+                    b.ToTable("Medications", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.PatientM", b =>
@@ -431,7 +431,7 @@ namespace MedFuture.Server.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Patient");
+                    b.ToTable("Patient", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.PaymentM", b =>
@@ -462,7 +462,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("PaymentId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.ReminderMedication", b =>
@@ -500,7 +500,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("reminderMedications");
+                    b.ToTable("reminderMedications", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.ServiceM", b =>
@@ -527,7 +527,7 @@ namespace MedFuture.Server.Migrations
 
                     b.HasKey("ServiceID");
 
-                    b.ToTable("Service");
+                    b.ToTable("Service", (string)null);
                 });
 
             modelBuilder.Entity("MedFuture.Server.Models.UserM", b =>
@@ -573,7 +573,7 @@ namespace MedFuture.Server.Migrations
                     b.HasIndex("FirebaseID")
                         .IsUnique();
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
 
                     b.HasData(
                         new

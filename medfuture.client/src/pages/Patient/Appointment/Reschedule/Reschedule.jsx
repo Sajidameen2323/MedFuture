@@ -230,7 +230,7 @@ function RescheduleComponent() {
             <Grid container spacing={2} alignItems="center" justifyContent="space-between">
                 <Grid item>
                     <Typography variant="h4" gutterBottom>
-                        Appointment Action
+                        Appointment Action {rescheduleData?.duration}
                     </Typography>
                 </Grid>
                 <Grid item>

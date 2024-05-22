@@ -51,9 +51,10 @@ namespace MedFuture.Server.Controllers
                 IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
 
                 var list = docList.Select(d => new { d.DoctorID, d.UserID, d.User, d.DOB, d.Gender, d.PhoneNumber,
+
                     workingHours = new {
-                        d.WorkingHours.StartTime,
-                        d.WorkingHours.EndTime
+                        StartTime = d?.WorkingHours?.StartTime ?? null,
+                        EndTime = d?.WorkingHours?.EndTime ?? null
 
                     } })
                     .ToList();
@@ -88,20 +89,38 @@ namespace MedFuture.Server.Controllers
 
         }
 
-
         [Authorize("AdminOnlyPolicy")]
-        [HttpDelete("doctors/{id}")]
-        public async Task<IActionResult> DeleteDoctor(int id)
+        [HttpDelete("doctors/{id}/disable")]
+        public async Task<IActionResult> DisableDoctor(int id)
         {
             try
             {
-                await _doctorRepository.DeleteDoctorAsync(id);
+                await _doctorRepository.DisableDoctorAsync(id);
 
                 return Ok();
 
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something went wrong!");
+            }
+        }
+
+        [Authorize("AdminOnlyPolicy")]
+        [HttpPut("doctors/{id}/activate")]
+        public async Task<IActionResult> ActivateDoctor(int id)
+        {
+            try
+            {
+                await _doctorRepository.ActivateDoctorAsync(id);
+
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
                 return BadRequest("Something went wrong!");
             }
         }
@@ -113,7 +132,7 @@ namespace MedFuture.Server.Controllers
 
             IEnumerable<DoctorM> docList = await _doctorRepository.GetAllDoctorsAsync();
 
-            var formatted = docList.Select(d =>
+            var formatted = docList.Where(d=> !d.User.IsDeleted).Select(d =>
             {
                 var doctorId = d.DoctorID;
                 var name = d.User?.FirstName + " " + d.User?.LastName; // Use null-conditional operator
@@ -291,6 +310,7 @@ namespace MedFuture.Server.Controllers
                             }) ?? []
                         },
                         app.Service.Name,
+                        app.Service.Duration,
                         status = Enum.GetName(typeof(AppointmentStatus), app?.Status),
                         app.StartDateTime,
                         EndDateTime = app.StartDateTime.AddMinutes(app.Service.Duration)

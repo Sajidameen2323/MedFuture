@@ -10,6 +10,8 @@ namespace MedFuture.Server.Database.Interfaces
         Task<IEnumerable<DoctorM>> GetAllDoctorsAsync();
         Task UpdateDoctorAsync(DoctorM doctor);
         Task DeleteDoctorAsync(int id);
+        Task DisableDoctorAsync(int id);
+        Task ActivateDoctorAsync(int id);
         Task<IEnumerable<DoctorWorkDayScheduleM>> GetDoctorWorkDaySchedule(int id);
         Task UpdateDoctorWorkDaySchedule(DoctorWorkDayScheduleupdateDto workDayScheduleDto);
         Task UpdateDoctorWorkHours(DoctorWorkDayScheduleupdateDto workDayScheduleDto);

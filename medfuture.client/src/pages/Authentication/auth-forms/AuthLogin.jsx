@@ -74,8 +74,22 @@ const AuthLogin = () => {
             setStatus({ success: true });
             setSubmitting(false);
           } catch (err) {
-            setStatus({ success: false });
-            setErrors({ submit: "Invalid Credentials" }); 
+
+   
+              setStatus({ success: false });
+
+
+              if (err.customData?._tokenResponse) {
+
+                  let { error: firebaseError } = err.customData._tokenResponse;
+               //   console.log(`${JSON.stringify(firebaseError.message)}`);
+                  setErrors({ submit: firebaseError.message });
+              }
+              else {
+                  setErrors({ submit: "Invalid Credentials" });
+              }
+
+
             setSubmitting(false);
           }
         }}

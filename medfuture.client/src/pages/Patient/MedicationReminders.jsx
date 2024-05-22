@@ -5,6 +5,9 @@ import { Box } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import moment from 'moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import 'dayjs/locale/en-gb';
 
 const { Panel } = Collapse;
 
@@ -181,7 +184,7 @@ const MedicationReminders = () => {
         form.setFieldsValue({
             name: reminder.name,
             dosage: reminder.dosage,
-            reminderTime: moment(reminder.reminderTime, 'HH:mm:ss'),
+            reminderTime: dayjs(reminder.reminderTime, 'HH:mm'),
             medicationType: reminder.medicationType,
             status: reminder.isActive ? 'active' : 'inactive',
             visible: reminder.visible ? 'yes' : 'no',
@@ -194,7 +197,7 @@ const MedicationReminders = () => {
         form.setFieldsValue({
             name: reminder.name,
             dosage: reminder.dosage,
-    
+            reminderTime: dayjs(reminder.reminderTime, 'HH:mm'),
             medicationType: reminder.medicationType,
             status: reminder.isActive ? 'active' : 'inactive',
             visible: 'no',

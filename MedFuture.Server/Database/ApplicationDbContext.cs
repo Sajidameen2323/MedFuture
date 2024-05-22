@@ -170,11 +170,13 @@ namespace MedFuture.Server.Database
                 .HasForeignKey<AppointmentM>(a => a.ConsultationId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+
+
             modelBuilder.Entity<AppointmentM>()
                 .HasOne(a => a.Payment)
                 .WithOne(p => p.Appointment)
                 .HasForeignKey<PaymentM>(p => p.AppointmentId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<PaymentM>()
                 .HasOne(p => p.Appointment)
@@ -187,6 +189,7 @@ namespace MedFuture.Server.Database
                 .WithOne(m => m.Consultation)
                 .HasForeignKey(m => m.ConsultationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
         }
 

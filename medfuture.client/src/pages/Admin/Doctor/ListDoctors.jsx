@@ -7,10 +7,8 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import { Button, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Input, Container, IconButton } from '@mui/material';
 
-import { Empty } from 'antd';
+import { Empty, Button as AntButton } from 'antd';
 
-
-import DeleteIcon from '@mui/icons-material/Delete';
 import SecurityIcon from '@mui/icons-material/Security';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -112,7 +110,15 @@ export default function DataTable() {
                 <GridActionsCellItem
                     icon={<SecurityIcon />}
                     label={ params.row?.status == "Active" ? "Disable": "Activate" }
-                    onClick={() => { () => handleDeleteOpen(params.row.id) }}
+                    onClick={() => {
+                        if (params.row?.status == "Active") {
+                            handleDisableOpen(params.row.id)
+                        }
+                        else if (params.row?.status == "Disabled") {
+
+                            handleActivateOpen(params.row.id)
+                        }
+                    }}
                     showInMenu
                 />,
 
@@ -134,47 +140,77 @@ export default function DataTable() {
         return response.json();
     };
 
-    const deleteUser = async (userId) => {
+    const disableUser = async (userId) => {
 
-        const response = await fetch(`/api/doctor/doctors/${userId}`, {
+        const response = await fetch(`/api/doctor/doctors/${userId}/disable`, {
             method: 'DELETE', headers: {
                 'Authorization': `Bearer ${idToken}`            
             }
         });
 
         if (!response.ok) {
-            throw new Error('Failed to delete user');
+            throw new Error('Failed to disable user');
         }
         return true // You might not need a response here
     };
+    const activateUser = async (userId) => {
 
+        const response = await fetch(`/api/doctor/doctors/${userId}/activate`, {
+            method: 'PUT', headers: {
+                'Authorization': `Bearer ${idToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to activate user');
+        }
+        return true // You might not need a response here
+    };
 
     const [rows, setRows] = useState([]);
 
 
     const [selectedDoctor, setSelectedDoctor] = useState(null);
 
-    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
-    const [doctorToDeleteId, setDoctorToDeleteId] = React.useState(null);
+    const [openDisableDialog, setOpenDisableDialog] = React.useState(false);
+    const [doctorToDisableId, setDoctorToDisableId] = React.useState(null);
+
+    const [openActivateDialog, setOpenActivateDialog] = React.useState(false);
+    const [doctorToActivateId, setDoctorToActivateId] = React.useState(null);
+
     const { idToken } = useContext(FirebaseAuthContext);
 
     const queryClient = useQueryClient();
     const { isLoading, isError, data, error } = useQuery('doctors', fetchDoctors);
 
-    const { mutate: deleteUserMutation, isLoading: isDeleting, error: deleteError } = useMutation(
-        deleteUser,
+    const { mutate: disableUserMutation, isLoading: isDisabling, error: disableError } = useMutation(
+        disableUser,
         {
             onSuccess: () => {
                 queryClient.invalidateQueries('doctors'); // Invalidate user list query
-               // onUserDeleted(deletedUser); // Callback for successful deletion
+                // onUserDeleted(deletedUser); // Callback for successful deletion
+                handleDisableClose(); // Close the dialog after deletion
             },
             onError: (error) => {
-                console.error('Delete user error:', error);
+                console.error('Disable user error:', error);
                 // Handle deletion error (e.g., show error message)
             },
         }
     )
-
+    const { mutate: activateUserMutation, isLoading: isActivating, error: activateError } = useMutation(
+        activateUser,
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries('doctors'); // Invalidate user list query
+                // onUserDeleted(deletedUser); // Callback for successful deletion
+                handleActivateClose(); // Close the dialog after deletion
+            },
+            onError: (error) => {
+                console.error('Activate user error:', error);
+                // Handle deletion error (e.g., show error message)
+            },
+        }
+    )
 
     React.useEffect(() => {
 
@@ -193,21 +229,49 @@ export default function DataTable() {
 
     }, [data]);
 
-    const handleDeleteOpen = (id) => {
-        setOpenDeleteDialog(true);
-        setDoctorToDeleteId(id);
+
+    // Handle Disable Dialog Actions ---------------
+
+
+    const handleDisableOpen = (id) => {
+        setOpenDisableDialog(true);
+        setDoctorToDisableId(id);
+ 
     };
 
-    const handleDeleteClose = () => {
-        setOpenDeleteDialog(false);
-        setDoctorToDeleteId(null);
+    const handleDisableClose = () => {
+        setOpenDisableDialog(false);
+        setDoctorToDisableId(null);
     };
 
-    const handleDeleteConfirm = () => {
+    const handleDisableConfirm = () => {
         // Implement your logic to delete the doctor with doctorToDeleteId
-        console.log('Deleting doctor with ID:', doctorToDeleteId);
-        deleteUserMutation(doctorToDeleteId);
-        handleDeleteClose(); // Close the dialog after deletion
+        console.log('Deleting doctor with ID:', doctorToDisableId);
+        disableUserMutation(doctorToDisableId);
+        
+    };
+
+    // Handle Activate Dialog Actions ---------------
+
+
+    const handleActivateOpen = (id) => {
+
+        setOpenActivateDialog(true);
+        setDoctorToActivateId(id);
+
+    };
+
+    const handleActivateClose = () => {
+
+        setOpenActivateDialog(false);
+        setDoctorToActivateId(null);
+    };
+
+    const handleActivateConfirm = () => {
+        // Implement your logic to delete the doctor with doctorToDeleteId
+        console.log('Activating doctor with ID:', doctorToActivateId);
+        activateUserMutation(doctorToActivateId);
+
     };
 
 
@@ -246,28 +310,37 @@ export default function DataTable() {
                 pageSizeOptions={[5, 10]}
      
             />
-            <DeleteConfirmationDialog
-                open={openDeleteDialog}
-                onClose={handleDeleteClose}
-                onDeleteConfirm={handleDeleteConfirm}
+            <DisableConfirmationDialog
+                open={openDisableDialog}
+                onClose={handleDisableClose}
+                onDisableConfirm={handleDisableConfirm}
+                isDisabling={isDisabling}
             />
+
+            <ActivateConfirmationDialog
+                open={openActivateDialog}
+                onClose={handleActivateClose}
+                onActivateConfirm={handleActivateConfirm}
+                isActivating={isActivating}
+            />
+
         </Container>
     );
 }
 
-function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {
+function DisableConfirmationDialog({ open, onClose, onDisableConfirm, isDisabling }) {
 
     const [confirmDeleteText, setConfirmDeleteText] = useState("");
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Confirm Doctor Deletion</DialogTitle>
+            <DialogTitle>Confirm to Disable Doctor</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">Are you sure you want to delete this doctor?</Typography>
+                <Typography variant="body2">Are you sure you want to disable this doctor?</Typography>
                 <Input
                     value={confirmDeleteText}
                     onChange={(e) => setConfirmDeleteText(e.target.value)}
-                    placeholder="Type 'delete' to confirm"
+                    placeholder="Type 'disable' to confirm"
 
                 />
             </DialogContent>
@@ -276,12 +349,35 @@ function DeleteConfirmationDialog({ open, onClose, onDeleteConfirm }) {
                     setConfirmDeleteText("")
                     onClose()
                 }}>Cancel</Button>
-                <Button variant="contained" disabled={confirmDeleteText !== "delete"} color="error" onClick={() => {
+                <AntButton variant="contained" disabled={confirmDeleteText !== "disable"} loading={isDisabling} danger onClick={() => {
                     setConfirmDeleteText("")
-                    onDeleteConfirm()
+                    onDisableConfirm()
                 }}>
-                    Delete
-                </Button>
+                    Disable
+                </AntButton>
+            </DialogActions>
+        </Dialog>
+    );
+}
+function ActivateConfirmationDialog({ open, onClose, onActivateConfirm, isActivating }) {
+
+    return (
+        <Dialog open={open} onClose={onClose}>
+            <DialogTitle>Confirm to Activate Doctor</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">Are you sure you want to Activate this doctor?</Typography>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => {
+           
+                    onClose()
+                }}>Cancel</Button>
+                <AntButton type="primary" disabled={isActivating} loading={isActivating} onClick={() => {
+             
+                    onActivateConfirm()
+                }}>
+                    Activate
+                </AntButton>
             </DialogActions>
         </Dialog>
     );

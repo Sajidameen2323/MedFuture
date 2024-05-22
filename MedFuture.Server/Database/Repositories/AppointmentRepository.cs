@@ -388,7 +388,9 @@ namespace MedFuture.Server.Database.Repositories
                 throw new ArgumentException("Invalid User Id");
             }
 
-            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId).FirstOrDefault();
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == appId)
+                .Include(a => a.Service)
+                .FirstOrDefault();
             if (appointment == null)
             {
                 throw new ArgumentException("Invalid Appointment Id");
@@ -401,6 +403,7 @@ namespace MedFuture.Server.Database.Repositories
             }
 
             appointment.StartDateTime = newDateTime;
+            appointment.EndDateTime = newDateTime.AddMinutes(appointment.Service.Duration);
             appointment.AppointmentDate = DateOnly.FromDateTime(newDateTime);
 
             await _context.SaveChangesAsync();

@@ -29,16 +29,81 @@ namespace MedFuture.Server.Database.Repositories
                 _context.Set<UserM>().Remove(doctorToDelete.User);
                 await _context.SaveChangesAsync();
             }
+            else
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+
+            }
+        }
+
+
+        public async Task DisableDoctorAsync(int id)
+        {
+            var doctorToDisable = await GetDoctorByIdAsync(id);
+            if (doctorToDisable != null)
+            {
+                Console.WriteLine("Doctor iraan kallen " + doctorToDisable.User.FirstName);
+
+                //await FirebaseAuth.DefaultInstance.DeleteUserAsync(doctorToDelete.User.FirebaseID);
+
+                UserRecordArgs args = new UserRecordArgs()
+                {
+                    Uid = doctorToDisable.User.FirebaseID,
+                    Disabled = true,
+                };
+
+                UserRecord userRecord = await FirebaseAuth.DefaultInstance.UpdateUserAsync(args);
+                // See the UserRecord reference doc for the contents of userRecord.
+                Console.WriteLine($"Successfully updated user: {userRecord.Uid}");
+
+                _context.Set<UserM>().Remove(doctorToDisable.User);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+
+            }
+        }
+
+        public async Task ActivateDoctorAsync(int id)
+        {
+            var doctorToActivate = await GetDoctorByIdAsync(id);
+            if (doctorToActivate != null)
+            {
+                Console.WriteLine("---- Doctor iraan kallen " + doctorToActivate.User.FirstName);
+
+                //await FirebaseAuth.DefaultInstance.DeleteUserAsync(doctorToDelete.User.FirebaseID);
+
+                UserRecordArgs args = new UserRecordArgs()
+                {
+                    Uid = doctorToActivate.User.FirebaseID,
+                    Disabled = false,
+                };
+
+                UserRecord userRecord = await FirebaseAuth.DefaultInstance.UpdateUserAsync(args);
+                // See the UserRecord reference doc for the contents of userRecord.
+                Console.WriteLine($"Successfully updated user: {userRecord.Uid}");
+
+                doctorToActivate.User.IsDeleted = false;
+
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+
+            }
         }
 
         public async Task<IEnumerable<DoctorM>> GetAllDoctorsAsync()
         {
-            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).Include(d=> d.WorkDaySchedule).ToListAsync();
+            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).Include(d=> d.WorkDaySchedule).IgnoreQueryFilters().ToListAsync();
         }
 
         public async Task<DoctorM?> GetDoctorByIdAsync(int id)
         {
-            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).FirstOrDefaultAsync(d => d.DoctorID == id);
+            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).IgnoreQueryFilters().FirstOrDefaultAsync(d => d.DoctorID == id);
         }
 
         public async Task UpdateDoctorAsync(DoctorM doctor)

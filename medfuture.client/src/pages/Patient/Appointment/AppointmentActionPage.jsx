@@ -71,6 +71,7 @@ const AppointmentActionPage = () => {
                     <Typography variant="h4" gutterBottom>
                         Appointment Action
                     </Typography>
+
                 </Grid>
                 <Grid item>
                     <Button
@@ -110,7 +111,7 @@ const AppointmentActionPage = () => {
                                 <strong>Status:</strong> {appointment.status}
                             </Typography>
                             <Typography variant="body1">
-                                <strong>Duration:</strong> {appointment?.duration || 10} min
+                                <strong>Duration:</strong> {appointment?.service?.duration || 10} min
                             </Typography>
                         </Box>
                     </CardContent>

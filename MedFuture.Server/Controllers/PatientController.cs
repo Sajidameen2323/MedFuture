@@ -430,7 +430,7 @@ namespace MedFuture.Server.Controllers
                         Amount = (app?.Payment?.Amount != null && app?.Payment?.TaxAmount != null) ? (app?.Payment?.Amount - app?.Payment.TaxAmount) : null,    // Replace 0.0 with default value for Amount
                         PaymentDate = app?.Payment?.PaymentDate ?? null, // Or a suitable default date
                         paymentMode = app?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), app?.Payment.PaymentMode),
-                        taxPercentage = (app?.Payment?.Amount != null && app?.Payment?.TaxAmount != null) ? Math.Round((decimal)(app.Payment.TaxAmount / (app.Payment.Amount - app.Payment.TaxAmount)), 2) : 0m
+                        taxPercentage = (app?.Payment?.Amount != null && app?.Payment?.TaxAmount != null) ? Math.Round((decimal)(app.Payment.TaxAmount / (app.Payment.Amount - app.Payment.TaxAmount)), 4) : 0m
                     },
                         service = new {
                             app.Service.Name,
