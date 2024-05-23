@@ -22,9 +22,10 @@ namespace MedFuture.Server.Controllers
         private readonly IDoctorRepository _doctorRepository;
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IStatisticsRepository _statisticsRepository;
 
         public AdminController(ILogger<AdminController> logger, ApplicationDbContext dbcontext, IUserService userService,
-            IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository, IPaymentRepository paymentRepository)
+            IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository, IPaymentRepository paymentRepository, IStatisticsRepository statisticsRepository)
         {
             _logger = logger;
             _dbcontext = dbcontext;
@@ -32,6 +33,7 @@ namespace MedFuture.Server.Controllers
             _doctorRepository = doctorRepository;
             _appointmentRepository = appointmentRepository;
             _paymentRepository = paymentRepository;
+            _statisticsRepository = statisticsRepository;
         }
 
 
@@ -83,6 +85,38 @@ namespace MedFuture.Server.Controllers
             }
         }
 
+
+        [HttpGet("get-revenue-stats")]
+        public async Task<IActionResult> GetRevenueStatistics()
+        {
+            try
+            {
+                var stats = await _statisticsRepository.GetRevenueStatisticsDataAsync();
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [HttpGet("get-general-stats")]
+        public async Task<IActionResult> GetGeneralStatistics()
+        {
+            try
+            {
+                var stats = await _statisticsRepository.GetGeneralStatisticsDataAsync();
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+        }
 
     }
 }

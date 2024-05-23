@@ -13,8 +13,12 @@ namespace MedFuture.Server.Models
         public decimal Amount { get; set; }
         public PaymentMode PaymentMode { get; set; }
         public DateTime PaymentDate { get; set; } = DateTime.Now;
-        public bool IsTaxIncluded { get; set; } = false;
+        public decimal TaxRate { get; set; }
         public decimal TaxAmount { get; set; }
+        public decimal AdditionalCost { get; set; } = decimal.Zero;
+
+        public decimal TotalCost { get; set; }
+
     }
 
     public enum PaymentMode

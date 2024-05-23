@@ -44,8 +44,11 @@ namespace MedFuture.Server.Database.Repositories
                 paymentM = app.Payment;
                 paymentM.PaymentDate = DateTime.Now;
                 paymentM.PaymentMode = paymentDto.PaymentMode;
-                paymentM.Amount = paymentDto.Amount + taxAmount;
+                paymentM.Amount = paymentDto.Amount;
+                paymentM.TaxRate = taxRate;
                 paymentM.TaxAmount = taxAmount;
+                paymentM.AdditionalCost = paymentDto.AdditionalCost;
+                paymentM.TotalCost = paymentDto.Amount + taxAmount + paymentDto.AdditionalCost;
             }
             else
             {
@@ -54,9 +57,11 @@ namespace MedFuture.Server.Database.Repositories
                     AppointmentId = app.AppointmentId,
                     PaymentDate = DateTime.Now,
                     PaymentMode = paymentDto.PaymentMode,
-                    Amount = paymentDto.Amount + taxAmount,
+                    Amount = paymentDto.Amount,
                     TaxAmount = taxAmount,
-                };
+                    AdditionalCost = paymentDto.AdditionalCost,
+                    TotalCost = paymentDto.Amount + taxAmount + paymentDto.AdditionalCost,
+            };
 
                 app.Payment = paymentM;
             }

@@ -6,10 +6,11 @@ import { Button as AntButton } from 'antd';
 const AddPaymentDialog = ({ open, onClose, appointment, onPaymentAdded, isAddingPayment }) => {
 
     const [paymentMode, setPaymentMode] = useState('');
+    const [additionalCost, setAdditionalCost] = useState(0);
 
     const handlePaymentAdded = () => {
         // Call the onPaymentAdded callback with the payment data
-        onPaymentAdded({ appointmentId: appointment.appointmentId, amount: appointment?.price, paymentMode });
+        onPaymentAdded({ appointmentId: appointment.appointmentId, amount: appointment?.price, paymentMode, additionalCost: additionalCost });
    
     };
 
@@ -32,6 +33,18 @@ const AddPaymentDialog = ({ open, onClose, appointment, onPaymentAdded, isAdding
                     label="Tax Amount"
                     type="number"
                     value={(appointment?.tax ?? 0) / 100 * (appointment?.price)}
+                    fullWidth
+                />
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    label="Additional Cost"
+                    type="number"
+                    value={additionalCost}
+                    onChange={(e) => {
+                        console.log(e.target.value)
+                        setAdditionalCost(e.target.value)
+                    }}
                     fullWidth
                 />
                 <FormControl fullWidth margin="dense">

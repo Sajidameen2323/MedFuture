@@ -199,7 +199,7 @@ function CustomRouterProvider() {
             params.set("from", new URL(request.url).pathname);
             return redirect("/auth/verify-email?" + params.toString());
         }
-        return redirect("/"+currentUser?.role.toLowerCase() +"/");
+        return redirect("/" + currentUser?.role.toLowerCase() +"/overview");
     }
 
     function adminOnlyLoader({ request, params }) {

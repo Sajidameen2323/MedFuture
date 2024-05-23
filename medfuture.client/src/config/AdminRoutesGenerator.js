@@ -2,6 +2,8 @@ import { lazy } from "react";
 import Loadable from 'components/Loadable';
 
 const Weather = Loadable(lazy(() => import("../pages/Weather")));
+const DashboardOverview = Loadable(lazy(() => import("pages/Admin/Overview/DashboardOverview")));
+
 const AddMedicalServiceForm = Loadable(lazy(() => import("../pages/Admin/Service/Add")));
 
 const AddDoctor = Loadable(lazy(() => import("../pages/Admin/Doctor/AddDoctor")));
@@ -25,7 +27,7 @@ export default function GetAdminRoutes(props) {
         {
             path: "overview",
             loader: props.adminOnlyLoader,
-            Component: Weather,
+            Component: DashboardOverview,
         },
         {
             path: 'add-service',

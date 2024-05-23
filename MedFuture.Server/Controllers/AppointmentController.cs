@@ -339,12 +339,15 @@ namespace MedFuture.Server.Controllers
                 status = Enum.GetName(typeof(AppointmentStatus), a.Status),
                 payment = new {
                     a.PaymentId,
-                    amount = (a?.Payment?.Amount != null && a?.Payment?.TaxAmount != null) ? (a?.Payment?.Amount - a?.Payment.TaxAmount) : null,
+                    amount = a?.Payment?.Amount ?? null,
                     paymentStatus = a.PaymentId.HasValue ? "Paid" : "Pending",
                     paymentMode = a?.Payment == null ? null : Enum.GetName(typeof(PaymentMode), a?.Payment.PaymentMode),
                     canAddPayment = a.Status != AppointmentStatus.Cancelled && a.Status != AppointmentStatus.Missed,
                     canViewInvoice = a.PaymentId.HasValue ? true : false,
-                    taxPercentage = (a?.Payment?.Amount != null && a?.Payment?.TaxAmount != null) ? Math.Round((decimal)(a.Payment.TaxAmount / (a.Payment.Amount - a.Payment.TaxAmount)), 4) : 0m
+                    taxPercentage = a?.Payment?.TaxRate ?? null,
+                    additionalCost = a?.Payment?.AdditionalCost ?? null,
+                    total = a?.Payment?.TotalCost ?? null,
+                    TaxAmount = a?.Payment?.TaxAmount ?? null,
                 },
                 price = a?.Service.ServiceCharge,
                 tax = appSettings?.AppointmentTaxPercentage ?? 0,

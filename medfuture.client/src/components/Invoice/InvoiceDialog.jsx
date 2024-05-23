@@ -15,8 +15,9 @@ const InvoiceDialog = ({ open, onClose, appointment }) => {
     }
 
     const taxPercentage = appointment?.payment?.taxPercentage ?? 0;
-    const taxAmount = appointment.payment ? appointment.payment.amount * taxPercentage : 0; // Assuming 10% tax
-    const totalAmount = appointment.payment ? appointment.payment.amount + taxAmount : 0;
+    const taxAmount = appointment?.payment?.taxAmount;
+    const totalAmount = appointment?.payment?.total ?? 0;
+    const additioanalCost = appointment?.payment?.additionalCost ?? 0;
 
     const columns = [
         {
@@ -47,11 +48,17 @@ const InvoiceDialog = ({ open, onClose, appointment }) => {
         {
             key: '2',
             item: 'Tax',
-            description: `${taxPercentage * 100}% Tax`,
+            description: `${taxPercentage}% Tax`,
             amount: taxAmount,
         },
         {
             key: '3',
+            item: 'Add',
+            description: `Additional Cost`,
+            amount: additioanalCost,
+        },
+        {
+            key: '4',
             item: 'Total',
             description: '',
             amount: totalAmount,
