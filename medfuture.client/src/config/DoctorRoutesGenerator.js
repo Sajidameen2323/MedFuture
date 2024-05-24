@@ -13,11 +13,7 @@ export default function GetDoctorRoutes(props) {
 
     return [
 
-        {
-            path: "overview",
-            loader: props.doctorOnlyLoader,
-            Component: Weather,
-        },
+
         {
             id: 'todays_appointments',
             path: 'appointments/today',

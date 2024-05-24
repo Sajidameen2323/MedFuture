@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 
 // material-ui
@@ -25,7 +26,7 @@ const barChartOptions = {
     enabled: false
   },
   xaxis: {
-    categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+      categories: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
     axisBorder: {
       show: false
     },
@@ -43,17 +44,18 @@ const barChartOptions = {
 
 // ==============================|| MONTHLY BAR CHART ||============================== //
 
-const MonthlyBarChart = () => {
+const MonthlyBarChart = ({ data }) => {
   const theme = useTheme();
 
   const { primary, secondary } = theme.palette.text;
   const info = theme.palette.info.light;
 
-  const [series] = useState([
-    {
-      data: [80, 95, 70, 42, 65, 55, 78]
-    }
-  ]);
+    const [series,setSeries] = useState([
+        {
+            name: "Revenue",
+            data
+        }
+    ]);
 
   const [options, setOptions] = useState(barChartOptions);
 
@@ -72,8 +74,14 @@ const MonthlyBarChart = () => {
         theme: 'light'
       }
     }));
+      setSeries([
+          {
+              name: "Revenue",
+              data
+          }
+      ])
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [primary, info, secondary]);
+  }, [primary, info, secondary, data]);
 
   return (
     <div id="chart">

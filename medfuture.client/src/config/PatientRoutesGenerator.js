@@ -16,11 +16,6 @@ export default function GetPatientRoutes(props) {
     return [
 
         {
-            path: "overview",
-            loader: props.patientOnlyLoader,
-            Component: Weather,
-        },
-        {
             id: 'patient_profile',
             path: 'profile',
             loader: props.patientOnlyLoader,

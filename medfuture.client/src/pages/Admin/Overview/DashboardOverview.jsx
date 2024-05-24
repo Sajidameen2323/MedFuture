@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 
 // project import
-import OrdersTable from './OrdersTable';
+import AppointmentsTable from './AppointmentsTable';
 import IncomeAreaChart from './IncomeAreaChart';
 import MonthlyBarChart from './MonthlyBarChart';
 import ReportAreaChart from './ReportAreaChart';
@@ -211,7 +211,7 @@ const DashboardDefault = () => {
       <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Income Overview</Typography>
+            <Typography variant="h5">Weekly Overview</Typography>
           </Grid>
           <Grid item />
         </Grid>
@@ -221,10 +221,10 @@ const DashboardDefault = () => {
               <Typography variant="h6" color="textSecondary">
                 This Week Statistics
               </Typography>
-              <Typography variant="h3">$7,650</Typography>
+                          <Typography variant="h3">Rs {' '+(data?.weeklyRevenue ?? 0)}</Typography>
             </Stack>
           </Box>
-          <MonthlyBarChart />
+                  <MonthlyBarChart data={data?.weeklyRevenueByDay ?? [] } />
         </MainCard>
       </Grid>
 
@@ -232,12 +232,12 @@ const DashboardDefault = () => {
       <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Recent Orders</Typography>
+                      <Typography variant="h5">Today&apos;s Appointments</Typography>
           </Grid>
           <Grid item />
         </Grid>
         <MainCard sx={{ mt: 2 }} content={false}>
-          <OrdersTable />
+                  <AppointmentsTable idToken={idToken} />
         </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
@@ -250,8 +250,8 @@ const DashboardDefault = () => {
         <MainCard sx={{ mt: 2 }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
             <ListItemButton divider>
-              <ListItemText primary="Company Finance Growth" />
-              <Typography variant="h5">+45.14%</Typography>
+              <ListItemText primary="Company Appointments Growth" />
+                          <Typography variant="h5">{data?.totalBookingsPercentageChange ?? 0}%</Typography>
             </ListItemButton>
             <ListItemButton divider>
               <ListItemText primary="Company Expenses Ratio" />
@@ -262,7 +262,7 @@ const DashboardDefault = () => {
               <Typography variant="h5">Low</Typography>
             </ListItemButton>
           </List>
-          <ReportAreaChart />
+                  <ReportAreaChart idToken={idToken} />
         </MainCard>
       </Grid>
 

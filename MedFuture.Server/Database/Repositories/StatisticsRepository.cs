@@ -83,6 +83,16 @@ namespace MedFuture.Server.Database.Repositories
             var previousMonth = currentMonth == 1 ? 12 : currentMonth - 1;
             var previousYear = currentMonth == 1 ? currentYear - 1 : currentYear;
 
+            var startOfWeek = DateTime.Today.AddDays(
+                (-(int)DateTime.Today.DayOfWeek) % 7);
+            var endOfWeek = startOfWeek.AddDays(6);
+
+            var weeklyRevenue =  _context.Payments
+                .Where(p => p.PaymentDate >= startOfWeek && p.PaymentDate <= endOfWeek)
+                .Sum(p => p.TotalCost);
+
+            var weeklyRevenueByDay = GetWeeklyRevenueByDay();
+
             var allTimeAppointments = _context.Appointments
                 .Include(a => a.Payment)
                 .ToList();
@@ -151,7 +161,10 @@ namespace MedFuture.Server.Database.Repositories
 
                 TotalRevenue = currentMonthRevenue,
                 TotalRevenuePercentageChange = totalRevenueChange,
-                TotalRevenueThisYear = allTimeRevenue
+                TotalRevenueThisYear = allTimeRevenue,
+                WeeklyRevenue = weeklyRevenue,
+                WeeklyRevenueByDay = weeklyRevenueByDay
+
             };
         }
 
@@ -162,7 +175,7 @@ namespace MedFuture.Server.Database.Repositories
                 return currentValue == 0 ? 0 : 100;
             }
 
-            return (decimal)(currentValue - previousValue) / previousValue * 100;
+            return (decimal)((currentValue - previousValue) / previousValue) * 100;
         }
         private decimal CalculatePercentageChange(decimal currentValue, decimal previousValue)
         {
@@ -171,7 +184,68 @@ namespace MedFuture.Server.Database.Repositories
                 return currentValue == 0 ? 0 : 100;
             }
 
-            return (decimal)(currentValue - previousValue) / previousValue * 100;
+            return (decimal)((currentValue - previousValue) / previousValue) * 100;
+        }
+
+        private decimal[] GetWeeklyRevenueByDay()
+        {
+            var startOfWeek = DateTime.Today.AddDays(
+                (-(int)DateTime.Today.DayOfWeek) % 7);
+            var endOfWeek = startOfWeek.AddDays(6);
+
+            var weeklyRevenue = new decimal[7];
+
+            for (int i = 0; i < 7; i++)
+            {
+                var currentDay = startOfWeek.AddDays(i);
+                weeklyRevenue[i] = _context.Payments
+                    .Where(p => p.PaymentDate.Date == currentDay.Date)
+                    .Sum(p => p.TotalCost);
+            }
+
+            return weeklyRevenue;
+        }
+
+        public async Task<IEnumerable<TodaysAppsStatDto>> GetTodaysAppsStatAsync()
+        {
+            var today = DateTime.Today;
+
+            return await _context.Appointments
+                .Include(a => a.Patient)
+                .ThenInclude(p => p.User)
+                .Include(a => a.Service)
+                .Where(a => a.StartDateTime.Date == today)
+                .Take(10)
+                .OrderBy(a => a.StartDateTime)
+                .Select(a => new TodaysAppsStatDto
+                {
+                    AppointmentId = a.AppointmentId,
+                    PatientName = a.Patient.User.GetFullName(), // Assuming Patient.Name property exists
+                    ServiceName = a.Service.Name, // Assuming Service.Name property exists
+                    Date = a.StartDateTime.Date,
+                    Status = a.Status.ToString()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<MonthlyAppointmentCountDto>> GetThisYearAppointmentsMonthCounts()
+        {
+            var currentDate = DateTime.Now;
+            var startOfYear = new DateTime(currentDate.Year, 1, 1);
+
+            return await _context.Appointments
+                .Where(a => a.StartDateTime >= startOfYear && a.StartDateTime < startOfYear.AddYears(1))
+                .OrderBy(m => m.AppointmentDate.Month)
+                .GroupBy(a => new { Month = a.StartDateTime.Month })
+                .Select(g => new MonthlyAppointmentCountDto
+                {
+                    Month = new DateTime(currentDate.Year, g.Key.Month, 1).ToString("yyyy-MM-dd"),
+                    Count = g.Count()
+                })
+
+                .ToListAsync();
+
+
         }
     }
 }

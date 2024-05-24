@@ -118,5 +118,37 @@ namespace MedFuture.Server.Controllers
             }
         }
 
+        [HttpGet("get-todays-apps-stats")]
+        public async Task<IActionResult> GetTodaysAppointmentsForStat()
+        {
+            try
+            {
+                var stats = await _statisticsRepository.GetTodaysAppsStatAsync();
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [HttpGet("get-this-year-appointments")]
+        public async Task<IActionResult> GetThisYearAppointmentsMonthCounts()
+        {
+            try
+            {
+                var stats = await _statisticsRepository.GetThisYearAppointmentsMonthCounts();
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
     }
 }

@@ -15,7 +15,6 @@
     <Folder Include="src\hooks\" />
     <Folder Include="src\pages\Admin\Appointment\Settings\DoctorWorkSchedule\" />
     <Folder Include="src\pages\Admin\Appointment\Settings\General\" />
-    <Folder Include="src\pages\Admin\Overview\" />
     <Folder Include="src\pages\Admin\Service\List\" />
     <Folder Include="src\pages\ErrorPages\" />
     <Folder Include="src\pages\Patient\Appointment\Reschedule\" />
