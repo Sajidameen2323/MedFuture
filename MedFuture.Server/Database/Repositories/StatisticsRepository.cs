@@ -87,9 +87,7 @@ namespace MedFuture.Server.Database.Repositories
                 (-(int)DateTime.Today.DayOfWeek) % 7);
             var endOfWeek = startOfWeek.AddDays(6);
 
-            var weeklyRevenue =  _context.Payments
-                .Where(p => p.PaymentDate >= startOfWeek && p.PaymentDate <= endOfWeek)
-                .Sum(p => p.TotalCost);
+            var weeklyRevenue = GetWeeklyRevenueByDay().Sum(r => r);
 
             var weeklyRevenueByDay = GetWeeklyRevenueByDay();
 
@@ -246,6 +244,60 @@ namespace MedFuture.Server.Database.Repositories
                 .ToListAsync();
 
 
+        }
+
+        public async Task<IEnumerable<AppointmentsByAgeGroup>> GetAppointmentsByAgeGroupAsync()
+        {
+            var currentYear = DateTime.Now.Year;
+
+            var appointments = await _context.Appointments
+                .Where(a => a.AppointmentDate.Year == currentYear)
+                .Include(a => a.Patient)
+                .Select(ap => new
+                {
+                    Month = ap.AppointmentDate.Month,
+                    Patient = ap.Patient,
+                    Count = 1
+                })
+                .ToListAsync();
+
+            var appointmentsByAgeGroup = Enumerable.Range(1, 12)
+                .Select(m => new
+                {
+                    MonthNumber = m,
+                    MonthShort = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(m),
+                    Data = appointments
+                        .Where(a => a.Month == m)
+                        .GroupBy(a => CalculateAgeGroup(a.Patient.DOB))
+                        .ToDictionary(ag => ag.Key, ag => ag.Sum(a => a.Count), StringComparer.OrdinalIgnoreCase)
+
+                })
+                .Select(m => new AppointmentsByAgeGroup
+                {
+                    Month = m.MonthShort,
+                    AgeGroup0To18 = m.Data.GetValueOrDefault("0-18", 0),
+                    AgeGroup19To64 = m.Data.GetValueOrDefault("19-64", 0),
+                    AgeGroup65Plus = m.Data.GetValueOrDefault("65+", 0)
+                })
+                .ToList();
+
+            return appointmentsByAgeGroup;
+        }
+
+        private string CalculateAgeGroup(DateTime? dob)
+        {
+            if (!dob.HasValue)
+                return "Unknown";
+
+            var today = DateTime.Today;
+            var age = today.Year - dob.Value.Year;
+
+            if (age < 19)
+                return "0-18";
+            else if (age < 65)
+                return "19-64";
+            else
+                return "65+";
         }
     }
 }

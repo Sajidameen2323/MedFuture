@@ -19,7 +19,7 @@ const areaChartOptions = {
                 zoom: false,
                 zoomin: true,
                 zoomout: true,
-                reset: true | '<img src="/static/icons/reset.png" width="20">',
+                reset: true,
                 customIcons: []
             }
         },
@@ -51,7 +51,7 @@ const RevenueAreaChart = ({ slot, idToken }) => {
     const fetchRevenueData = useCallback(async () => {
 
         try {
-            const response = await fetch(`/api/admin/get-revenue-stats`, {
+            const response = await fetch(`/api/admin/stats/get-revenue`, {
                 headers: {
                     'Authorization': `Bearer ${idToken}`,
                     "Content-Type": "application/json"

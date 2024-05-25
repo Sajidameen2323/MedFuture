@@ -20,7 +20,7 @@ function createData(appointmentId, patientName, service, appointmentDate, status
     return { appointmentId, patientName, service, appointmentDate, status };
 }
 
-const rows = [
+const dummy_rows = [
     createData(1, 'John Doe', 'Consultation' , new Date('2023-05-25T10:00:00'), 'Pending'),
     createData(2, 'Jane Smith', 'Consultation' , new Date('2023-05-26T14:00:00'), 'Completed'),
     createData(3, 'Michael Brown', 'Consultation' , new Date('2023-05-27T09:00:00'), 'Cancelled'),
@@ -167,7 +167,7 @@ AppointmentStatus.propTypes = {
 
 export default function AppointmentTable({ idToken }) {
 
-    const [tableRows, setTableRows] = useState(rows);
+    const [tableRows, setTableRows] = useState(dummy_rows);
 
     const [order] = useState('asc');
     const [orderBy] = useState('appointmentId');
@@ -175,7 +175,7 @@ export default function AppointmentTable({ idToken }) {
 
     const isSelected = (appointmentId) => selected.indexOf(appointmentId) !== -1;
     const fetchTodaysAppointmentStats = useCallback(async () => {
-        const response = await axios.get('/api/admin/get-todays-apps-stats', {
+        const response = await axios.get('/api/admin/stats/get-todays-apps', {
             headers: {
                 'Authorization': `Bearer ${idToken}`,
                 "Content-Type": "application/json"
@@ -197,7 +197,9 @@ export default function AppointmentTable({ idToken }) {
                     appointment.status
                 )
             );
-            setTableRows(rows)
+            let tempRows = [...rows,...dummy_rows].splice(0,10);
+            console.log(tempRows);
+            setTableRows(tempRows);
         }
 
     });

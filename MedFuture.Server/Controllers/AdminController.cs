@@ -86,7 +86,7 @@ namespace MedFuture.Server.Controllers
         }
 
 
-        [HttpGet("get-revenue-stats")]
+        [HttpGet("stats/get-revenue")]
         public async Task<IActionResult> GetRevenueStatistics()
         {
             try
@@ -102,7 +102,7 @@ namespace MedFuture.Server.Controllers
             }
         }
 
-        [HttpGet("get-general-stats")]
+        [HttpGet("stats/get-general")]
         public async Task<IActionResult> GetGeneralStatistics()
         {
             try
@@ -118,7 +118,7 @@ namespace MedFuture.Server.Controllers
             }
         }
 
-        [HttpGet("get-todays-apps-stats")]
+        [HttpGet("stats/get-todays-apps")]
         public async Task<IActionResult> GetTodaysAppointmentsForStat()
         {
             try
@@ -134,12 +134,28 @@ namespace MedFuture.Server.Controllers
             }
         }
 
-        [HttpGet("get-this-year-appointments")]
+        [HttpGet("stats/get-this-year-appointments")]
         public async Task<IActionResult> GetThisYearAppointmentsMonthCounts()
         {
             try
             {
                 var stats = await _statisticsRepository.GetThisYearAppointmentsMonthCounts();
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [HttpGet("stats/appointments-by-age-group")]
+        public async Task<IActionResult> GetThisYearAppointmentsByAgeGroup()
+        {
+            try
+            {
+                var stats = await _statisticsRepository.GetAppointmentsByAgeGroupAsync();
 
                 return Ok(stats);
             }

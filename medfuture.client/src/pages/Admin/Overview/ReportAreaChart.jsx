@@ -66,7 +66,7 @@ const ReportAreaChart = ({ idToken }) => {
     const [options, setOptions] = useState(areaChartOptions);
     const [series, setSeries] = useState([]);
     const fetchPastSixMonthsAppointments = useCallback(async () => {
-        const response = await axios.get('/api/admin/get-this-year-appointments', {
+        const response = await axios.get('/api/admin/stats/get-this-year-appointments', {
 
             headers: {
                 'Authorization': `Bearer ${idToken}`,

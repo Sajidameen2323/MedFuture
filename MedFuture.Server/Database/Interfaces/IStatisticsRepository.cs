@@ -9,5 +9,6 @@ namespace MedFuture.Server.Database.Interfaces
         Task<GeneralStatisticsData> GetGeneralStatisticsDataAsync();
         Task<IEnumerable<TodaysAppsStatDto>> GetTodaysAppsStatAsync();
         Task<IEnumerable<MonthlyAppointmentCountDto>> GetThisYearAppointmentsMonthCounts();
+        Task<IEnumerable<AppointmentsByAgeGroup>> GetAppointmentsByAgeGroupAsync();
     }
 }

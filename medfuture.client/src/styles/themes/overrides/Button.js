@@ -7,6 +7,12 @@ export default function Button(theme) {
     }
   };
 
+  const hoverStyle = {
+    '&:hover': {
+      color: theme.palette.grey[600]
+    }
+  };
+
   return {
     MuiButton: {
       defaultProps: {
@@ -14,13 +20,16 @@ export default function Button(theme) {
       },
       styleOverrides: {
         root: {
-          fontWeight: 400
+          fontWeight: 400,
+          ...hoverStyle
         },
         contained: {
-          ...disabledStyle
+          ...disabledStyle,
+          ...hoverStyle
         },
         outlined: {
-          ...disabledStyle
+          ...disabledStyle,
+          ...hoverStyle
         }
       }
     }

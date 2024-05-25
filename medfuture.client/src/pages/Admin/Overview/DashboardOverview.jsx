@@ -12,9 +12,7 @@ import {
   ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
-  MenuItem,
   Stack,
-  TextField,
   Typography
 } from '@mui/material';
 
@@ -23,12 +21,12 @@ import AppointmentsTable from './AppointmentsTable';
 import IncomeAreaChart from './IncomeAreaChart';
 import MonthlyBarChart from './MonthlyBarChart';
 import ReportAreaChart from './ReportAreaChart';
-import SalesColumnChart from './SalesColumnChart';
+import AppointmentsByAgeGroupChart from './AppointmentsByAgeGroupChart';
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 
 // assets
-import { GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
+import { SettingOutlined, CloseCircleOutlined, DollarOutlined } from '@ant-design/icons';
 import avatar1 from 'assets/images/users/avatar-1.png';
 import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
@@ -53,26 +51,11 @@ const actionSX = {
   transform: 'none'
 };
 
-// sales report status
-const status = [
-  {
-    value: 'today',
-    label: 'Today'
-  },
-  {
-    value: 'month',
-    label: 'This Month'
-  },
-  {
-    value: 'year',
-    label: 'This Year'
-  }
-];
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 const DashboardDefault = () => {
-    const [value, setValue] = useState('today');
+
     const [slot, setSlot] = useState('week');
     const { idToken } = useContext(FirebaseAuthContext);
 
@@ -80,7 +63,7 @@ const DashboardDefault = () => {
     const fetchGeneralStats = useCallback(async () => {
 
         try {
-            const response = await fetch(`/api/admin/get-general-stats`, {
+            const response = await fetch(`/api/admin/stats/get-general`, {
                 headers: {
                     'Authorization': `Bearer ${idToken}`,
                     "Content-Type": "application/json"
@@ -118,52 +101,54 @@ const DashboardDefault = () => {
       {/*<Grid item xs={12} sx={{ mb: -2.25 }}>*/}
       {/*  <Typography variant="h5">Dashboard</Typography>*/}
       {/*</Grid>*/}
-      <Grid item xs={12} sm={6} md={4} lg={3}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
               <AnalyticEcommerce
                   title="Total Bookings"
                   extraPrefix="You have an extra "
-                  count={data?.totalBookings.toString() ?? "4,42,236"}
+                  count={formatNumber(data?.totalBookings ?? 0)}
                   percentage={data?.totalBookingsPercentageChange ?? 0}
-                  extra={data?.totalBookingsThisYear.toString() ?? "100"}
+                  extra={formatNumber(data?.totalBookingsThisYear ?? 0)}
                   color={getStatColorByPercentage(data?.totalBookingsPercentageChange ?? 0)}
                   isLoss={isLossCalc(data?.totalBookingsPercentageChange ?? 0)}
-                  isLoading={isLoading }
+                  isLoading={isLoading}
               />
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
               <AnalyticEcommerce
                   title="Total Completed"
                   extraPrefix="You have an extra "
-                  count={data?.totalCompleted.toString() ?? "4,42,236"}
+                  count={formatNumber(data?.totalCompleted ?? 0)}
                   percentage={data?.totalCompletedPercentageChange ?? 0}
-                  extra={data?.totalCompletedThisYear.toString() ?? "100"}
+                  extra={formatNumber(data?.totalCompletedThisYear ?? 0)}
                   color={getStatColorByPercentage(data?.totalCompletedPercentageChange ?? 0)}
                   isLoss={isLossCalc(data?.totalCompletedPercentageChange ?? 0)}
                   isLoading={isLoading}
               />
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
               <AnalyticEcommerce
                   title="Total Missed"
                   extraPrefix="You have an extra "
-                  count={data?.totalMissed.toString() ?? "4,42,236"}
+                  count={formatNumber(data?.totalMissed ?? 0)}
                   percentage={data?.totalMissedPercentageChange ?? 0}
-                  extra={data?.totalMissedThisYear.toString() ?? "100"}
+                  extra={formatNumber(data?.totalMissedThisYear ?? 0)}
                   isLoss={isLossCalc(data?.totalMissedPercentageChange ?? 0)}
                   color={getStatColorByPercentageInvert(data?.totalMissedPercentageChange ?? 0)}
                   isLoading={isLoading}
               />
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-              <AnalyticEcommerce title="Total Revenue"
-                  count={data?.totalRevenue.toString() ?? "4,42,236"}
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+              <AnalyticEcommerce
+                  title="Total Revenue"
+                  count={formatNumber(data?.totalRevenue ?? 0)}
                   percentage={data?.totalRevenuePercentageChange ?? 0}
-                  extra={data?.totalRevenueThisYear.toString() ?? "100"}
+                  extra={formatNumber(data?.totalRevenueThisYear ?? 0)}
                   color={getStatColorByPercentage(data?.totalRevenuePercentageChange ?? 0)}
                   isLoss={isLossCalc(data?.totalRevenuePercentageChange ?? 0)}
                   isLoading={isLoading}
               />
-      </Grid>
+          </Grid>
+
 
       <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
 
@@ -219,7 +204,7 @@ const DashboardDefault = () => {
           <Box sx={{ p: 3, pb: 0 }}>
             <Stack spacing={2}>
               <Typography variant="h6" color="textSecondary">
-                This Week Statistics
+                This Week Revenue
               </Typography>
                           <Typography variant="h3">Rs {' '+(data?.weeklyRevenue ?? 0)}</Typography>
             </Stack>
@@ -270,126 +255,120 @@ const DashboardDefault = () => {
       <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Sales Report</Typography>
+            <Typography variant="h5">Appointments By Age Group</Typography>
           </Grid>
-          <Grid item>
-            <TextField
-              id="standard-select-currency"
-              size="small"
-              select
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              sx={{ '& .MuiInputBase-input': { py: 0.5, fontSize: '0.875rem' } }}
-            >
-              {status.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+
         </Grid>
         <MainCard sx={{ mt: 1.75 }}>
-          <Stack spacing={1.5} sx={{ mb: -12 }}>
-            <Typography variant="h6" color="secondary">
-              Net Profit
-            </Typography>
-            <Typography variant="h4">$1560</Typography>
-          </Stack>
-          <SalesColumnChart />
+
+                  <AppointmentsByAgeGroupChart idToken={idToken} />
         </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Transaction History</Typography>
+            <Typography variant="h5">Administration History</Typography>
           </Grid>
           <Grid item />
         </Grid>
-        <MainCard sx={{ mt: 2 }} content={false}>
-          <List
-            component="nav"
-            sx={{
-              px: 0,
-              py: 0,
-              '& .MuiListItemButton-root': {
-                py: 1.5,
-                '& .MuiAvatar-root': avatarSX,
-                '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-              }
-            }}
-          >
-            <ListItemButton divider>
-              <ListItemAvatar>
-                <Avatar
-                  sx={{
-                    color: 'success.main',
-                    bgcolor: 'success.lighter'
-                  }}
-                >
-                  <GiftOutlined />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #002434</Typography>} secondary="Today, 2:00 AM" />
-              <ListItemSecondaryAction>
-                <Stack alignItems="flex-end">
-                  <Typography variant="subtitle1" noWrap>
-                    + $1,430
-                  </Typography>
-                  <Typography variant="h6" color="secondary" noWrap>
-                    78%
-                  </Typography>
-                </Stack>
-              </ListItemSecondaryAction>
-            </ListItemButton>
-            <ListItemButton divider>
-              <ListItemAvatar>
-                <Avatar
-                  sx={{
-                    color: 'primary.main',
-                    bgcolor: 'primary.lighter'
-                  }}
-                >
-                  <MessageOutlined />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #984947</Typography>} secondary="5 August, 1:45 PM" />
-              <ListItemSecondaryAction>
-                <Stack alignItems="flex-end">
-                  <Typography variant="subtitle1" noWrap>
-                    + $302
-                  </Typography>
-                  <Typography variant="h6" color="secondary" noWrap>
-                    8%
-                  </Typography>
-                </Stack>
-              </ListItemSecondaryAction>
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemAvatar>
-                <Avatar
-                  sx={{
-                    color: 'error.main',
-                    bgcolor: 'error.lighter'
-                  }}
-                >
-                  <SettingOutlined />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #988784</Typography>} secondary="7 hours ago" />
-              <ListItemSecondaryAction>
-                <Stack alignItems="flex-end">
-                  <Typography variant="subtitle1" noWrap>
-                    + $682
-                  </Typography>
-                  <Typography variant="h6" color="secondary" noWrap>
-                    16%
-                  </Typography>
-                </Stack>
-              </ListItemSecondaryAction>
-            </ListItemButton>
-          </List>
-        </MainCard>
+              <MainCard sx={{ mt: 2 }} content={false}>
+                  <List
+                      component="nav"
+                      sx={{
+                          px: 0,
+                          py: 0,
+                          '& .MuiListItemButton-root': {
+                              py: 1.5,
+                              '& .MuiAvatar-root': avatarSX,
+                              '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
+                          }
+                      }}
+                  >
+                      <ListItemButton divider>
+                          <ListItemAvatar>
+                              <Avatar
+                                  sx={{
+                                      color: 'warning.main',
+                                      bgcolor: 'warning.lighter'
+                                  }}
+                              >
+                                  <CloseCircleOutlined />
+                              </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={<Typography variant="subtitle1">Appointment #12345</Typography>} secondary="15 minutes ago" />
+                          <ListItemSecondaryAction>
+                              <Stack alignItems="flex-end">
+                                  <Typography variant="subtitle1" noWrap>
+                                      Cancelled
+                                  </Typography>
+                              </Stack>
+                          </ListItemSecondaryAction>
+                      </ListItemButton>
+
+                      <ListItemButton divider>
+                          <ListItemAvatar>
+                              <Avatar
+                                  sx={{
+                                      color: 'success.main',
+                                      bgcolor: 'success.lighter'
+                                  }}
+                              >
+                                  <DollarOutlined />
+                              </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={<Typography variant="subtitle1">Payment #67890</Typography>} secondary="2 hours ago" />
+                          <ListItemSecondaryAction>
+                              <Stack alignItems="flex-end">
+                                  <Typography variant="subtitle1" noWrap>
+                                      Rs 1150
+                                  </Typography>
+                              </Stack>
+                          </ListItemSecondaryAction>
+                      </ListItemButton>
+
+                      <ListItemButton divider>
+                          <ListItemAvatar>
+                              <Avatar
+                                  sx={{
+                                      color: 'success.main',
+                                      bgcolor: 'success.lighter'
+                                  }}
+                              >
+                                  <DollarOutlined />
+                              </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={<Typography variant="subtitle1">Payment #67887</Typography>} secondary="3 hours ago" />
+                          <ListItemSecondaryAction>
+                              <Stack alignItems="flex-end">
+                                  <Typography variant="subtitle1" noWrap>
+                                      Rs 1800
+                                  </Typography>
+                              </Stack>
+                          </ListItemSecondaryAction>
+                      </ListItemButton>
+
+                      <ListItemButton>
+                          <ListItemAvatar>
+                              <Avatar
+                                  sx={{
+                                      color: 'primary.main',
+                                      bgcolor: 'primary.lighter'
+                                  }}
+                              >
+                                  <SettingOutlined />
+                              </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={<Typography variant="subtitle1">System Configuration</Typography>} secondary="6 hours ago" />
+                          <ListItemSecondaryAction>
+                              <Stack alignItems="flex-end">
+                                  <Typography variant="subtitle1" noWrap>
+                                      Updated
+                                  </Typography>
+                              </Stack>
+                          </ListItemSecondaryAction>
+                      </ListItemButton>
+                  </List>
+              </MainCard>
         <MainCard sx={{ mt: 2 }}>
           <Stack spacing={3}>
             <Grid container justifyContent="space-between" alignItems="center">
@@ -483,4 +462,16 @@ const getStatColorByPercentageInvert = function (stat) {
 
     return "primary"
 
+}
+function formatNumber(num) {
+    if (num >= 1000000) {
+        // If the number is in millions, format it with 'M'
+        return (num / 1000000).toFixed(2).replace(/\.00$/, '') + ' M';
+    } else if (num >= 1000) {
+        // If the number is in thousands, format it with 'K'
+        return (num / 1000).toFixed(2).replace(/\.00$/, '') + ' K';
+    } else {
+        // If the number is less than a thousand, return it as it is
+        return num.toString();
+    }
 }

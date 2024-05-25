@@ -1,15 +1,23 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import {
     Container,
     Grid,
     Typography,
     Button,
-    Link,
     Stack,
-    Box
+    Box,
+    Card,
+    CardContent,
+    Avatar,
+    AppBar,
+    Toolbar,
+    TextField,
+    Paper,
+    IconButton
 } from '@mui/material';
-
+import Logo from 'components/Logo';
+import MenuIcon from '@mui/icons-material/Menu';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
@@ -17,127 +25,246 @@ import DocumentScannerOutlinedIcon from '@mui/icons-material/DocumentScannerOutl
 
 import { useTheme } from '@mui/material/styles';
 import { Link as RouterLink, useLoaderData } from 'react-router-dom';
-import { FirebaseAuthContext } from '../context/FirebaseAuthProvider';
+import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
+import AnimateButton from 'components/@extended/AnimateButton';
 
 const WelcomePage = () => {
     const theme = useTheme();
     const { currentUser } = useLoaderData();
     const { logout } = useContext(FirebaseAuthContext);
+
     return (
         <>
-           <NewFunction theme={theme} />
-        </>
-    );
-
-    function NewFunction({ theme }) {
-        return <Container maxWidth="lg" sx={{ paddingTop: 0, paddingBottom: 4, maxHeight:'100vh' }}>
-            <Stack spacing={2} sx={{ textAlign:'center', alignContent:'center'}}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} >
-                        <Grid container spacing={2} sx={{ justifyContent: 'center', my: 4 }}>
-                            <Grid item xs={12}>
-                                <Typography variant="h4" gutterBottom>
-                                    Your All-in-One Healthcare Companion
-                                </Typography>
-                                <Typography variant="body1" gutterBottom>
-                                    Empowering you to manage your well-being with ease.
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12} md={12}>
-                                <Button component={RouterLink} to="/book-now" variant="contained" size="large" color="primary">
-                                    Book Appointment
+            <AppBar
+                position="static"
+                sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    boxShadow: 'none',
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                }}
+            >
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                    {/* <Typography
+                        variant="h6"
+                        color="primary"
+                        component={RouterLink}
+                        to="/"
+                        sx={{
+                            textDecoration: 'none',
+                            fontWeight: 'bold',
+                            letterSpacing: '0.1rem',
+                        }}
+                    >
+                        MedFuture
+                    </Typography> */}
+                    <Logo to="/" />
+                    <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+                        {!currentUser ? (
+                            <>
+                                <AnimateButton>
+                                    <Button
+                                        color="inherit"
+                                        component={RouterLink}
+                                        to="/auth/login"
+                                        sx={{
+                                            mx: 1,
+                                            backgroundColor: 'primary.main',
+                                            color: 'common.white',
+                                            '&:hover': {
+                                                backgroundColor: 'primary.dark',
+                                                color: 'common.white',
+                                            },
+                                        }}
+                                    >
+                                        Login
+                                    </Button>
+                                </AnimateButton>
+                                <AnimateButton>
+                                    <Button
+                                        color="inherit"
+                                        component={RouterLink}
+                                        to="/auth/signup"
+                                        sx={{
+                                            mx: 1,
+                                            backgroundColor: 'secondary.main',
+                                            color: 'common.white',
+                                            '&:hover': {
+                                                backgroundColor: 'primary.dark',
+                                                color: 'common.white',
+                                            },
+                                        }}
+                                    >
+                                        Register
+                                    </Button>
+                                </AnimateButton>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    color="inherit"
+                                    component={RouterLink}
+                                    to="/dashboard"
+                                    sx={{
+                                        mx: 2,
+                                        px: 4,
+                                        backgroundColor: 'primary.main',
+                                        color: 'common.white',
+                                        '&:hover': {
+                                            backgroundColor: 'primary.dark',
+                                            color: 'common.white',
+                                        },
+                                    }}
+                                >
+                                    Dashboard
                                 </Button>
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={4}>
-                                <LocalHospitalIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />
-                                <Typography variant="h6" gutterBottom sx={{ mt: 1 }}>
-                                    Find Doctors
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Connect with specialists in your area.
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <CalendarMonthIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />
-                                <Typography variant="h6" gutterBottom sx={{ mt: 1 }}>
-                                    Schedule Appointments
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Manage your healthcare calendar efficiently.
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <DocumentScannerOutlinedIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />
-                                <Typography variant="h6" gutterBottom sx={{ mt: 1 }}>
-                                    Access Records
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    View and manage your medical history securely.
-                                </Typography>
-                            </Grid>
-                        </Grid>
+                                <Button
+                                    color="error"
+                                    onClick={logout}
+                                    variant='text'
+                                    sx={{
+                                        '&:hover': {
+                                            backgroundColor: 'error.main',
+                                            color: 'common.white',
+                                        },
+                                    }}
+                                >
+                                    Logout
+                                </Button>
+                            </>
+                        )}
+                    </Box>
+                    <IconButton
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ display: { xs: 'flex', md: 'none' } }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+
+            <Container maxWidth="lg" sx={{ paddingTop: 4, paddingBottom: 4, minHeight: '100vh' }}>
+                <Stack spacing={4} sx={{ textAlign: 'center', alignItems: 'center' }}>
+                    <Typography variant="h3" color="primary" sx={{ mb: 2 }}>
+                        Welcome to Your Healthcare Companion
+                    </Typography>
+                    <Typography variant="body1" sx={{ maxWidth: 600 }}>
+                        Empowering you to manage your well-being with ease. Connect with specialists, schedule appointments, access medical records, and more.
+                    </Typography>
+                    <Button component={RouterLink} to="/book-now" variant="contained" size="large" color="primary"
+                        sx={{
+                            mt: 4,
+                            '&:hover': {
+                                backgroundColor: 'primary.dark',
+                                color: 'common.white',
+                            },
+                        }}>
+                        Book Appointment
+                    </Button>
+
+                    <Grid container spacing={4} justifyContent="center">
+                        <FeatureCard
+                            icon={<LocalHospitalIcon sx={{ fontSize: 50, color: theme.palette.primary.main }} />}
+                            title="Find Doctors"
+                            description="Connect with specialists in your area."
+                        />
+                        <FeatureCard
+                            icon={<CalendarMonthIcon sx={{ fontSize: 50, color: theme.palette.primary.main }} />}
+                            title="Schedule Appointments"
+                            description="Manage your healthcare calendar efficiently."
+                        />
+                        <FeatureCard
+                            icon={<DocumentScannerOutlinedIcon sx={{ fontSize: 50, color: theme.palette.primary.main }} />}
+                            title="Access Records"
+                            description="View and manage your medical history securely."
+                        />
                     </Grid>
 
-                </Grid>
-                <Grid container spacing={3}>
-
-                    <Grid item xs={12}>
-                        <Grid container spacing={2} sx={{ display: 'flex', alignItems: 'center', mt:2, mb:6  }}>
-                            <Grid item xs={4}>
-                                <HealthAndSafetyIcon sx={{ fontSize: 80, color: theme.palette.primary.main }} />
-                            </Grid>
-                            <Grid item xs={8}>
+                    <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
+                        <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+                            <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 80, height: 80 }}>
+                                <HealthAndSafetyIcon sx={{ fontSize: 50, color: '#fff' }} />
+                            </Avatar>
+                            <CardContent>
                                 <Typography variant="h5" gutterBottom>
                                     Additional Features
                                 </Typography>
-                                <ul style={{ listStyle: 'none'}}>
+                                <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
                                     <li>
-                                        <Typography variant="body1">
-                                            Medication reminders to stay on track
-                                        </Typography>
+                                        <Typography variant="body1">Medication reminders to stay on track</Typography>
                                     </li>
                                     <li>
-                                        <Typography variant="body1">
-                                            Track vitals and health data for insights
-                                        </Typography>
+                                        <Typography variant="body1">Track vitals and health data for insights</Typography>
                                     </li>
                                     <li>
-                                        <Typography variant="body1">
-                                            Secure messaging with healthcare providers
-                                        </Typography>
+                                        <Typography variant="body1">Secure messaging with healthcare providers</Typography>
                                     </li>
                                 </ul>
-                            </Grid>
-                        </Grid>
-                        {!currentUser && <Grid item xs={12}>
-                            <Link component={RouterLink} to="/auth/login" variant="body2">
-                                Already have an account? Log in
-                            </Link>
-                            {/* Added signup link */}
-                            <Link component={RouterLink} to="/auth/signup" variant="body2" sx={{ ml: 2 }}>
-                                New user? Sign Up
-                            </Link>
-                        </Grid>}
-                        {currentUser && <Grid item xs={12}>
-                            <Link component={RouterLink} to="/dashboard" variant="body2" sx={{ ml: 2 }}>
-                                Dashboard
-                            </Link>
-                            <Link component={Button} onClick={logout } variant="body2" sx={{ ml: 2 }}>
-                                Logout
-                            </Link>
+                            </CardContent>
+                        </Card>
+                    </Box>
 
-                        </Grid>}
+                    <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
+                        <Typography variant="h4" gutterBottom>
+                            Healthcare Details
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                            Our platform offers a comprehensive suite of tools designed to help you manage your health more effectively. Whether you need to find a specialist, book an appointment, or access your medical records, we've got you covered. Our secure system ensures that your personal health information is always protected.
+                        </Typography>
+                    </Box>
 
+                    <ContactForm />
+
+                </Stack>
+            </Container>
+        </>
+    );
+};
+
+const FeatureCard = ({ icon, title, description }) => {
+    return (
+        <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ textAlign: 'center', padding: 3, height: '100%' }}>
+                {icon}
+                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                    {title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {description}
+                </Typography>
+            </Card>
+        </Grid>
+    );
+};
+
+const ContactForm = () => {
+    return (
+        <Box component={Paper} sx={{ width: '100%', padding: 4, mt: 6 }}>
+            <Typography variant="h4" gutterBottom>
+                Contact Us
+            </Typography>
+            <form>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Name" variant="outlined" />
                     </Grid>
-
+                    <Grid item xs={12} sm={6}>
+                        <TextField fullWidth label="Email" variant="outlined" />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField fullWidth label="Message" variant="outlined" multiline rows={4} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button variant="contained" color="primary" type="submit">
+                            Submit
+                        </Button>
+                    </Grid>
                 </Grid>
-            </Stack>
-
-        </Container>;
-    }
+            </form>
+        </Box>
+    );
 };
 
 export default WelcomePage;

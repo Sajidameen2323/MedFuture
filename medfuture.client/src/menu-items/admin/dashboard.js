@@ -15,7 +15,7 @@ const dashboard = {
   children: [
     {
       id: 'dashboard',
-          title: 'Analytics',
+          title: 'Overview',
       type: 'item',
       url: '/admin/overview',
       icon: icons.DashboardOutlined,

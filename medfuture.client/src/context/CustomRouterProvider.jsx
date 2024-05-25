@@ -188,18 +188,32 @@ function CustomRouterProvider() {
     }
 
     function dashboardLoader({ request, params }) {
-
         if (!currentUser) {
             let params = new URLSearchParams();
             params.set("from", new URL(request.url).pathname);
             return redirect("/auth/login?" + params.toString());
-        }
-        else if (currentUser && !currentUser.email_verified) {
+        } else if (currentUser && !currentUser.email_verified) {
             let params = new URLSearchParams();
             params.set("from", new URL(request.url).pathname);
             return redirect("/auth/verify-email?" + params.toString());
+        } else {
+            let redirectUrl = "/";
+            switch (currentUser.role.toLowerCase()) {
+                case 'admin':
+                    redirectUrl = "/admin/overview";
+                    break;
+                case 'patient':
+                    redirectUrl = "/patient/profile";
+                    break;
+                case 'doctor':
+                    redirectUrl = "/doctor/appointments/today";
+                    break;
+                default:
+                    redirectUrl = "/";
+                    break;
+            }
+            return redirect(redirectUrl);
         }
-        return redirect("/" + currentUser?.role.toLowerCase() +"/overview");
     }
 
     function adminOnlyLoader({ request, params }) {

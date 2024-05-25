@@ -58,6 +58,7 @@ namespace MedFuture.Server.Database.Repositories
                     PaymentDate = DateTime.Now,
                     PaymentMode = paymentDto.PaymentMode,
                     Amount = paymentDto.Amount,
+                    TaxRate = taxRate,
                     TaxAmount = taxAmount,
                     AdditionalCost = paymentDto.AdditionalCost,
                     TotalCost = paymentDto.Amount + taxAmount + paymentDto.AdditionalCost,
