@@ -94,10 +94,22 @@ namespace MedFuture.Server.Database
                 .HasOne(d => d.User);
 
             modelBuilder.Entity<DoctorM>()
-                            .HasMany(d => d.WorkDaySchedule)
-                            .WithOne(s => s.Doctor)
-                            .HasForeignKey(s => s.DoctorId)
-                            .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(d => d.WorkDaySchedule)
+                .WithOne(s => s.Doctor)
+                .HasForeignKey(s => s.DoctorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DoctorQualificationM>()
+                .HasOne(dq=> dq.Doctor)
+                .WithMany(d=> d.Qualifications)
+                .HasForeignKey(dq => dq.DoctorID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DoctorSpecializationM>()    
+                .HasOne(ds => ds.Doctor)
+                .WithMany(d => d.Specializations)
+                .HasForeignKey(dq => dq.DoctorID)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //Model building for doctorWorkingSchedule table
 
@@ -238,7 +250,8 @@ namespace MedFuture.Server.Database
         public DbSet<DoctorWorkingHours> DoctorWorkingHours { get; set; }
 
         public DbSet<DoctorQualificationM> DoctorQualifications { get; set;}
-        public DbSet<DoctorSpecialtyM> DoctorSpecialties { get; set; }
+        public DbSet<DoctorSpecializationM> DoctorSpecializations { get; set; }
+
         public DbSet<ServiceM> Services { get; set; }
         public DbSet<DoctorServiceM> DoctorServices { get; set; }
 

@@ -208,5 +208,181 @@ namespace MedFuture.Server.Database.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+
+        public async Task<IEnumerable<DoctorQualificationM>> GetMyQualifications(int doctorId)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId)
+                .Include(d=> d.Qualifications)
+                .FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            return doctor.Qualifications;
+        }
+
+        public async Task<DoctorQualificationM> AddQualification(int doctorId, DoctorQualificationDto qualification)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId).FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            DoctorQualificationM qualificationM = new DoctorQualificationM()
+            {
+                Name = qualification.Name,
+                Institute = qualification.Institute,
+                AcquiredDate = qualification.AcquiredDate,
+                DoctorID = doctor.DoctorID
+            };
+
+            _context.DoctorQualifications.Add(qualificationM);
+            await _context.SaveChangesAsync();
+
+            return qualificationM;
+        }
+
+        public async Task UpdateQualification(int doctorId, int qualificationId, DoctorQualificationDto qualification)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId).FirstOrDefault();
+            var curQualification = _context.DoctorQualifications.Where(q => q.QualificationId == qualificationId).FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            if (curQualification == null)
+            {
+                throw new ArgumentException("Invalid Qualification ID");
+            }
+
+            if (curQualification.DoctorID != doctor.DoctorID)
+            {
+                throw new UnauthorizedAccessException("Do not have access to the resource.");
+            }
+
+            curQualification.Name = qualification.Name;
+            curQualification.Institute = qualification.Institute;
+            curQualification.AcquiredDate = qualification.AcquiredDate;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteQualification(int doctorId, int qualificationId)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId).FirstOrDefault();
+            var curQualification = _context.DoctorQualifications.Where(q => q.QualificationId == qualificationId).FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            if (curQualification == null)
+            {
+                throw new ArgumentException("Invalid Qualification ID");
+            }
+
+            if (curQualification.DoctorID != doctor.DoctorID)
+            {
+                throw new UnauthorizedAccessException("Do not have access to the resource.");
+            }
+
+            _context.DoctorQualifications.Remove(curQualification);
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<IEnumerable<DoctorSpecializationM>> GetMySpecializations(int doctorId)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId)
+                .Include(d => d.Specializations)
+                .FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            return doctor.Specializations;
+        }
+
+        public async Task<DoctorSpecializationM> AddSpecialization(int doctorId, DoctorSpecializationDto specialization)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId).FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            DoctorSpecializationM specializationM = new DoctorSpecializationM()
+            {
+                Name = specialization.Name,
+                DoctorID = doctor.DoctorID
+            };
+
+            _context.DoctorSpecializations.Add(specializationM);
+            await _context.SaveChangesAsync();
+
+            return specializationM;
+        }
+
+        public async Task UpdateSpecialization(int doctorId, int specializationId, DoctorSpecializationDto specialization)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId).FirstOrDefault();
+            var curSpecialization = _context.DoctorSpecializations.Where(s => s.SpecialtyId == specializationId).FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            if (curSpecialization == null)
+            {
+                throw new ArgumentException("Invalid Specialization ID");
+            }
+
+            if (curSpecialization.DoctorID != doctor.DoctorID)
+            {
+                throw new UnauthorizedAccessException("Do not have access to the resource.");
+            }
+
+            curSpecialization.Name = specialization.Name;
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task DeleteSpecialization(int doctorId, int specializationId)
+        {
+            var doctor = _context.Doctors.Where(d => d.User.UserID == doctorId).FirstOrDefault();
+            var curSpecialization = _context.DoctorSpecializations.Where(s => s.SpecialtyId == specializationId).FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid Doctor ID");
+            }
+
+            if (curSpecialization == null)
+            {
+                throw new ArgumentException("Invalid Specialization ID");
+            }
+
+            if (curSpecialization.DoctorID != doctor.DoctorID)
+            {
+                throw new UnauthorizedAccessException("Do not have access to the resource.");
+            }
+
+            _context.DoctorSpecializations.Remove(curSpecialization);
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

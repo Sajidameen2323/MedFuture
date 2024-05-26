@@ -7,10 +7,10 @@ import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 // assets
 import { EditOutlined, ProfileOutlined, LogoutOutlined, UserOutlined, WalletOutlined } from '@ant-design/icons';
-
+import { Link as RouterLink } from 'react-router-dom';
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
-const ProfileTab = ({ handleLogout }) => {
+const ProfileTab = ({ handleLogout, userRole }) => {
   const theme = useTheme();
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -26,7 +26,7 @@ const ProfileTab = ({ handleLogout }) => {
       {/*  </ListItemIcon>*/}
       {/*  <ListItemText primary="Edit Profile" />*/}
       {/*</ListItemButton>*/}
-      <ListItemButton selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1)}>
+          <ListItemButton component={RouterLink} to={"/" + userRole.toLocaleLowerCase() + "/profile" } selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1)}>
         <ListItemIcon>
           <UserOutlined />
         </ListItemIcon>
@@ -56,7 +56,8 @@ const ProfileTab = ({ handleLogout }) => {
 };
 
 ProfileTab.propTypes = {
-  handleLogout: PropTypes.func
+    handleLogout: PropTypes.func,
+    userRole: PropTypes.string.isRequired
 };
 
 export default ProfileTab;

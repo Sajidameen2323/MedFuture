@@ -19,19 +19,16 @@ namespace MedFuture.Server.Controllers
         private readonly ILogger<AdminController> _logger;
         private readonly ApplicationDbContext _dbcontext;
         private readonly IUserService _userService;
-        private readonly IDoctorRepository _doctorRepository;
-        private readonly IAppointmentRepository _appointmentRepository;
+
         private readonly IPaymentRepository _paymentRepository;
         private readonly IStatisticsRepository _statisticsRepository;
 
         public AdminController(ILogger<AdminController> logger, ApplicationDbContext dbcontext, IUserService userService,
-            IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository, IPaymentRepository paymentRepository, IStatisticsRepository statisticsRepository)
+            IPaymentRepository paymentRepository, IStatisticsRepository statisticsRepository)
         {
             _logger = logger;
             _dbcontext = dbcontext;
             _userService = userService;
-            _doctorRepository = doctorRepository;
-            _appointmentRepository = appointmentRepository;
             _paymentRepository = paymentRepository;
             _statisticsRepository = statisticsRepository;
         }
@@ -42,9 +39,9 @@ namespace MedFuture.Server.Controllers
         {
             try
             {
-                DoctorM doctor =  await _userService.CreateDoctor(doctorCreateDto);
+                DoctorM doctor = await _userService.CreateDoctor(doctorCreateDto);
 
-                return Ok(new CreateDoctorResponse<DoctorM> { Success=true, Message="Successfully Registered!"});
+                return Ok(new CreateDoctorResponse<DoctorM> { Success = true, Message = "Successfully Registered!" });
             }
             catch (FirebaseException ex)
             {

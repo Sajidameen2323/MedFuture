@@ -11,7 +11,7 @@ namespace MedFuture.Server.Database.Repositories
 
         public StatisticsRepository(ApplicationDbContext context)
         {
-                
+
             _context = context;
         }
 
@@ -29,19 +29,20 @@ namespace MedFuture.Server.Database.Repositories
             //    })
             //    .ToList();
 
-            var today = DateTime.Today.DayOfWeek;
-            var startOfWeek = today - (int)today;
+            var today = DateTime.Today;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+            var endOfWeek = startOfWeek.AddDays(7);
 
             var payments = _context.Payments
-                .Where(p => p.PaymentDate >= DateTime.Now.AddDays(-7))
+                .Where(p => p.PaymentDate >= startOfWeek && p.PaymentDate < endOfWeek)
                 .ToList();
 
             var weeklyRevenues = payments
-                .GroupBy(p => (p.PaymentDate.DayOfWeek - startOfWeek + 7) % 7)
+                .GroupBy(p => p.PaymentDate.DayOfWeek)
                 .OrderBy(g => g.Key)
                 .Select(g => new WeeklyRevenue
                 {
-                    Label = CultureInfo.CurrentCulture.DateTimeFormat.GetDayName((DayOfWeek)g.Key),
+                    Label = CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(g.Key),
                     Revenue = g.Sum(p => p.TotalCost)
                 })
                 .ToList();
@@ -114,9 +115,13 @@ namespace MedFuture.Server.Database.Repositories
                 .Where(a => a.Payment != null)
                 .Sum(a => a.Payment.TotalCost);
 
-            var currentMonthRevenue = currentMonthAppointments
+            var currentYearRevenue = currentYearAppointments
                 .Where(a => a.Payment != null)
                 .Sum(a => a.Payment.TotalCost);
+
+            var currentMonthRevenue = _context.Payments
+                .Where(p => p.PaymentDate.Month == currentMonth && p.PaymentDate.Year == currentYear)
+                .Sum(p => p.TotalCost);
 
             var previousMonthRevenue = previousMonthAppointments
                 .Where(a => a.Payment != null)
@@ -157,9 +162,9 @@ namespace MedFuture.Server.Database.Repositories
                 TotalMissedPercentageChange = totalMissedPercentageChange,
                 TotalMissedThisYear = totalMissedThisYear,
 
-                TotalRevenue = currentMonthRevenue,
+                TotalRevenue = allTimeRevenue,
                 TotalRevenuePercentageChange = totalRevenueChange,
-                TotalRevenueThisYear = allTimeRevenue,
+                TotalRevenueThisYear = currentYearRevenue,
                 WeeklyRevenue = weeklyRevenue,
                 WeeklyRevenueByDay = weeklyRevenueByDay
 
@@ -168,21 +173,27 @@ namespace MedFuture.Server.Database.Repositories
 
         private decimal CalculatePercentageChange(int currentValue, int previousValue)
         {
+            Console.WriteLine("----------------------------");
+            Console.WriteLine(currentValue + " - " + previousValue);
             if (previousValue == 0)
             {
-                return currentValue == 0 ? 0 : 100;
+                return currentValue == 0 ? 0m : 100m;
             }
 
-            return (decimal)((currentValue - previousValue) / previousValue) * 100;
+            decimal percentageChange = Math.Round((decimal)((currentValue - previousValue) / (decimal)previousValue) * 100, 2);
+            return percentageChange;
         }
         private decimal CalculatePercentageChange(decimal currentValue, decimal previousValue)
         {
+            Console.WriteLine("----------------------------");
+            Console.WriteLine(currentValue + " - " + previousValue);
             if (previousValue == 0)
             {
-                return currentValue == 0 ? 0 : 100;
+                return currentValue == 0 ? 0m : 100m;
             }
 
-            return (decimal)((currentValue - previousValue) / previousValue) * 100;
+            decimal percentageChange = Math.Round((decimal)((currentValue - previousValue) / (decimal)previousValue) * 100, 2);
+            return percentageChange;
         }
 
         private decimal[] GetWeeklyRevenueByDay()
@@ -237,7 +248,7 @@ namespace MedFuture.Server.Database.Repositories
                 .GroupBy(a => new { Month = a.StartDateTime.Month })
                 .Select(g => new MonthlyAppointmentCountDto
                 {
-                    Month = new DateTime(currentDate.Year, g.Key.Month, 1).ToString("yyyy-MM-dd"),
+                    Month = new DateTime(currentDate.Year, g.Key.Month, 1).ToString("yyyy-MM-dd")+"T00:00:00.000Z",
                     Count = g.Count()
                 })
 

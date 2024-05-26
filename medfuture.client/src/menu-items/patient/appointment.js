@@ -1,9 +1,9 @@
 // assets
-import { UserOutlined } from '@ant-design/icons';
+import { CalendarOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-    UserOutlined
+    CalendarOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -18,7 +18,7 @@ const appointment = {
             title: 'List Appointments',
             type: 'item',
             url: '/patient/appointments',
-            icon: icons.UserOutlined,
+            icon: icons.CalendarOutlined,
             breadcrumbs: false
         }
     ]

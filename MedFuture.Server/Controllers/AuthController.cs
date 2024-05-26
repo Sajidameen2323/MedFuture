@@ -14,6 +14,7 @@ using FirebaseAdmin;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Services.Email;
 using MedFuture.Server.Services.User;
+using MedFuture.Server.DataTransferObjects.User;
 
 
 namespace MedFuture.Server.Controllers
@@ -40,15 +41,15 @@ namespace MedFuture.Server.Controllers
         public async Task<IActionResult> AuthorizeUser()
         {
             var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
-            
+
             FirebaseToken decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(accessToken);
-    
+
 
             object userId;
             if (decoded.Claims.TryGetValue("user_id", out userId))
             {
                 UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync((string)userId);
-            
+
                 string? signInMethod = "password";
 
                 var firstProviderInfo = userRecord.ProviderData[0];
@@ -59,9 +60,9 @@ namespace MedFuture.Server.Controllers
                 {
                     UserM? user = await _userService.GetUser((string)userId);
 
-                    if (user != null) 
+                    if (user != null)
                     {
-                                    
+
                         // Retrieve user ID from Firebase authentication token
                         var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -95,8 +96,8 @@ namespace MedFuture.Server.Controllers
                         return Unauthorized();
 
                     }
-                   
-                    
+
+
                 }
                 catch (Exception ex)
                 {
@@ -122,7 +123,7 @@ namespace MedFuture.Server.Controllers
             }
             try
             {
-                PatientM patient = await _userService.CreatePatient(patientCreateDto);                     
+                PatientM patient = await _userService.CreatePatient(patientCreateDto);
 
                 return Ok(new CreatePatientResponse<PatientM>
                 {
@@ -132,10 +133,10 @@ namespace MedFuture.Server.Controllers
                 });
 
             }
-            catch(FirebaseException ex)
+            catch (FirebaseException ex)
             {
                 Console.WriteLine(ex.Message);
-                return BadRequest(new CreatePatientResponse<PatientM> { Message = "Email is already registered"});
+                return BadRequest(new CreatePatientResponse<PatientM> { Message = "Email is already registered" });
             }
             catch (Exception ex)
             {
@@ -177,18 +178,52 @@ namespace MedFuture.Server.Controllers
 
             if (emailSent)
             {
-                return Ok(new VerficationMailResponse { Success=true, Message="Verification Email Sent!"});
+                return Ok(new VerficationMailResponse { Success = true, Message = "Verification Email Sent!" });
             }
 
-            return BadRequest(new VerficationMailResponse { Message="Something Went Wrong"});
-           
+            return BadRequest(new VerficationMailResponse { Message = "Something Went Wrong" });
+
         }
 
         class VerficationMailResponse
         {
             public bool Success { get; set; } = false;
-            public string Message { get; set; }
-        
+            public string Message { get; set; } = "";
+
+        }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword(PasswordChangeDto passwordChangeDto)
+        {
+            try
+            {
+                var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+
+                UserRecordArgs args = new UserRecordArgs()
+                {
+                    Uid = userRecord.Uid,
+                    Password = passwordChangeDto.NewPassword
+                };
+
+                UserRecord updatedUserRecord = await FirebaseAuth.DefaultInstance.UpdateUserAsync(args);
+                // See the UserRecord reference doc for the contents of userRecord.
+                Console.WriteLine($"Successfully updated user: {updatedUserRecord.DisplayName}");
+
+                return Ok(new {message= "Successfully Changed Password!" });
+            }
+            catch (FirebaseException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized(new {message= "Invalid Session" });
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new {message= "Something Went Wrong" });
+            }
         }
 
     }

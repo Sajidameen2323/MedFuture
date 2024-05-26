@@ -1,16 +1,17 @@
 // assets
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, MehOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-    UserOutlined
+    UserOutlined,
+    MehOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
 
 const profile = {
     id: 'group-patient-profile',
-    title: 'Account',
+    title: 'Profile',
     type: 'group',
     children: [
         {
@@ -20,7 +21,15 @@ const profile = {
             url: '/patient/profile',
             icon: icons.UserOutlined,
             breadcrumbs: false
-        }
+        },
+        {
+            id: 'allergies',
+            title: 'Allergies',
+            type: 'item',
+            url: '/patient/allergies',
+            icon: icons.MehOutlined,
+            breadcrumbs: false
+        },
     ]
 };
 

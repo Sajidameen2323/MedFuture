@@ -25,7 +25,7 @@ namespace MedFuture.Server.Models
                    ErrorMessage = "Phone number must be 10 digits starting with 0 or 9 (without leading 0).")]
         public string? PhoneNumber { get; set; }
 
-        public List<DoctorSpecialtyM>? Specialties { get; set; }
+        public List<DoctorSpecializationM>? Specializations { get; set; }
 
         public List<DoctorQualificationM>? Qualifications { get; set;}
 

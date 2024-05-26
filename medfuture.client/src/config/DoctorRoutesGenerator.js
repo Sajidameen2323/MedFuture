@@ -1,13 +1,14 @@
 import { lazy } from "react";
 import Loadable from 'components/Loadable';
 
-const Weather = Loadable(lazy(() => import("pages/Weather")));
+
 const TodaysAppointments = Loadable(lazy(() => import("pages/Doctor/Appointment/TodaysAppointments")));
 
 const AppointmentActionPage = Loadable(lazy(() => import("pages/Doctor/Appointment/AppointmentActionPage")));
 const ConsultationPage = Loadable(lazy(() => import("pages/Doctor/Appointment/Consultation/ConsultationPage2")));
-
-
+const DoctorQualifications = Loadable(lazy(() => import("pages/Doctor/DoctorQualifications")));
+const DoctorSpecializations = Loadable(lazy(() => import("pages/Doctor/DoctorSpecializations")));
+const DoctorProfile = Loadable(lazy(() => import("pages/Doctor/DoctorProfile")));
 
 export default function GetDoctorRoutes(props) {
 
@@ -32,7 +33,24 @@ export default function GetDoctorRoutes(props) {
             loader: props.doctorOnlyLoader,
             Component: ConsultationPage
         },
-
+        {
+            id: 'profile',
+            path: 'profile',
+            loader: props.doctorOnlyLoader,
+            Component: DoctorProfile
+        },
+        {
+            id: 'qualifications',
+            path: 'qualifications',
+            loader: props.doctorOnlyLoader,
+            Component: DoctorQualifications
+        },
+        {
+            id: 'specializations',
+            path: 'specializations',
+            loader: props.doctorOnlyLoader,
+            Component: DoctorSpecializations
+        },
     ]
 
 }

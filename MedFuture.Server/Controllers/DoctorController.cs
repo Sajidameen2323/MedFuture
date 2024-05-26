@@ -379,6 +379,254 @@ namespace MedFuture.Server.Controllers
 
             return Ok(new { status = statusName });
         }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpGet("me/qualifications")]
+        public async Task<IActionResult> GetQualifications()
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var qualifications = await _doctorRepository.GetMyQualifications(userIdDb);
+
+                var formattedData = qualifications.Select(qualification => new DoctorQualificationDto
+                {
+                    Id = qualification.QualificationId,
+                    Name = qualification.Name,
+                    Institute = qualification.Institute,
+                    AcquiredDate = qualification.AcquiredDate
+                }).ToList();
+
+                return Ok(formattedData);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpPost("me/qualifications")]
+        public async Task<IActionResult> AddQualification(DoctorQualificationDto qualification)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var newQualification = await _doctorRepository.AddQualification(userIdDb, qualification);
+
+                var formattedQualification = new
+                {
+                    newQualification.QualificationId,
+                    newQualification.Name,
+                    newQualification.Institute,
+                    newQualification.AcquiredDate
+                };
+
+                return Ok(formattedQualification);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpPut("me/qualifications/{qualificationId}")]
+        public async Task<IActionResult> UpdateQualification(int qualificationId, DoctorQualificationDto qualification)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _doctorRepository.UpdateQualification(userIdDb, qualificationId, qualification);
+
+                return Ok(new { message = "Successfully Updated Qualification!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpDelete("me/qualifications/{qualificationId}")]
+        public async Task<IActionResult> DeleteQualification(int qualificationId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _doctorRepository.DeleteQualification(userIdDb, qualificationId);
+
+                return Ok(new { message = "Successfully Deleted Qualification!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+
+        [HttpGet("me/specializations")]
+        public async Task<IActionResult> GetSpecializations()
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var specializations = await _doctorRepository.GetMySpecializations(userIdDb);
+
+                var formattedData = specializations.Select(specialization => new DoctorSpecializationDto
+                {
+                    Id = specialization.SpecialtyId,
+                    Name = specialization.Name
+                }).ToList();
+
+                return Ok(formattedData);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+        [HttpPost("me/specializations")]
+        public async Task<IActionResult> AddSpecialization(DoctorSpecializationDto specialization)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                var newSpecialization = await _doctorRepository.AddSpecialization(userIdDb, specialization);
+
+                var formattedSpecialization = new
+                {
+                    newSpecialization.SpecialtyId,
+                    newSpecialization.Name
+                };
+
+                return Ok(formattedSpecialization);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+
+        [HttpPut("me/specializations/{specializationId}")]
+        public async Task<IActionResult> UpdateSpecialization(int specializationId, DoctorSpecializationDto specialization)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _doctorRepository.UpdateSpecialization(userIdDb, specializationId, specialization);
+
+                return Ok(new { message = "Successfully Updated Specialization!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
+
+        [HttpDelete("me/specializations/{specializationId}")]
+        public async Task<IActionResult> DeleteSpecialization(int specializationId)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _doctorRepository.DeleteSpecialization(userIdDb, specializationId);
+
+                return Ok(new { message = "Successfully Deleted Specialization!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
+        }
+
     }
 
 }

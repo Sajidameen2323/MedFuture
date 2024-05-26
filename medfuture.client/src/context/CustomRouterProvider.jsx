@@ -4,7 +4,7 @@ import React, { useContext, lazy } from "react";
 import {
     RouterProvider,
     createBrowserRouter,
-    redirect  
+    redirect
 } from "react-router-dom";
 import { FirebaseAuthContext } from "./FirebaseAuthProvider";
 import Loadable from 'components/Loadable';
@@ -26,8 +26,8 @@ import AdminRouteGenerator from '../config/AdminRoutesGenerator.js';
 import DoctorRouteGenerator from '../config/DoctorRoutesGenerator.js';
 import PatientRoutesGenerator from '../config/PatientRoutesGenerator.js';
 
-import NotAuthorized from "../pages/ErrorPages/NotAuthorized";
-
+const NotAuthorized = Loadable(lazy(() => import("pages/ErrorPages/NotAuthorized")));
+const AccountSettings = Loadable(lazy(() => import("pages/AccountSettings")));
 
 function CustomRouterProvider() {
     const { currentUser, loading, logout } = useContext(FirebaseAuthContext);
@@ -62,7 +62,7 @@ function CustomRouterProvider() {
                     loader: protectedLoader,
                     Component: Weather,
                 },
-                ...AdminRouteGenerator({adminOnlyLoader, protectedLoader})
+                ...AdminRouteGenerator({ adminOnlyLoader, protectedLoader })
             ]
         },
         {
@@ -133,6 +133,19 @@ function CustomRouterProvider() {
 
         },
         {
+            id: 'account_settings',
+            path: '/account/settings',
+            loader: protectedLoader,
+            Component: MainLayout,
+            children: [
+                {
+                    index: true,
+                    loader: protectedLoader,
+                    Component: AccountSettings,
+                },
+            ]
+        },
+        {
             id: 'error',
             path: '/error',
             children: [
@@ -157,7 +170,7 @@ function CustomRouterProvider() {
             const fromValue = getQueryValue(window.location.href, "from");
             //console.log(fromValue);
             return redirect((fromValue || '/'));
-    
+
         }
         return null;
     }
@@ -203,7 +216,7 @@ function CustomRouterProvider() {
                     redirectUrl = "/admin/overview";
                     break;
                 case 'patient':
-                    redirectUrl = "/patient/profile";
+                    redirectUrl = "/patient/appointments";
                     break;
                 case 'doctor':
                     redirectUrl = "/doctor/appointments/today";

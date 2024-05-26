@@ -4,7 +4,8 @@ using System.ComponentModel;
 
 namespace MedFuture.Server.Models
 {
-    public class DoctorSpecialtyM
+    [Table("DoctorSpecialties")]
+    public class DoctorSpecializationM
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SpecialtyId { get; set; }
@@ -12,12 +13,11 @@ namespace MedFuture.Server.Models
         [Required]
         public int DoctorID { get; set; }
 
-        public string Description { get; set; } = string.Empty;
-
+        [ForeignKey("DoctorID")]
         public DoctorM Doctor { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(200)]
         public string Name { get; set; }
 
 

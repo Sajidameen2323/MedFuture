@@ -6,6 +6,7 @@ import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 // assets
 import { CommentOutlined, LockOutlined, QuestionCircleOutlined, UserOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Link as RouterLink } from 'react-router-dom';
 
 // ==============================|| HEADER PROFILE - SETTING TAB ||============================== //
 
@@ -25,7 +26,7 @@ const SettingTab = () => {
       {/*  </ListItemIcon>*/}
       {/*  <ListItemText primary="Support" />*/}
       {/*</ListItemButton>*/}
-      <ListItemButton selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1)}>
+          <ListItemButton component={RouterLink} to={"/account/settings"} selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1)}>
         <ListItemIcon>
           <UserOutlined />
         </ListItemIcon>

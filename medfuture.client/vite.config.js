@@ -76,6 +76,10 @@ export default defineConfig({
                 target: baseUrl,
                 secure: false
             },
+            '^/auth/change-password': {
+                target: baseUrl,
+                secure: false
+            },
             '^/api/admin/*': {
                 target: baseUrl,
                 secure: false

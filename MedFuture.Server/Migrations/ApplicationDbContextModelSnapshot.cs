@@ -230,17 +230,21 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QualificationId"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("AcquiredDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("DoctorID")
                         .HasColumnType("int");
 
+                    b.Property<string>("Institute")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("QualificationId");
 
@@ -270,7 +274,7 @@ namespace MedFuture.Server.Migrations
                     b.ToTable("DoctorService");
                 });
 
-            modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecializationM", b =>
                 {
                     b.Property<int>("SpecialtyId")
                         .ValueGeneratedOnAdd()
@@ -278,17 +282,13 @@ namespace MedFuture.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SpecialtyId"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("DoctorID")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("SpecialtyId");
 
@@ -696,7 +696,7 @@ namespace MedFuture.Server.Migrations
                     b.Navigation("Doctor");
                 });
 
-            modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecialtyM", b =>
+            modelBuilder.Entity("MedFuture.Server.Models.DoctorSpecializationM", b =>
                 {
                     b.HasOne("MedFuture.Server.Models.DoctorM", "Doctor")
                         .WithMany("Specialties")
