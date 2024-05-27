@@ -12,7 +12,7 @@ import { activeItem } from 'store/reducers/menu';
 
 // ==============================|| MAIN LOGO ||============================== //
 
-const LogoSection = ({ sx, to }) => {
+const LogoSection = ({ sx, to, width, height, viewBox }) => {
   const { defaultId } = useSelector((state) => state.menu);
   const dispatch = useDispatch();
   return (
@@ -23,14 +23,17 @@ const LogoSection = ({ sx, to }) => {
       to={!to ? config.defaultPath : to}
       sx={sx}
     >
-      <Logo />
+          <Logo width={width} height={height} viewBox={viewBox} />
     </ButtonBase>
   );
 };
 
 LogoSection.propTypes = {
   sx: PropTypes.object,
-  to: PropTypes.string
+  to: PropTypes.string,
+  width: PropTypes.number,
+    height: PropTypes.number,
+    viewBox: PropTypes.string
 };
 
 export default LogoSection;

@@ -63,7 +63,7 @@ function FirebaseAuthProvider({ children }) {
     async function getCustomToken(idToken) {
         setLoading(true);
         try {
-            const response = await fetch('/auth/authorize-user', {
+            const response = await fetch('/api/auth/authorize-user', {
                 headers: {
                     'Authorization': `Bearer ${idToken}`,
                 },

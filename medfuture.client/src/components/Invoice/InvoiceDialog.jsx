@@ -108,7 +108,7 @@ const InvoiceDialog = ({ open, onClose, appointment }) => {
         >
             <div ref={componentRef}>
                 <Row justify="center" style={{ marginTop: '20px' }}>
-                    <Logo to="#" />
+                    <Logo to="#" width={300} height={60} viewBox="0 0 2000 531" />
 
                 </Row>
                 <Row justify="center" style={{ marginTop: '20px' }}>

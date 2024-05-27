@@ -57,10 +57,11 @@ const Logo = (props) => {
       </svg> */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+
         width={250}
         height={45}
-        viewBox="0 0 2550 531"
+        viewBox="0 0 2000 531"  
         {...props}
       >
         <image

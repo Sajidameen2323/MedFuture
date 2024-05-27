@@ -59,7 +59,7 @@ const AccountSettings = () => {
                   onSubmit={async (values, { setSubmitting, resetForm, setStatus, setErrors }) => {
                     try {
 
-                      const response = await fetch('/auth/change-password', {
+                      const response = await fetch('/api/auth/change-password', {
 
                         headers: {
                           'Authorization': `Bearer ${idToken}`,

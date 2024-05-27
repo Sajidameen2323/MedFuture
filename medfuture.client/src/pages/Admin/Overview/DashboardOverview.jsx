@@ -165,6 +165,12 @@ const DashboardDefault = () => {
                               onClick={() => setSlot('year')}
                               color={slot === 'year' ? 'primary' : 'secondary'}
                               variant={slot === 'year' ? 'outlined' : 'text'}
+                              sx={{
+                                  '&:hover': {
+                                      
+                                      color: 'primary.main',
+                                  },
+                              }}
                           >
                               Year
                           </Button>
@@ -172,7 +178,13 @@ const DashboardDefault = () => {
                 size="small"
                 onClick={() => setSlot('month')}
                 color={slot === 'month' ? 'primary' : 'secondary'}
-                variant={slot === 'month' ? 'outlined' : 'text'}
+                              variant={slot === 'month' ? 'outlined' : 'text'}
+                              sx={{
+                                  '&:hover': {
+
+                                      color: 'primary.main',
+                                  },
+                              }}
               >
                 Month
               </Button>
@@ -180,7 +192,13 @@ const DashboardDefault = () => {
                 size="small"
                 onClick={() => setSlot('week')}
                 color={slot === 'week' ? 'primary' : 'secondary'}
-                variant={slot === 'week' ? 'outlined' : 'text'}
+                              variant={slot === 'week' ? 'outlined' : 'text'}
+                              sx={{
+                                  '&:hover': {
+
+                                      color: 'primary.main',
+                                  },
+                              }}
               >
                 Week
               </Button>

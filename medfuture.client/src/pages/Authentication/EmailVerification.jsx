@@ -32,7 +32,7 @@ const EmailVerification = () => {
         setError("");
         try {
             // Replace with your actual email sending logic, using a backend API
-            const response = await fetch("/auth/get-verification-mail", {
+            const response = await fetch("/api/auth/get-verification-mail", {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${idToken}`,
@@ -68,7 +68,7 @@ const EmailVerification = () => {
         <Card sx={{ width: { xs: '80vw', md: '30vw' } }}>
 
             <Box display="flex" justifyContent="center" alignItems="center" p={2}>
-                <Logo to="/" />
+                <Logo to="/" width={300} height={60} viewBox="0 0 2000 531" />
             </Box>
             <CardContent>
                 <Typography variant="h6">Medfuture Email Verification</Typography>

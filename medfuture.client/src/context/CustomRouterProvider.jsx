@@ -10,8 +10,7 @@ import { FirebaseAuthContext } from "./FirebaseAuthProvider";
 import Loadable from 'components/Loadable';
 
 // Import components and pages
-
-import MainLayout from "../layout/MainLayout";
+const MainLayout = Loadable(lazy(() => import("../layout/MainLayout")));
 
 const WelcomePage = Loadable(lazy(() => import("pages/WelcomePage")));
 const Login = Loadable(lazy(() => import('pages/Authentication/Login')));
@@ -19,6 +18,7 @@ const Register = Loadable(lazy(() => import("../pages/Authentication/Register"))
 const Weather = Loadable(lazy(() => import("../pages/Weather")));
 const NotFound = Loadable(lazy(() => import("../pages/ErrorPages/NotFound")));
 const EmailVerification = Loadable(lazy(() => import("../pages/Authentication/EmailVerification")));
+const ForgotPassword = Loadable(lazy(() => import("pages/Authentication/ForgotPassword")));
 
 const BookingPage = Loadable(lazy(() => import("pages/Booking")));
 
@@ -122,6 +122,10 @@ function CustomRouterProvider() {
                     path: 'verify-email',
                     loader: VerificationMailLoader,
                     Component: EmailVerification
+                },
+                {
+                    path: 'reset-password',
+                    Component: ForgotPassword
                 }
             ],
         },

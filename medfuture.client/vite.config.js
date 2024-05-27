@@ -64,19 +64,23 @@ export default defineConfig({
                 target: baseUrl,
                 secure: false
             },
-            '^/auth/authorize-user': {
+            '^/api/auth/authorize-user': {
                 target: baseUrl,
                 secure: false
             },
-            '^/auth/create-patient': {
+            '^/api/auth/create-patient': {
                 target: baseUrl,
                 secure: false
             },
-            '^/auth/get-verification-mail': {
+            '^/api/auth/get-verification-mail': {
                 target: baseUrl,
                 secure: false
             },
-            '^/auth/change-password': {
+            '^/api/auth/change-password': {
+                target: baseUrl,
+                secure: false
+            },
+            '^/api/auth/get-password-reset-mail': {
                 target: baseUrl,
                 secure: false
             },

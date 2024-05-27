@@ -110,7 +110,7 @@ const AuthRegister = () => {
         console.log(jsonData)
           try {
 
-            const response = await fetch('/auth/create-patient', {
+            const response = await fetch('/api/auth/create-patient', {
 
               headers: {
                 "Content-Type": "application/json",

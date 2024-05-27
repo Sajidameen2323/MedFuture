@@ -124,7 +124,7 @@ const AppointmentStepper = () => {
     return (
      <Container>
             <Box display="flex" justifyContent="center" alignItems="center" p={2}>
-                <Logo to="/" />
+                <Logo to="/" width={300} height={60} viewBox="0 0 2000 531" />
             </Box>
             <Box sx={{
                 display: 'flex', flexDirection: 'column', justifyContent: 'center', width: {md:'80vw'}, mx: { md: '10px' } }}>

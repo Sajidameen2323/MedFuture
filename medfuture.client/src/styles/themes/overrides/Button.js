@@ -9,7 +9,7 @@ export default function Button(theme) {
 
   const hoverStyle = {
     '&:hover': {
-      color: theme.palette.grey[600]
+      color: theme.palette.grey[100]
     }
   };
 

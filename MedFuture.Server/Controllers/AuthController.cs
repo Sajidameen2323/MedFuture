@@ -20,7 +20,7 @@ using MedFuture.Server.DataTransferObjects.User;
 namespace MedFuture.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthController : Controller
     {
         private readonly ILogger<AuthController> _logger;
@@ -178,17 +178,54 @@ namespace MedFuture.Server.Controllers
 
             if (emailSent)
             {
-                return Ok(new VerficationMailResponse { Success = true, Message = "Verification Email Sent!" });
+                return Ok(new { Success = true, Message = "Verification Email Sent!" });
             }
 
-            return BadRequest(new VerficationMailResponse { Message = "Something Went Wrong" });
+            return BadRequest(new { Message = "Something Went Wrong" });
 
         }
 
-        class VerficationMailResponse
+
+        // Verification Email Sending Area
+        [HttpGet("get-password-reset-mail")]
+        public async Task<IActionResult> GetPasswordResetMail([FromQuery] string email)
         {
-            public bool Success { get; set; } = false;
-            public string Message { get; set; } = "";
+            try
+            {
+                var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(email);
+
+                var actionCodeSettings = new ActionCodeSettings()
+                {
+                    Url = "https://localhost:5173/",
+                    HandleCodeInApp = true,
+                    //IosBundleId = "com.example.ios",
+                    //AndroidPackageName = "com.example.android",
+                    //AndroidInstallApp = true,
+                    //AndroidMinimumVersion = "12",
+
+                };
+                var link = await FirebaseAuth.DefaultInstance.GeneratePasswordResetLinkAsync(
+                        userRecord.Email, actionCodeSettings);
+
+                bool emailSent = await _emailService.SendPasswordResetEmail(userRecord.Email, link);
+
+                if (emailSent)
+                {
+                    return Ok(new { Success = true, Message = "Verification Email Sent!" });
+                }
+
+                return BadRequest(new { Message = "Something Went Wrong" });
+            }
+            catch(FirebaseAuthException ex)
+            {
+                return BadRequest(new { Message = "No user found with given email!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new { Message = "Something Went Wrong" });
+            }
 
         }
 

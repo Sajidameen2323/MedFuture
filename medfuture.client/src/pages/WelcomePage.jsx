@@ -58,7 +58,7 @@ const WelcomePage = () => {
                     >
                         MedFuture
                     </Typography> */}
-                    <Logo to="/" />
+                    <Logo to="/" width={200} height={50} viewBox="0 0 2000 531" />
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
                         {!currentUser ? (
                             <>
