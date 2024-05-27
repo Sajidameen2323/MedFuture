@@ -173,8 +173,7 @@ namespace MedFuture.Server.Database.Repositories
 
         private decimal CalculatePercentageChange(int currentValue, int previousValue)
         {
-            Console.WriteLine("----------------------------");
-            Console.WriteLine(currentValue + " - " + previousValue);
+
             if (previousValue == 0)
             {
                 return currentValue == 0 ? 0m : 100m;
@@ -185,8 +184,7 @@ namespace MedFuture.Server.Database.Repositories
         }
         private decimal CalculatePercentageChange(decimal currentValue, decimal previousValue)
         {
-            Console.WriteLine("----------------------------");
-            Console.WriteLine(currentValue + " - " + previousValue);
+
             if (previousValue == 0)
             {
                 return currentValue == 0 ? 0m : 100m;

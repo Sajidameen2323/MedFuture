@@ -28,7 +28,6 @@ const DoctorProfile = () => {
         phoneNumber: doctor?.phoneNumber,
         dateOfBirth: doctor?.dateOfBirth,
         gender: doctor?.gender,
-        specialty: doctor?.specialty,
     });
 
     const fetchDoctorData = async () => {
@@ -75,10 +74,9 @@ const DoctorProfile = () => {
                 firstName: data.firstName,
                 lastName: data.lastName,
                 email: data.email,
-                phoneNumber: data.phoneNumber,
+                phoneNumber: data.phoneNumber ?? "",
                 dateOfBirth: data.dateOfBirth,
-                gender: data.gender,
-                specialty: data.specialty,
+                gender: data.gender ?? 0,
             });
             setDobValue(dayjs(data.dateOfBirth));
         },
@@ -102,7 +100,7 @@ const DoctorProfile = () => {
     };
 
     const handleSubmit = async (updatedDoctor) => {
-        let jsonObj = updatedDoctor;
+        let jsonObj = { ...updatedDoctor };
         delete jsonObj.email;
 
         jsonObj.dateOfBirth = dayjs(dobValue).format('YYYY-MM-DD');
@@ -124,9 +122,8 @@ const DoctorProfile = () => {
         lastName: Yup.string().required('Last Name is required'),
         email: Yup.string().email('Invalid email address').required('Email is required'),
         phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Invalid phone number'),
-        dateOfBirth: Yup.date().required('Date of Birth is required'),
+ //       dateOfBirth: Yup.date().required('Date of Birth is required'),
         gender: Yup.number().required('Gender is required'),
-        specialty: Yup.string().required('Specialty is required'),
     });
 
     const renderTextField = ({ field, form, label, disabled }) => {
@@ -194,8 +191,6 @@ const DoctorProfile = () => {
     if (isLoading || isUpdatingProfile) {
         return <div>Loading...</div>;
     }
-
-
 
     return (
         <Box sx={{ padding: 4, width: { md: '1100px', xs: '100%' } }}>
@@ -316,14 +311,7 @@ const DoctorProfile = () => {
                                             <Field name="gender" component={renderSelectField} label="Gender" options={genderOptions} />
                                         )}
                                     </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <Field
-                                            name="specialty"
-                                            component={renderTextField}
-                                            label="Specialty"
-                                            disabled={!editMode}
-                                        />
-                                    </Grid>
+
                                 </Grid>
                                 <Box display="flex" justifyContent="flex-end" marginTop={2}>
                                     <Button
@@ -359,5 +347,4 @@ const DoctorProfile = () => {
         </Box>
     );
 };
-
 export default DoctorProfile;

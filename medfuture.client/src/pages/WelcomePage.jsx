@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import {
     Container,
     Grid,
@@ -14,7 +14,11 @@ import {
     Toolbar,
     TextField,
     Paper,
-    IconButton
+    IconButton,
+    Drawer,
+    List,
+    ListItem,
+    ListItemText,
 } from '@mui/material';
 import Logo from 'components/Logo';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -29,35 +33,32 @@ import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
 import AnimateButton from 'components/@extended/AnimateButton';
 
+import avatar2 from 'assets/images/users/avatar-2.png';
+import avatar3 from 'assets/images/users/avatar-3.png';
+import avatar4 from 'assets/images/users/avatar-4.png';
+
 const WelcomePage = () => {
     const theme = useTheme();
     const { currentUser } = useLoaderData();
     const { logout } = useContext(FirebaseAuthContext);
+    const [mobileMenu, setMobileMenu] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setMobileMenu(!mobileMenu);
+    };
 
     return (
         <>
             <AppBar
                 position="static"
                 sx={{
-                    backgroundColor: theme.palette.background.paper,
+                    backgroundColor: theme.palette.secondary[200],
                     boxShadow: 'none',
                     borderBottom: `1px solid ${theme.palette.divider}`,
+                    color: theme.palette.primary.main
                 }}
             >
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    {/* <Typography
-                        variant="h6"
-                        color="primary"
-                        component={RouterLink}
-                        to="/"
-                        sx={{
-                            textDecoration: 'none',
-                            fontWeight: 'bold',
-                            letterSpacing: '0.1rem',
-                        }}
-                    >
-                        MedFuture
-                    </Typography> */}
                     <Logo to="/" width={200} height={50} viewBox="0 0 2000 531" />
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
                         {!currentUser ? (
@@ -138,11 +139,50 @@ const WelcomePage = () => {
                         edge="start"
                         color="inherit"
                         aria-label="menu"
+                        onClick={toggleMobileMenu}
                         sx={{ display: { xs: 'flex', md: 'none' } }}
                     >
                         <MenuIcon />
                     </IconButton>
                 </Toolbar>
+                <Drawer
+                    anchor="left"
+                    open={mobileMenu}
+                    onClose={toggleMobileMenu}
+                    sx={{
+                        '& .MuiDrawer-paper': {
+                            boxSizing: 'border-box',
+                            width: 240,
+                        },
+                    }}
+                >
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Menu
+                        </Typography>
+                        <List>
+                            {!currentUser ? (
+                                <>
+                                    <ListItem button component={RouterLink} to="/auth/login" onClick={toggleMobileMenu}>
+                                        <ListItemText primary="Login" />
+                                    </ListItem>
+                                    <ListItem button component={RouterLink} to="/auth/signup" onClick={toggleMobileMenu}>
+                                        <ListItemText primary="Register" />
+                                    </ListItem>
+                                </>
+                            ) : (
+                                <>
+                                    <ListItem button component={RouterLink} to="/dashboard" onClick={toggleMobileMenu}>
+                                        <ListItemText primary="Dashboard" />
+                                    </ListItem>
+                                    <ListItem button onClick={logout}>
+                                        <ListItemText primary="Logout" />
+                                    </ListItem>
+                                </>
+                            )}
+                        </List>
+                    </Box>
+                </Drawer>
             </AppBar>
 
             <Container maxWidth="lg" sx={{ paddingTop: 4, paddingBottom: 4, minHeight: '100vh' }}>
@@ -181,7 +221,6 @@ const WelcomePage = () => {
                             description="View and manage your medical history securely."
                         />
                     </Grid>
-
                     <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
                         <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
                             <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 80, height: 80 }}>
@@ -208,6 +247,32 @@ const WelcomePage = () => {
 
                     <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
                         <Typography variant="h4" gutterBottom>
+                            Our Doctors
+                        </Typography>
+                        <Grid container spacing={4} justifyContent="center">
+                            <DoctorCard
+                                name="Dr. Jane Smith"
+                                photo={ avatar2 }
+                                specialties="Cardiology, Internal Medicine"
+                                qualifications="MD, FACC"
+                            />
+                            <DoctorCard
+                                name="Dr. Michael Johnson"
+                                photo={avatar3}
+                                specialties="Pediatrics, Family Medicine"
+                                qualifications="MD, FAAP"
+                            />
+                            <DoctorCard
+                                name="Dr. Emily Davis"
+                                photo={avatar4}
+                                specialties="Dermatology, Cosmetic Procedures"
+                                qualifications="MD, FAAD"
+                            />
+                        </Grid>
+                    </Box>
+
+                    <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
+                        <Typography variant="h4" gutterBottom>
                             Healthcare Details
                         </Typography>
                         <Typography variant="body1" gutterBottom>
@@ -222,7 +287,6 @@ const WelcomePage = () => {
         </>
     );
 };
-
 const FeatureCard = ({ icon, title, description }) => {
     return (
         <Grid item xs={12} sm={6} md={4}>
@@ -238,14 +302,35 @@ const FeatureCard = ({ icon, title, description }) => {
         </Grid>
     );
 };
-
+const DoctorCard = ({ name, photo, specialties, qualifications }) => {
+    return (
+        <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                <Avatar
+                    alt={name}
+                    src={photo}
+                    sx={{ width: 120, height: 120, marginBottom: 2 }}
+                />
+                <Typography variant="h6" gutterBottom>
+                    {name}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Specialties: {specialties}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Qualifications: {qualifications}
+                </Typography>
+            </Card>
+        </Grid>
+    );
+};
 const ContactForm = () => {
     return (
         <Box component={Paper} sx={{ width: '100%', padding: 4, mt: 6 }}>
             <Typography variant="h4" gutterBottom>
                 Contact Us
             </Typography>
-            <form>
+            <Box>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                         <TextField fullWidth label="Name" variant="outlined" />
@@ -262,9 +347,8 @@ const ContactForm = () => {
                         </Button>
                     </Grid>
                 </Grid>
-            </form>
+            </Box>
         </Box>
     );
 };
-
 export default WelcomePage;

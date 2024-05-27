@@ -1,11 +1,15 @@
 ﻿using MedFuture.Server.DataTransferObjects.Docotor;
+using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
 
 namespace MedFuture.Server.Database.Interfaces
 {
     public interface IDoctorRepository
     {
-        
+
+        Task<DoctorM> GetPersonalData(int userIdDb);
+        Task UpdateProfile(int patientId, DoctorUpdateFormDto doctorUpdateForm);
+
         Task<DoctorM?> GetDoctorByIdAsync(int id);
         Task<IEnumerable<DoctorM>> GetAllDoctorsAsync();
         Task UpdateDoctorAsync(DoctorM doctor);

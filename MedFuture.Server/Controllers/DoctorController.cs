@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using MedFuture.Server.DataTransferObjects.Appointment;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Services.User;
+using MedFuture.Server.Database.Repositories;
 
 namespace MedFuture.Server.Controllers
 {
@@ -28,6 +29,56 @@ namespace MedFuture.Server.Controllers
             _doctorRepository = doctorRepository;
             _appointmentRepository = appointmentRepository;
             _userService = userService;
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetPersonalData()
+        {
+            var userClaims = User.Claims;
+            int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+            DoctorM patient = await _doctorRepository.GetPersonalData(userIdDb);
+
+            var formattedObject = new
+            {
+
+                firstName = (patient.User.FirstName ?? string.Empty),
+                lastName = (patient.User.LastName ?? string.Empty),
+                email = patient.User.Email ?? "N/A",
+                phoneNumber = patient.PhoneNumber ?? "N/A",
+                dateOfBirth = patient.DOB ?? null,
+                gender = patient.Gender,
+                profilePictureUrl = patient.User.ProfilePic ?? ""
+
+            };
+
+            return Ok(formattedObject);
+        }
+
+        [Authorize("DoctorOnlyPolicy")]
+        [HttpPut("profile/update")]
+        public async Task<IActionResult> UpdateProfile(DoctorUpdateFormDto doctorUpdateForm)
+        {
+            try
+            {
+                var userClaims = User.Claims;
+                int userIdDb = _userService.GetUserDbIdFromToken(userClaims);
+
+                await _doctorRepository.UpdateProfile(userIdDb, doctorUpdateForm);
+
+                return Ok(new { message = "Successfully Updated!" });
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Invalid Session");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return BadRequest("Something Went Wrong!");
+            }
         }
 
         [Authorize("AdminOnlyPolicy")]

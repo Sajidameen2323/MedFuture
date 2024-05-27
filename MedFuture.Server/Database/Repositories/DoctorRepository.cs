@@ -1,6 +1,7 @@
 ﻿using FirebaseAdmin.Auth;
 using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.DataTransferObjects.Docotor;
+using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,42 @@ namespace MedFuture.Server.Database.Repositories
 
             _context = context;
         }
+
+        public async Task<DoctorM> GetPersonalData(int userIdDb)
+        {
+            var doctor = _context.Doctors
+                .Where(d=>d.UserID == userIdDb)
+                .Include(d=>d.User)
+                .FirstOrDefault();
+
+            if(doctor == null)
+            {
+                throw new ArgumentException("Invalid Session");
+            }
+
+            return doctor;
+        }
+
+        public async Task UpdateProfile(int patientId, DoctorUpdateFormDto doctorUpdateForm)
+        {
+            var doctor = _context.Doctors.Where(p => p.UserID == patientId)
+                .Include(p => p.User)
+                .FirstOrDefault();
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Invalid User ID");
+            }
+            doctor.User.FirstName = doctorUpdateForm.FirstName;
+            doctor.User.LastName = doctorUpdateForm.LastName;
+            doctor.PhoneNumber = doctorUpdateForm.PhoneNumber;
+            doctor.Gender = doctorUpdateForm.Gender;
+            doctor.DOB = doctorUpdateForm.DateOfBirth;
+
+            await _context.SaveChangesAsync();
+
+        }
+
 
         public async Task DeleteDoctorAsync(int id)
         {
