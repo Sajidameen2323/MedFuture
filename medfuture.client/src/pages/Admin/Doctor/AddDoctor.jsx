@@ -61,10 +61,10 @@ const AddDoctor = () => {
     return (
         <>
             <Container>
-                <Box sx={{ my:2 }}>
-                    {formMessage && formMessage?.success && <Alert severity={formMessage?.success ? "success": "error" }>{formMessage?.message}</Alert>}
+                <Box sx={{ my: 2 }}>
+                    {formMessage && formMessage?.success && <Alert severity={formMessage?.success ? "success" : "error"}>{formMessage?.message}</Alert>}
                 </Box>
-       
+
                 <Formik
                     initialValues={{
                         firstName: '',
@@ -105,7 +105,7 @@ const AddDoctor = () => {
                             });
                             if (response.ok) {
 
-                                const {  message } = await response.json()
+                                const { message } = await response.json()
                                 //console.log(data)
                                 console.log(message)
                                 setFormMessage({ success: true, message })
@@ -308,7 +308,7 @@ const AddDoctor = () => {
                     )}
                 </Formik>
             </Container>
-         
+
 
         </>
     );

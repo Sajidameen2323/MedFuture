@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 import { useContext, useState } from 'react';
 import {
@@ -19,10 +20,17 @@ import {
     List,
     ListItem,
     ListItemText,
+    ListItemIcon,
+    Chip,
+    Skeleton
+    
 } from '@mui/material';
+
 import Logo from 'components/Logo';
 import MenuIcon from '@mui/icons-material/Menu';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import MedicationIcon from '@mui/icons-material/Medication';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ChatIcon from '@mui/icons-material/Chat';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import DocumentScannerOutlinedIcon from '@mui/icons-material/DocumentScannerOutlined';
@@ -33,15 +41,45 @@ import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 
 import AnimateButton from 'components/@extended/AnimateButton';
 
-import avatar2 from 'assets/images/users/avatar-2.png';
-import avatar3 from 'assets/images/users/avatar-3.png';
-import avatar4 from 'assets/images/users/avatar-4.png';
+import { ClockCircleOutlined } from '@ant-design/icons';
+
+import DayOfWeek from '@mui/icons-material/DateRange';
+
+import medFutureLogo from 'assets/medFutureFav.png';
+
+import { useQuery } from 'react-query';
+
+const fetchDoctors = async () => {
+
+    const response = await fetch('/api/doctor/doctors/info', {
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+        method: 'GET',
+
+    });
+    return response.json();
+};
 
 const WelcomePage = () => {
     const theme = useTheme();
     const { currentUser } = useLoaderData();
     const { logout } = useContext(FirebaseAuthContext);
     const [mobileMenu, setMobileMenu] = useState(false);
+
+    const { isLoading, data : doctors, isError } = useQuery('doctorsInfo', fetchDoctors, {
+
+        refetchOnWindowFocus: false,
+        onSuccess: (d) => {
+
+            console.log(JSON.stringify(d))
+
+        },
+        onError: (err) => {
+            console.log(err)
+        }
+    });
 
     const toggleMobileMenu = () => {
         setMobileMenu(!mobileMenu);
@@ -221,26 +259,55 @@ const WelcomePage = () => {
                             description="View and manage your medical history securely."
                         />
                     </Grid>
+
+
                     <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
-                        <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
-                            <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 80, height: 80 }}>
-                                <HealthAndSafetyIcon sx={{ fontSize: 50, color: '#fff' }} />
+                        <Card sx={{ display: 'flex', alignItems: 'center', p: 0, bgcolor: '#f5f5f5', borderRadius: 2 }}>
+                            <Avatar sx={{ bgcolor: 'transparent', width: 300, height: 300, mr: 2 }}>
+                                <img src={medFutureLogo} alt="MedFuture Logo" style={{ width: '100%', height: 'auto' }} />
                             </Avatar>
-                            <CardContent>
-                                <Typography variant="h5" gutterBottom>
+                            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                <Typography variant="h5" gutterBottom style={{ color: '#333', fontWeight: 600 }}>
                                     Additional Features
                                 </Typography>
-                                <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
-                                    <li>
-                                        <Typography variant="body1">Medication reminders to stay on track</Typography>
-                                    </li>
-                                    <li>
-                                        <Typography variant="body1">Track vitals and health data for insights</Typography>
-                                    </li>
-                                    <li>
-                                        <Typography variant="body1">Secure messaging with healthcare providers</Typography>
-                                    </li>
-                                </ul>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                    <ListItem disablePadding>
+                                        <ListItemIcon>
+                                            <MedicationIcon style={{ color: '#555', fontSize: '1.2rem' }} />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={
+                                                <Typography variant="body1" style={{ color: '#555', fontWeight: 500 }}>
+                                                    Medication reminders to stay on track
+                                                </Typography>
+                                            }
+                                        />
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemIcon>
+                                            <FavoriteIcon style={{ color: '#555', fontSize: '1.2rem' }} />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={
+                                                <Typography variant="body1" style={{ color: '#555', fontWeight: 500 }}>
+                                                    Track vitals and health data for insights
+                                                </Typography>
+                                            }
+                                        />
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemIcon>
+                                            <ChatIcon style={{ color: '#555', fontSize: '1.2rem' }} />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={
+                                                <Typography variant="body1" style={{ color: '#555', fontWeight: 500 }}>
+                                                    Secure messaging with healthcare providers
+                                                </Typography>
+                                            }
+                                        />
+                                    </ListItem>
+                                </Box>
                             </CardContent>
                         </Card>
                     </Box>
@@ -249,25 +316,33 @@ const WelcomePage = () => {
                         <Typography variant="h4" gutterBottom>
                             Our Doctors
                         </Typography>
-                        <Grid container spacing={4} justifyContent="center">
-                            <DoctorCard
-                                name="Dr. Jane Smith"
-                                photo={ avatar2 }
-                                specialties="Cardiology, Internal Medicine"
-                                qualifications="MD, FACC"
-                            />
-                            <DoctorCard
-                                name="Dr. Michael Johnson"
-                                photo={avatar3}
-                                specialties="Pediatrics, Family Medicine"
-                                qualifications="MD, FAAP"
-                            />
-                            <DoctorCard
-                                name="Dr. Emily Davis"
-                                photo={avatar4}
-                                specialties="Dermatology, Cosmetic Procedures"
-                                qualifications="MD, FAAD"
-                            />
+                        <Grid container spacing={4} gap={2} justifyContent="center">
+
+                            {isError && <h5>Server Error</h5> }
+
+                            {isLoading && <LoadingDoctorCard />}
+
+                            {!isLoading && !isError && doctors &&(
+
+                                doctors.map((doctor, index) => {
+
+                                    return (
+
+                                        <DoctorCard
+                                            key={index}
+                                            name={doctor.name}
+                                            photo={doctor.profilePic}
+                                            specialties={doctor.specializations}
+                                            qualifications={doctor.qualifications}
+                                            workingDays={doctor.workingDays}
+                                            workingHours={doctor.workingHours}
+                                        />
+
+                                    )
+                                })
+
+                            ) }
+
                         </Grid>
                     </Box>
 
@@ -276,7 +351,7 @@ const WelcomePage = () => {
                             Healthcare Details
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                            Our platform offers a comprehensive suite of tools designed to help you manage your health more effectively. Whether you need to find a specialist, book an appointment, or access your medical records, we've got you covered. Our secure system ensures that your personal health information is always protected.
+                            Our platform offers a comprehensive suite of tools designed to help you manage your health more effectively. Whether you need to find a specialist, book an appointment, or access your medical records, we&apos;ve got you covered. Our secure system ensures that your personal health information is always protected.
                         </Typography>
                     </Box>
 
@@ -302,28 +377,82 @@ const FeatureCard = ({ icon, title, description }) => {
         </Grid>
     );
 };
-const DoctorCard = ({ name, photo, specialties, qualifications }) => {
+
+
+
+const DoctorCard = ({ name, photo, specialties, qualifications, workingDays, workingHours }) => {
+    // Format working days to show only the first 3 letters
+    const formattedWorkingDays = workingDays.map(day => day.day.slice(0, 3)).join(', ');
+
     return (
-        <Grid item xs={12} sm={6} md={4}>
-            <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-                <Avatar
-                    alt={name}
-                    src={photo}
-                    sx={{ width: 120, height: 120, marginBottom: 2 }}
+        <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, width: 300, height: 450 }}>
+            <Box sx={{ height: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box
+                    sx={{
+                        width: 120,
+                        height: 120,
+                        backgroundImage: `url(${photo != "" ? photo :  medFutureLogo})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                    }}
                 />
+            </Box>
+            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                 <Typography variant="h6" gutterBottom>
                     {name}
                 </Typography>
-                <Typography variant="body1" gutterBottom>
-                    Specialties: {specialties}
+                <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 2 }}>
+                    {specialties.slice(0,2).map((specialty, index) => (
+                        <Chip key={index} label={specialty.name} variant="contained" color="primary" sx={{ m: 0.5 }} />
+                    ))}
+                </Box>
+                <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 2 }}>
+                    {qualifications.slice(0,2).map((qualification, index) => (
+                        <Chip key={index} label={qualification.name} variant="outlined" color="secondary" sx={{ m: 0.5 }} />
+                    ))}
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 1 }}>
+                    <DayOfWeek style={{ marginRight: 8 }} />
+                    <Typography variant="body2">{formattedWorkingDays}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 1 }}>
+                    <ClockCircleOutlined style={{ marginRight: 8 }} />
+                    <Typography variant="body2">
+                        {workingHours.startTime} - {workingHours.endTime}
+                    </Typography>
+                </Box>
+
+            </CardContent>
+        </Card>
+    );
+};
+
+
+const LoadingDoctorCard = () => {
+    return (
+        <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+                <Skeleton variant="circular" width={120} height={120} />
+                <Typography variant="h6" gutterBottom>
+                    <Skeleton />
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                    Qualifications: {qualifications}
+                    Specialties: <Skeleton width={100} />
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Qualifications: <Skeleton width={100} />
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Working Days: <Skeleton width={100} />
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Working Hours: <Skeleton width={100} />
                 </Typography>
             </Card>
         </Grid>
     );
 };
+
 const ContactForm = () => {
     return (
         <Box component={Paper} sx={{ width: '100%', padding: 4, mt: 6 }}>

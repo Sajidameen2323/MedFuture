@@ -135,7 +135,13 @@ namespace MedFuture.Server.Database.Repositories
 
         public async Task<IEnumerable<DoctorM>> GetAllDoctorsAsync()
         {
-            return await _context.Set<DoctorM>().Include(d => d.User).Include(d => d.WorkingHours).Include(d=> d.WorkDaySchedule).IgnoreQueryFilters().ToListAsync();
+            return await _context.Set<DoctorM>().Include(d => d.User)
+                .Include(d => d.WorkingHours)
+                .Include(d=> d.WorkDaySchedule)
+                .Include(d=> d.Qualifications)
+                .Include(d=> d.Specializations)
+                .IgnoreQueryFilters()
+                .ToListAsync();
         }
 
         public async Task<DoctorM?> GetDoctorByIdAsync(int id)

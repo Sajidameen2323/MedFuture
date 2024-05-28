@@ -172,7 +172,7 @@ const MyForm = ({ services, doctors }) => {
                             </Grid>
                             {errors.submit && (
                                 <Grid item xs={12}>
-                                    <FormHelperText error>{errors.submit}</FormHelperText>
+                                    <FormHelperText error={errors.submit !== null}>{errors.submit}</FormHelperText>
                                 </Grid>
                             )}
                             <Grid item xs={12}>

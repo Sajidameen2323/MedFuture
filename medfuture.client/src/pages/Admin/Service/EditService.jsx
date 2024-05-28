@@ -46,7 +46,7 @@ const EditServiceForm = () => {
     }, [serviceId, idToken])
 
     // Fetch service data using React Query
-    const { data: serviceData, isLoading, isError } = useQuery('get-service', getService);
+    const { data: serviceData, isLoading, isError } = useQuery(['get-service', serviceId], getService);
 
 
     const validationSchema = Yup.object().shape({

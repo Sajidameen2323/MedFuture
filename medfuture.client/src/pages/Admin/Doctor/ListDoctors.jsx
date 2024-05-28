@@ -20,6 +20,7 @@ import { FirebaseAuthContext } from 'context/FirebaseAuthProvider';
 import { Descriptions } from 'antd';
 
 import CloseIcon from '@mui/icons-material/Close';
+import moment from 'moment';
 
 export default function DataTable() {
 
@@ -41,7 +42,7 @@ export default function DataTable() {
             headerName: 'Age',
             type: 'number',
             flex: 1,
-            valueGetter: (params) => { return params?.value ?? "N/A" }
+            valueGetter: (params) => { return calculateAge(params?.value) ?? "N/A" }
         },
         {
             field: 'fullName',
@@ -126,7 +127,7 @@ export default function DataTable() {
         },
     ];
 
-    // Replace with your API endpoint and data fetching logic
+  
     const fetchDoctors = async () => {
         const response = await fetch('/api/doctor/doctors', {
 
@@ -181,7 +182,9 @@ export default function DataTable() {
     const { idToken } = useContext(FirebaseAuthContext);
 
     const queryClient = useQueryClient();
-    const { isLoading, isError, data, error } = useQuery('doctors', fetchDoctors);
+    const { isLoading, isError, data, error } = useQuery('doctors', fetchDoctors,{
+        refetchOnWindowFocus: false
+    });
 
     const { mutate: disableUserMutation, isLoading: isDisabling, error: disableError } = useMutation(
         disableUser,
@@ -219,7 +222,9 @@ export default function DataTable() {
             let tempArr = [];
             data.forEach((el) => {
 
-                tempArr.push({ id: el?.doctorID, firstName: el?.user?.firstName, lastName: el?.user?.lastName, age: el?.dob, email: el?.user?.email, status: el?.user.isDeleted ? "Disabled" : "Active", firebaseId: el?.user?.firebaseID })
+                tempArr.push(
+                    { id: el?.doctorID, firstName: el?.user?.firstName, lastName: el?.user?.lastName, age: el?.dob,
+                         email: el?.user?.email, gender: el?.gender ,status: el?.user.isDeleted ? "Disabled" : "Active", firebaseId: el?.user?.firebaseID })
 
             })
             console.log(data)
@@ -406,7 +411,7 @@ function DetailView({ selectedDoctor, setSelectedDoctor }) {
             key: '4',
             label: 'Gender',
             span: 1,
-            children: selectedDoctor?.gender ?? "N/A",
+            children: getGender(selectedDoctor?.gender) ?? "N/A",
         },
         {
             key: '5',
@@ -449,5 +454,28 @@ function formatTime(time) {
     catch {
 
         return ""
+    }
+}
+
+const calculateAge = (dateOfBirth) => {
+
+    if(!dateOfBirth) return undefined;
+    const dobMoment = moment(dateOfBirth);
+    const currentMoment = moment();
+    const age = currentMoment.diff(dobMoment, 'years');
+    return age;
+
+};
+
+const getGender = (code) => {
+
+    switch (code) {
+        case 1:
+            return "Male"
+        case 2:
+            return "Female"
+        default:
+            return "N/A"
+
     }
 }

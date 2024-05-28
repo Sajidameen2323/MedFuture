@@ -12,6 +12,7 @@ using MedFuture.Server.DataTransferObjects.Appointment;
 using MedFuture.Server.DataTransferObjects.Patient;
 using MedFuture.Server.Services.User;
 using MedFuture.Server.Database.Repositories;
+using System.Globalization;
 
 namespace MedFuture.Server.Controllers
 {
@@ -29,6 +30,25 @@ namespace MedFuture.Server.Controllers
             _doctorRepository = doctorRepository;
             _appointmentRepository = appointmentRepository;
             _userService = userService;
+        }
+
+        [HttpGet("doctors/info")]
+        public async Task<IActionResult> GetDocorsInfo()
+        {
+            IEnumerable<DoctorM> doctors = await _doctorRepository.GetAllDoctorsAsync();
+
+            var formattedObject = doctors.Where(d => !d.IsDeleted).Select(d => new { 
+            
+                name = d.User.GetFullName(),
+                profilePic = d.User.ProfilePic,
+                qualifications = d?.Qualifications != null ? d.Qualifications.Select(q => new { q.Name }) : [],
+                specializations = d?.Specializations != null ? d.Specializations.Select(s => new {  s.Name }): [],
+                workingDays = d?.WorkDaySchedule != null ? d.WorkDaySchedule.Where(ws => ws.IsWorkingDay).Select(ws => new { day = CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(ws.DayOfWeek) }) : [],
+                workingHours = d?.WorkingHours != null ? new { d.WorkingHours.StartTime, d.WorkingHours.EndTime } : null,
+            
+            });
+
+            return Ok(formattedObject);
         }
 
         [Authorize("DoctorOnlyPolicy")]

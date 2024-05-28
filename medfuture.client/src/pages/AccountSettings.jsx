@@ -1,4 +1,4 @@
-import  { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 
@@ -193,7 +193,7 @@ const AccountSettings = () => {
             <Button
               variant="contained"
               color="error"
-                          onClick={() => { } }
+              onClick={() => { }}
               sx={{ mt: 2, ':hover': { color: 'secondary.light' } }}
             >
               Deactivate Account
