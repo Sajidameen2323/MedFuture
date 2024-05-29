@@ -99,77 +99,13 @@ namespace MedFuture.Server.Services.Email
                     logoImageAttachment.ContentId = MimeUtils.GenerateMessageId();
 
                     emailBodyBuilder.HtmlBody = string.Format(@"
-<style>
-    body {{
-        font-family: sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-    }}
-
-    .container {{
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 30px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }}
-
-    .logo {{
-        max-width: 200px;
-        margin-bottom: 20px;
-    }}
-
-    h1 {{
-        color: #333333;
-        font-size: 28px;
-        margin-bottom: 20px;
-    }}
-
-    p {{
-        color: #666666;
-        font-size: 16px;
-        line-height: 1.5;
-        margin-bottom: 20px;
-    }}
-
-    .verify-button {{
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #007bff;
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 20px;
-        transition: background-color 0.3s ease;
-    }}
-
-    .verify-button:hover {{
-        background-color: #0056b3;
-    }}
-
-    .link {{
-        color: #007bff;
-        text-decoration: none;
-        font-weight: bold;
-    }}
-
-    .link:hover {{
-        text-decoration: underline;
-    }}
-</style>
-
-<div class=""container"">
-    <img src=""cid:{0}"" class=""logo"" alt=""Company Logo"">
-    <h1>Welcome to MedFuture!</h1>
-    <p>Thank you for signing up. Please verify your email address by clicking the button below:</p>
-    <a href=""{1}"" class=""verify-button"">Verify Email</a>
-    <p>If you prefer, you can also use the following link: <a href=""{1}"" class=""link"">{1}</a></p>
-    <p>If you did not sign up for an account, please ignore this email.</p>
+<div style=""max-width: 600px; margin: 40px auto; padding: 30px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); text-align: center; font-family: Arial, Helvetica, sans-serif;"">
+    <img src=""cid:{0}"" style=""max-width: 200px; margin-bottom: 20px;"" alt=""Company Logo"">
+    <h1 style=""color: #333333; font-size: 28px; margin-bottom: 20px;"">Welcome to MedFuture!</h1>
+    <p style=""color: #666666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"">Thank you for signing up. Please verify your email address by clicking the button below:</p>
+    <a href=""{1}"" style=""display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; margin-bottom: 20px; transition: background-color 0.3s ease;"">Verify Email</a>
+    <p style=""color: #666666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"">If you prefer, you can also use the following link: <a href=""{1}"" style=""color: #007bff; text-decoration: none; font-weight: bold;"">{1}</a></p>
+    <p style=""color: #666666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"">If you did not sign up for an account, please ignore this email.</p>
 </div>
 ", logoImageAttachment.ContentId, verificationLink);
 
@@ -233,77 +169,13 @@ namespace MedFuture.Server.Services.Email
                     logoImageAttachment.ContentId = MimeUtils.GenerateMessageId();
 
                     emailBodyBuilder.HtmlBody = string.Format(@"
-<style>
-    body {{
-        font-family: sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-    }}
-
-    .container {{
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 30px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }}
-
-    .logo {{
-        max-width: 200px;
-        margin-bottom: 20px;
-    }}
-
-    h1 {{
-        color: #333333;
-        font-size: 28px;
-        margin-bottom: 20px;
-    }}
-
-    p {{
-        color: #666666;
-        font-size: 16px;
-        line-height: 1.5;
-        margin-bottom: 20px;
-    }}
-
-    .reset-button {{
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #007bff;
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 20px;
-        transition: background-color 0.3s ease;
-    }}
-
-    .verify-button:hover {{
-        background-color: #0056b3;
-    }}
-
-    .link {{
-        color: #007bff;
-        text-decoration: none;
-        font-weight: bold;
-    }}
-
-    .link:hover {{
-        text-decoration: underline;
-    }}
-</style>
-
-<div class=""container"">
-    <img src=""cid:{0}"" class=""logo"" alt=""Company Logo"">
-    <h1>Welcome to MedFuture!</h1>
-    <p>Please reset your password by clicking the button below:</p>
-    <a href=""{1}"" class=""reset-button"">Reset Password</a>
-    <p>If you prefer, you can also use the following link: <a href=""{1}"" class=""link"">{1}</a></p>
-    <p>If you did not request a password reset mail, please ignore this email.</p>
+<div style=""max-width: 600px; margin: 40px auto; padding: 30px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); text-align: center; font-family: Arial, Helvetica, sans-serif;"">
+    <img src=""cid:{0}"" style=""max-width: 200px; margin-bottom: 20px;"" alt=""Company Logo"">
+    <h1 style=""color: #333333; font-size: 28px; margin-bottom: 20px;"">Welcome to MedFuture!</h1>
+    <p style=""color: #666666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"">Please reset your password by clicking the button below:</p>
+    <a href=""{1}"" style=""display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; margin-bottom: 20px; transition: background-color 0.3s ease;"">Reset Password</a>
+    <p style=""color: #666666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"">If you prefer, you can also use the following link: <a href=""{1}"" style=""color: #007bff; text-decoration: none; font-weight: bold;"">{1}</a></p>
+    <p style=""color: #666666; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"">If you did not request a password reset mail, please ignore this email.</p>
 </div>
 ", logoImageAttachment.ContentId, verificationLink);
 

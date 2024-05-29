@@ -267,7 +267,7 @@ namespace MedFuture.Server.Controllers
                 return Ok(new { 
 
                     groupedAppointments, weeklyInvalid, 
-                    doctorWorkingHours = new { doctorWorkingHours.StartTime, doctorWorkingHours.EndTime },
+                    doctorWorkingHours = new { doctorWorkingHours.StartTime, EndTime = doctorWorkingHours.EndTime.Subtract(TimeSpan.FromMinutes(1)) },
                     settings = appointmentSettings,
                     holidays
 

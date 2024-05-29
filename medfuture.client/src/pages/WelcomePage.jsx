@@ -23,7 +23,7 @@ import {
     ListItemIcon,
     Chip,
     Skeleton
-    
+
 } from '@mui/material';
 
 import Logo from 'components/Logo';
@@ -68,7 +68,7 @@ const WelcomePage = () => {
     const { logout } = useContext(FirebaseAuthContext);
     const [mobileMenu, setMobileMenu] = useState(false);
 
-    const { isLoading, data : doctors, isError } = useQuery('doctorsInfo', fetchDoctors, {
+    const { isLoading, data: doctors, isError } = useQuery('doctorsInfo', fetchDoctors, {
 
         refetchOnWindowFocus: false,
         onSuccess: (d) => {
@@ -266,7 +266,7 @@ const WelcomePage = () => {
                             <Avatar sx={{ bgcolor: 'transparent', width: 300, height: 300, mr: 2 }}>
                                 <img src={medFutureLogo} alt="MedFuture Logo" style={{ width: '100%', height: 'auto' }} />
                             </Avatar>
-                            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', alignItems: 'flex-start' }}>
                                 <Typography variant="h5" gutterBottom style={{ color: '#333', fontWeight: 600 }}>
                                     Additional Features
                                 </Typography>
@@ -313,16 +313,22 @@ const WelcomePage = () => {
                     </Box>
 
                     <Box sx={{ width: '100%', textAlign: 'left', mt: 6 }}>
-                        <Typography variant="h4" gutterBottom>
-                            Our Doctors
-                        </Typography>
-                        <Grid container spacing={4} gap={2} justifyContent="center">
 
-                            {isError && <h5>Server Error</h5> }
+                        <Grid container spacing={4} gap={2} justifyContent="center">
+                            <Grid item xs={12}>
+                                <Typography variant="h4" gutterBottom> 
+                                    Our Doctors
+                                </Typography>
+                            </Grid>
+                            {isError && <Grid item xs={12}>
+                                <Typography variant="h6" gutterBottom color={"error"}>
+                                    Failed To Fetch Doctors
+                                </Typography>
+                            </Grid>}
 
                             {isLoading && <LoadingDoctorCard />}
 
-                            {!isLoading && !isError && doctors &&(
+                            {!isLoading && !isError && doctors && (
 
                                 doctors.map((doctor, index) => {
 
@@ -341,7 +347,7 @@ const WelcomePage = () => {
                                     )
                                 })
 
-                            ) }
+                            )}
 
                         </Grid>
                     </Box>
@@ -391,7 +397,7 @@ const DoctorCard = ({ name, photo, specialties, qualifications, workingDays, wor
                     sx={{
                         width: 120,
                         height: 120,
-                        backgroundImage: `url(${photo != "" ? photo :  medFutureLogo})`,
+                        backgroundImage: `url(${photo != "" ? photo : medFutureLogo})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                     }}
@@ -402,12 +408,12 @@ const DoctorCard = ({ name, photo, specialties, qualifications, workingDays, wor
                     {name}
                 </Typography>
                 <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 2 }}>
-                    {specialties.slice(0,2).map((specialty, index) => (
+                    {specialties.slice(0, 2).map((specialty, index) => (
                         <Chip key={index} label={specialty.name} variant="contained" color="primary" sx={{ m: 0.5 }} />
                     ))}
                 </Box>
                 <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 2 }}>
-                    {qualifications.slice(0,2).map((qualification, index) => (
+                    {qualifications.slice(0, 2).map((qualification, index) => (
                         <Chip key={index} label={qualification.name} variant="outlined" color="secondary" sx={{ m: 0.5 }} />
                     ))}
                 </Box>
@@ -471,7 +477,7 @@ const ContactForm = () => {
                         <TextField fullWidth label="Message" variant="outlined" multiline rows={4} />
                     </Grid>
                     <Grid item xs={12}>
-                        <Button variant="contained" color="primary" type="submit">
+                        <Button fullWidth variant="contained" color="primary" type="submit">
                             Submit
                         </Button>
                     </Grid>

@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Link as RouterLink } from 'react-router-dom';
-
+import moment from 'moment';
 
 const SuccessfulBooking = (props) => {
 
@@ -36,7 +36,7 @@ const SuccessfulBooking = (props) => {
         window.open(calendarUrl, '_blank');
     };
 
-    const formattedTime = new Date(appointmentDetails.startDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formattedTime = moment.utc(appointmentDetails.startDateTime).format('h:mm a');
 
     return (
         <Container maxWidth="sm">
@@ -128,6 +128,12 @@ const SuccessfulBooking = (props) => {
                         color="success"
                         startIcon={<GoogleOutlined />}
                         onClick={handleAddToCalendar}
+                        sx={{
+                            '&:hover': {
+                                backgroundColor: 'success.main',
+                                color: 'common.white',
+                            },
+                        }}
                     >
                         Add to Google
                     </Button>
@@ -137,6 +143,12 @@ const SuccessfulBooking = (props) => {
                         to="/patient/appointments"
                         variant="outlined"
                         color="primary"
+                        sx={{
+                            '&:hover': {
+                                backgroundColor: 'primary.main',
+                                color: 'common.white',
+                            },
+                        }}
                     >
                         Appointments
                     </Button>
@@ -145,6 +157,12 @@ const SuccessfulBooking = (props) => {
                         startIcon={<ReloadOutlined />}
                         color="warning"
                         onClick={handleReset}
+                        sx={{
+                            '&:hover': {
+                                backgroundColor: 'warning.main',
+                                color: 'common.white',
+                            },
+                        }}
                     >
                         Book Again
                     </Button>
