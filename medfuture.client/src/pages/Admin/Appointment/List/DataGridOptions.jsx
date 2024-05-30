@@ -35,6 +35,7 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
 
     const [openStatusDialog, setOpenStatusDialog] = useState(false);
     const [status, setStatus] = useState('');
+    const [sendEmailStatus, setSendEmailStatus] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
     const [deleteError, setDeleteError] = useState("");
@@ -48,7 +49,7 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
             try {
                 const response = await axios.post('/api/appointment/delete', { appointmentIdList }, {
                     headers: {
-                        Authorization: 'Bearer '+idToken,
+                        Authorization: 'Bearer ' + idToken,
                     },
                 });
                 if (response.status !== 200) {
@@ -72,11 +73,11 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
     );
 
     const { mutate: updateStatus, isLoading: isUpdating } = useMutation(
-        async ({ appointmentIdList, newStatus }) => {
+        async ({ appointmentIdList, newStatus, sendEmailStatus }) => {
             try {
                 const response = await axios.put(
                     '/api/appointment/update-status',
-                    { appointmentIdList, newStatus },
+                    { appointmentIdList, newStatus, sendEmail: sendEmailStatus },
                     {
                         headers: {
                             Authorization: 'Bearer ' + idToken,
@@ -118,13 +119,15 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
     const handleStatusChange = (event) => {
         setStatus(event.target.value);
     };
-
+    const handleEmailStatusChange = (event) => {
+        setSendEmailStatus(event.target.value);
+    };
     const handleConfirmStatus = async () => {
         try {
-           // Replace with your logic to get the selected appointment IDs
-            await updateStatus({ appointmentIdList: rowSelectionModel, newStatus: status });
-           // handleCloseStatusDialog();
-      
+            // Replace with your logic to get the selected appointment IDs
+            await updateStatus({ appointmentIdList: rowSelectionModel, newStatus: status, sendEmailStatus });
+            // handleCloseStatusDialog();
+
         } catch (error) {
             console.error('Error updating appointments status:', error);
         }
@@ -182,7 +185,8 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
                     onConfirm={handleDeleteOk}
                     onCancel={handleDeleteCancel}
                     okButtonProps={{
-                        disabled: deleteConfirmation.toLowerCase() !== 'delete', loading: isDeleting }}
+                        disabled: deleteConfirmation.toLowerCase() !== 'delete', loading: isDeleting
+                    }}
                     cancelButtonProps={{ disabled: false }}
                     overlayStyle={{ zIndex: 1550 }}
                 >
@@ -208,13 +212,25 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
                         <MenuItem value={1}>Pending</MenuItem>
 
                     </TextField>
+                    <TextField
+                        sx={{ mt: 2 }}
+                        select
+                        label="Do you want to send email?"
+                        value={sendEmailStatus}
+                        onChange={handleEmailStatusChange}
+                        fullWidth
+                    >
+                        <MenuItem value={true}>Yes</MenuItem>
+                        <MenuItem value={false}>No</MenuItem>
+
+                    </TextField>
                     <DialogContentText sx={{ mt: 2 }}>Are you sure you want to update the selected rows?</DialogContentText>
                     {updateError && <DialogContentText style={{ color: 'red' }}>{updateError}</DialogContentText>}
 
                 </DialogContent>
                 <DialogActions>
                     <Button color="error" onClick={handleCloseStatusDialog} disabled={isUpdating}>Cancel</Button>
-                    <AntButton type="primary" onClick={handleConfirmStatus} disabled={isUpdating} loading={ isUpdating}>Confirm</AntButton>
+                    <AntButton type="primary" onClick={handleConfirmStatus} disabled={isUpdating} loading={isUpdating}>Confirm</AntButton>
                 </DialogActions>
             </Modal>
         </Box>
@@ -222,7 +238,7 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
 }
 
 DataGridOptions.propTypes = {
-    rowSelectionModel: PropTypes.arrayOf(PropTypes.number).isRequired, 
+    rowSelectionModel: PropTypes.arrayOf(PropTypes.number).isRequired,
     setPrevDateRange: PropTypes.func
 };
 

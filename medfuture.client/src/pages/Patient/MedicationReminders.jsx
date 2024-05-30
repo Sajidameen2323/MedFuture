@@ -334,7 +334,7 @@ const MedicationReminders = () => {
                 header={
                     <List.Item style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f0f0f0', padding: '8px 16px' }}>
                         <Typography.Text strong>Medication</Typography.Text>
-                        <Typography.Text strong>Dosage</Typography.Text>
+                        <Typography.Text strong></Typography.Text>
                         <Typography.Text strong>Reminder Time</Typography.Text>
                         <Typography.Text strong>Medication Type</Typography.Text>
                         <Typography.Text strong>Reminder</Typography.Text>
@@ -354,10 +354,11 @@ const MedicationReminders = () => {
                     >
                         <List.Item.Meta
                             title={<Typography.Text strong>{reminder.name}</Typography.Text>}
+                            description={<Typography.Text  type="secondary">{reminder.dosage}</Typography.Text>}
                       
                         />
                         <List.Item.Meta
-                            title={<Typography.Text strong>{reminder.dosage}</Typography.Text>}
+                            title={<></>}
                           
                         />
                         <List.Item.Meta

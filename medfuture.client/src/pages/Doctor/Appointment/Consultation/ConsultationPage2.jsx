@@ -53,7 +53,7 @@ const ConsultationPage = () => {
         },
         {
             onSuccess: (data) => {
-                setSummary(data.summary);
+                setSummary(data?.summary ?? "");
                 setMedications(data.medications);
             },
             onSettled: () => {

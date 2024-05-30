@@ -189,7 +189,7 @@ namespace MedFuture.Server.Services.Email
                         mailClient.Disconnect(true);
                     }
 
-                    Console.WriteLine("Verification email sent successfully.");
+                    Console.WriteLine("Password Reset email sent successfully.");
                     return true;
                 }
             }
@@ -216,6 +216,47 @@ namespace MedFuture.Server.Services.Email
             }
 
             return false;
+        }
+
+        public Task SendBulkEmailsAsync(List<string> recipients, string subject, Dictionary<string, string> emailBodies)
+        {
+            var tasks = new List<Task>();
+            foreach (var recipient in recipients)
+            {
+                tasks.Add(SendEmailAsync(recipient, subject, emailBodies));
+            }
+
+            // Return immediately without waiting for all tasks to complete
+            return Task.CompletedTask;
+        }
+
+
+        private async Task SendEmailAsync(string recipient, string subject, Dictionary<string, string> emailBodies)
+        {
+            using (var smtp = new SmtpClient())
+            {
+                await smtp.ConnectAsync(_mailOptions.Server, _mailOptions.Port, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(_mailOptions.UserName, _mailOptions.Password);
+
+                var email = new MimeMessage();
+                email.From.Add(new MailboxAddress(_mailOptions.SenderName, _mailOptions.SenderEmail));
+                email.To.Add(new MailboxAddress("", recipient));
+                email.Subject = subject;
+
+                if (emailBodies.ContainsKey(recipient))
+                {
+                    var bodyBuilder = new BodyBuilder();
+                    bodyBuilder.HtmlBody = emailBodies[recipient];
+                    email.Body = bodyBuilder.ToMessageBody();
+                }
+                else
+                {
+                    email.Body = new TextPart("plain") { Text = "No email body provided." };
+                }
+
+                await smtp.SendAsync(email);
+                await smtp.DisconnectAsync(true);
+            }
         }
     }
 }

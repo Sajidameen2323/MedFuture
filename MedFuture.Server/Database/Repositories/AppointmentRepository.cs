@@ -106,7 +106,7 @@ namespace MedFuture.Server.Database.Repositories
         }
 
 
-        public async Task<int> BulkUpdateAppointmentStatus(IEnumerable<int> appointmentIdList, AppointmentStatus newStatus)
+        public async Task<IEnumerable<AppointmentM>> BulkUpdateAppointmentStatus(IEnumerable<int> appointmentIdList, AppointmentStatus newStatus)
         {
             // Validate input
             if (appointmentIdList == null || !appointmentIdList.Any())
@@ -114,10 +114,18 @@ namespace MedFuture.Server.Database.Repositories
                 throw new ArgumentException("appointmentIdList cannot be null or empty.");
             }
 
+            DateOnly todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
+
             // Efficiently filter appointments by ID list using `Where`
             var appointmentsToUpdate = await _context.Appointments
-                .Where(a => appointmentIdList.Contains(a.AppointmentId))
-                .ToListAsync(); // Consider using ToArray if large datasets are expected
+                .Where(a => appointmentIdList.Contains(a.AppointmentId) && a.Status != newStatus && a.AppointmentDate >= todaysDate )
+                .Include(a => a.Patient)
+                .ThenInclude(p => p.User) 
+                .Include(a => a.Service)
+                .Include(a=> a.Doctor)
+                .ThenInclude(d => d.User)
+                .ToListAsync(); 
+        
 
             // Update status for all appointments in the list
             foreach (var appointment in appointmentsToUpdate)
@@ -126,7 +134,9 @@ namespace MedFuture.Server.Database.Repositories
             }
 
             // Save changes in a single database operation for efficiency
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+
+            return appointmentsToUpdate;
         }
 
         public async Task<IEnumerable<DoctorWorkDayScheduleM>> GetNotWorkingDaysForDoctor(int docId)

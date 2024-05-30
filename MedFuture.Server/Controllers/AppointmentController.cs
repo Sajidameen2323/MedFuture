@@ -1,17 +1,14 @@
-﻿using FirebaseAdmin.Auth;
-using MedFuture.Server.Database;
+﻿
 using MedFuture.Server.Database.Interfaces;
 using MedFuture.Server.DataTransferObjects.Appointment;
 using MedFuture.Server.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using MedFuture.Server.Services.User;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Data.Common;
+using MedFuture.Server.Services.Email;
 
 namespace MedFuture.Server.Controllers
 {
@@ -26,14 +23,17 @@ namespace MedFuture.Server.Controllers
         private readonly IServiceRepository _serviceRepository;
 
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public AppointmentController(ILogger<AppointmentController> logger, IAppointmentRepository appointmentRepository, IDoctorRepository doctorRepository , IServiceRepository serviceRepository ,IUserService userService)
+        public AppointmentController(ILogger<AppointmentController> logger, IAppointmentRepository appointmentRepository, IDoctorRepository doctorRepository,
+            IServiceRepository serviceRepository, IUserService userService, IEmailService emailService)
         {
             _logger = logger;
             _appointmentRepository = appointmentRepository;
             _doctorRepository = doctorRepository;
             _serviceRepository = serviceRepository;
             _userService = userService;
+            _emailService = emailService;
         }
 
         [HttpGet("settings")]
@@ -61,10 +61,10 @@ namespace MedFuture.Server.Controllers
                 await _appointmentRepository.AddHoliday(holiday);
                 return Ok(new { message = "Successfully Added Holiday!" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return BadRequest(new { message="Something Went Wrong!" });
+                return BadRequest(new { message = "Something Went Wrong!" });
             }
         }
 
@@ -77,7 +77,7 @@ namespace MedFuture.Server.Controllers
                 await _appointmentRepository.RemoveHoliday(id);
                 return Ok(new { message = "Successfully Removed Holiday!" });
             }
-            catch(ArgumentException aex)
+            catch (ArgumentException aex)
             {
                 Console.WriteLine(aex.Message);
                 return BadRequest(new { message = "Invalid Holiday Id" });
@@ -111,7 +111,7 @@ namespace MedFuture.Server.Controllers
                 await _appointmentRepository.UpdateAppointmentSettingsAsync(newSettings);
                 return Ok(new { message = "Successfully Updated Settings!" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(new { message = "Something Went Wrong!" });
@@ -130,13 +130,13 @@ namespace MedFuture.Server.Controllers
 
                 var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
 
-               // var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
+                // var accessToken = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
 
                 // FirebaseToken decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(accessToken);
 
-               // object userId;
-               // if (decoded.Claims.TryGetValue("userIdDb", out userId))
-               if(userIdClaim != null)
+                // object userId;
+                // if (decoded.Claims.TryGetValue("userIdDb", out userId))
+                if (userIdClaim != null)
                 {
                     string userId = userIdClaim.Value;
 
@@ -149,14 +149,14 @@ namespace MedFuture.Server.Controllers
                     PatientM? user = await _userService.GetPatient(userIdDb);
                     if (user != null)
                     {
-                      
+
                         Console.WriteLine("Patient Id -");
                         Console.WriteLine(user.PatientID);
                         createAppointmentDto.PatientId = user.PatientID;
                     }
                     else
                     {
-                        return BadRequest(new { Message="Cannot Find user" });
+                        return BadRequest(new { Message = "Cannot Find user" });
                     }
                 }
                 else
@@ -168,7 +168,7 @@ namespace MedFuture.Server.Controllers
                 AppointmentM appointment = await _appointmentRepository.CreateAppointment(createAppointmentDto);
                 var app_settings = await _appointmentRepository.GetAppointmentSettings();
 
-                return Ok(new { data = appointment, message="Successfully Booked Appointment!", tax = app_settings.AppointmentTaxPercentage });
+                return Ok(new { data = appointment, message = "Successfully Booked Appointment!", tax = app_settings.AppointmentTaxPercentage });
             }
             catch (ArgumentException ex)
             {
@@ -178,7 +178,7 @@ namespace MedFuture.Server.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return BadRequest(new { error=true, message = "Something Went Wrong" });
+                return BadRequest(new { error = true, message = "Something Went Wrong" });
             }
         }
 
@@ -201,7 +201,7 @@ namespace MedFuture.Server.Controllers
                 ServiceM service = await _serviceRepository.GetService(serviceId);
 
 
-                if(doc == null)
+                if (doc == null)
                 {
                     return BadRequest(new { error = "Invalid Doctor Selection" });
                 }
@@ -217,11 +217,12 @@ namespace MedFuture.Server.Controllers
 
                 var invalidWeeklyDaysString = "";
 
-                foreach(DoctorWorkDayScheduleM doctorWorkDaySchedule in doctorWorkingSchedules) {
+                foreach (DoctorWorkDayScheduleM doctorWorkDaySchedule in doctorWorkingSchedules)
+                {
 
-                    Console.WriteLine(GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek) +" - "+ doctorWorkDaySchedule.IsWorkingDay);
+                    Console.WriteLine(GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek) + " - " + doctorWorkDaySchedule.IsWorkingDay);
 
-                    invalidWeeklyDaysString += GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek)+" ";
+                    invalidWeeklyDaysString += GetTwoLetterDayOfWeekCode(doctorWorkDaySchedule.DayOfWeek) + " ";
 
 
                 }
@@ -262,11 +263,13 @@ namespace MedFuture.Server.Controllers
                     })
                     .ToList();
 
-                var weeklyInvalid = new { repeat = "weekly", weekDays= invalidWeeklyDaysString };
+                var weeklyInvalid = new { repeat = "weekly", weekDays = invalidWeeklyDaysString };
 
-                return Ok(new { 
+                return Ok(new
+                {
 
-                    groupedAppointments, weeklyInvalid, 
+                    groupedAppointments,
+                    weeklyInvalid,
                     doctorWorkingHours = new { doctorWorkingHours.StartTime, EndTime = doctorWorkingHours.EndTime.Subtract(TimeSpan.FromMinutes(1)) },
                     settings = appointmentSettings,
                     holidays
@@ -326,18 +329,20 @@ namespace MedFuture.Server.Controllers
             IEnumerable<AppointmentM> appointments = await _appointmentRepository.GetAppointmentsForDateRange(parsedStartDate, parsedEndDate);
             var appSettings = await _appointmentRepository.GetAppointmentSettings();
 
-            var outputObject = appointments.Select(a => new { 
+            var outputObject = appointments.Select(a => new
+            {
 
                 a.AppointmentId,
                 a.AppointmentDate,
                 a.StartDateTime,
                 a.EndDateTime,
-    
-                service = new { a.Service.Name, a.Service.Duration  },
+
+                service = new { a.Service.Name, a.Service.Duration },
                 doctor = new { a.Doctor.User.FirstName, a.Doctor.User.LastName, a.Doctor.User.ProfilePic, name = a.Doctor.User.GetFullName() },
                 patient = new { a.Patient.User.FirstName, a.Patient.User.LastName, a.Patient.User.Email, a.Patient.PhoneNumber, a.Patient.User.ProfilePic },
                 status = Enum.GetName(typeof(AppointmentStatus), a.Status),
-                payment = new {
+                payment = new
+                {
                     a.PaymentId,
                     amount = a?.Payment?.Amount ?? null,
                     paymentStatus = a.PaymentId.HasValue ? "Paid" : "Pending",
@@ -394,12 +399,97 @@ namespace MedFuture.Server.Controllers
 
             try
             {
-                var updatedCount = await _appointmentRepository.BulkUpdateAppointmentStatus(request.AppointmentIdList, request.NewStatus);
-                return Ok($"Updated {updatedCount} appointments.");
+                var updatedApps = await _appointmentRepository.BulkUpdateAppointmentStatus(request.AppointmentIdList, request.NewStatus);
+
+                if (request.sendEmail)
+                {
+                    Console.WriteLine("------Sending Emails-------");
+
+                    var subject = "Appointment Update";
+                    var recipients = new List<string>();
+                    var emailBodies = new Dictionary<string, string>();
+
+                    var groupedApps = updatedApps.GroupBy(a => a.Patient.User.Email);
+
+                    foreach (var group in groupedApps)
+                    {
+
+                        var emailBody = $@"
+                                    <!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                        <meta charset=""UTF-8"">
+                                        <title>Appointment Status Update</title>
+                                        <style>
+                                            body {{
+                                                font-family: Arial, sans-serif;
+                                                font-size: 14px;
+                                                line-height: 1.5;
+                                                color: #333333;
+                                            }}
+                                            h1 {{
+                                                font-size: 24px;
+                                                color: #007bff;
+                                                margin-bottom: 20px;
+                                            }}
+                                            .info-box {{
+                                                background-color: #f8f9fa;
+                                                border: 1px solid #dee2e6;
+                                                padding: 20px;
+                                                margin-bottom: 20px;
+                                            }}
+                                            .info-box p {{
+                                                margin: 0;
+                                            }}
+                                            .info-box p:not(:last-child) {{
+                                                margin-bottom: 10px;
+                                            }}
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <h1>Appointment Status Update</h1>
+
+                                        <div class=""info-box"">
+                                            <p>Dear Patient,</p>
+                                            <p>The status of your appointments has been updated.</p>
+                                        </div>
+
+                                        {string.Join("", group.Select(app => $@"
+                                        <div class=""info-box"">
+                                            <p><strong>Appointment Details:</strong></p>
+                                            <p>Doctor: {app.Doctor.User.GetFullName()}</p>
+                                            <p>Date: {app.AppointmentDate.ToString("D")}</p>
+                                            <p>Time: {app.StartDateTime.ToString("h:mm tt")}</p>
+                                            <p>Status: {request.NewStatus}</p>
+                                        </div>
+                                        "))}
+
+                                        <div class=""info-box"">
+                                            <p>If you have any further inquiries or need assistance, please contact MedFuture.</p>
+                                            <p>Thank you for choosing our services.</p>
+                                        </div>
+                                    </body>
+                                    </html>
+                                    ";
+
+                        recipients.Add(group.Key);
+                        emailBodies.Add(group.Key, emailBody);
+                    }
+
+                    await _emailService.SendBulkEmailsAsync(recipients, subject, emailBodies);
+                }
+
+                return Ok($"Updated {updatedApps.Count()} appointments.");
             }
-            catch (ArgumentException ex)
+            catch (DbException ex)
             {
-                return BadRequest(ex.Message);
+                Console.WriteLine(ex.Message);
+                return BadRequest("Failed To Update Status");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest("Something Went Wrong!");
             }
         }
 
