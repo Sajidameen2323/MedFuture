@@ -123,7 +123,8 @@ namespace MedFuture.Server.Database.Repositories
                 Console.WriteLine($"Successfully updated user: {userRecord.Uid}");
 
                 doctorToActivate.User.IsDeleted = false;
-
+                doctorToActivate.IsDeleted = false;
+                
                 await _context.SaveChangesAsync();
             }
             else

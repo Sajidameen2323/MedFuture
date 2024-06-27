@@ -20,7 +20,17 @@ const areaChartOptions = {
         height: 340,
         type: 'line',
         toolbar: {
-            show: false
+            show: true,
+            tools: {
+                download: true,
+                pan: false,
+                selection:false,
+                zoom: false,
+                zoomin: true,
+                zoomout: true,
+                reset: true,
+                customIcons: []
+            }
         }
     },
     dataLabels: {

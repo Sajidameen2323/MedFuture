@@ -266,7 +266,7 @@ const WelcomePage = () => {
                             <Avatar sx={{ bgcolor: 'transparent', width: 300, height: 300, mr: 2 }}>
                                 <img src={medFutureLogo} alt="MedFuture Logo" style={{ width: '100%', height: 'auto' }} />
                             </Avatar>
-                            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', alignItems: 'flex-start' }}>
+                            <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                                 <Typography variant="h5" gutterBottom style={{ color: '#333', fontWeight: 600 }}>
                                     Additional Features
                                 </Typography>
@@ -316,7 +316,7 @@ const WelcomePage = () => {
 
                         <Grid container spacing={4} gap={2} justifyContent="center">
                             <Grid item xs={12}>
-                                <Typography variant="h4" gutterBottom> 
+                                <Typography variant="h4" gutterBottom>
                                     Our Doctors
                                 </Typography>
                             </Grid>
@@ -424,7 +424,7 @@ const DoctorCard = ({ name, photo, specialties, qualifications, workingDays, wor
                 <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 1 }}>
                     <ClockCircleOutlined style={{ marginRight: 8 }} />
                     <Typography variant="body2">
-                        {workingHours.startTime} - {workingHours.endTime}
+                        {workingHours?.startTime ?? "undefined"} - {workingHours?.endTime ?? "undefined"}
                     </Typography>
                 </Box>
 

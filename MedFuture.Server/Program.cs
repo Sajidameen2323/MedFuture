@@ -83,8 +83,10 @@ builder.Services.AddRateLimiter(options =>
         options.Window = TimeSpan.FromHours(24);
         //options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         //options.QueueLimit = 2; //remove this if you want the RejectionStatusCode and the OnRejected to be invoked. 
+        
 
     });
+   
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.OnRejected = async (context, _) =>
     {

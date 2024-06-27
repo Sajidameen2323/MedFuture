@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, Stepper, Step, StepLabel, Button, Grid, Card, CardContent, TextField, Avatar, Alert, IconButton, MenuItem, Select, StepButton, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
-import { AudioOutlined, AudioMutedOutlined, ClearOutlined, CaretDownOutlined } from '@ant-design/icons'; 
+import { AudioOutlined, AudioMutedOutlined, ClearOutlined, CaretDownOutlined } from '@ant-design/icons';
 import { Button as AntButton, Tooltip, notification } from 'antd';
 import useSpeechRecognition from 'hooks/useAzureSpeechRecognition';
 import moment from 'moment';
@@ -23,7 +23,7 @@ const ConsultationPage = () => {
     const [summary, setSummary] = useState('');
     const [medications, setMedications] = useState([]);
     const [additionalNote, setAdditionalNote] = useState('');
-    const [language, setLanguage] = useState('en-US'); 
+    const [language, setLanguage] = useState('en-US');
 
     const {
         transcript,
@@ -42,7 +42,7 @@ const ConsultationPage = () => {
         async () => {
             const response = await axios.post(
                 '/api/consultation/get-summary',
-                { text: totalTranscript , language },
+                { text: totalTranscript, language },
                 {
                     headers: {
                         Authorization: `Bearer ${idToken}`,
@@ -71,7 +71,13 @@ const ConsultationPage = () => {
                     appointmentId: appointmentData?.appointmentId,
                     summary: summary,
                     additionalNote: additionalNote,
-                    medications: medications
+                    medications: medications.map(item => {
+                        let newItem = {};
+                        for (let key in item) {
+                            newItem[key] = item[key] === null ? "" : item[key];
+                        }
+                        return newItem;
+                    })
 
                 },
                 {
@@ -134,7 +140,7 @@ const ConsultationPage = () => {
 
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
-     
+
     };
 
     const handleBack = () => {
@@ -152,7 +158,7 @@ const ConsultationPage = () => {
 
         if (!patientData || !appointmentData) {
 
-            navigate(`/doctor/appointments/today`, { state: {  } });
+            navigate(`/doctor/appointments/today`, { state: {} });
         }
         if (consultationData) {
 
@@ -160,18 +166,18 @@ const ConsultationPage = () => {
             setMedications(consultationData?.medications ?? [])
             setAdditionalNote(consultationData?.additionalNote ?? "")
         }
-       // console.log(consultationData)
-       // console.log(appointmentData)
+        // console.log(consultationData)
+        // console.log(appointmentData)
 
-    },[])
+    }, [])
 
     return (
         <Box sx={{ width: { md: '1100px', xs: '100%' } }}>
-           
+
             <Stepper nonLinear activeStep={activeStep}>
-                {steps.map((label,index) => (
+                {steps.map((label, index) => (
                     <Step key={label}>
-                        <StepLabel color="inherit" sx={{ cursor:'pointer' }} onClick={() => { setActiveStep(index) } }>
+                        <StepLabel color="inherit" sx={{ cursor: 'pointer' }} onClick={() => { setActiveStep(index) }}>
                             {label}
                         </StepLabel>
                     </Step>
@@ -235,7 +241,7 @@ const ConsultationPage = () => {
                                     <Typography variant="h6">Allergies</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Box sx={{ maxHeight: '200px', overflowY: 'auto', width: '100%', textAlign:'left' }}>
+                                    <Box sx={{ maxHeight: '200px', overflowY: 'auto', width: '100%', textAlign: 'left' }}>
                                         {patientData?.allergies && patientData.allergies.map(el => (
                                             <Box key={el.id} mb={1}>
                                                 <Typography variant="body1"><strong>{el.name}</strong></Typography>
@@ -277,7 +283,7 @@ const ConsultationPage = () => {
                                         {patientData?.currentMedications && patientData.currentMedications.map(el => (
                                             <Box key={el.id} mb={1}>
                                                 <Typography variant="body1"><strong>{el.name}</strong></Typography>
-                                                <Typography variant="body2">Dosage: { el.dosage } </Typography>
+                                                <Typography variant="body2">Dosage: {el.dosage} </Typography>
                                             </Box>
                                         ))}
                                     </Box>
@@ -321,7 +327,7 @@ const ConsultationPage = () => {
                                 Transcript
                             </Typography>
                             <Typography variant="body2" gutterBottom>
-                                { transcript }
+                                {transcript}
                             </Typography>
                             {totalTranscript && <Box display="flex">
                                 <TextField
@@ -361,7 +367,7 @@ const ConsultationPage = () => {
                     <ConsultationSummary
                         summary={summary} setSummary={setSummary} medications={medications} setMedications={setMedications}
                         additionalNote={additionalNote} setAdditionalNote={setAdditionalNote} generateSummary={generateSummary}
-                        isGenerating={isGenerating} totalTranscript={totalTranscript } />
+                        isGenerating={isGenerating} totalTranscript={totalTranscript} />
                 )}
                 <Box mt={3} display="flex" justifyContent="space-between">
                     <Button
@@ -372,8 +378,8 @@ const ConsultationPage = () => {
                         Back
                     </Button>
                     <AntButton
-                        loading={isGenerating || savingSummary }
-                        type="primary"                 
+                        loading={isGenerating || savingSummary}
+                        type="primary"
                         onClick={handleNext}
                         disabled={false}
                     >

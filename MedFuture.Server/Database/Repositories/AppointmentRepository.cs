@@ -43,16 +43,16 @@ namespace MedFuture.Server.Database.Repositories
         public async Task<AppointmentM> CreateAppointment(CreateAppointmentDto createAppointmentDto)
         {
 
-            var doesAppExists = _context.Appointments.Where(a=> a.StartDateTime ==  createAppointmentDto.StartDateTime && a.DoctorId == createAppointmentDto.DoctorId && a.Status != AppointmentStatus.Cancelled).FirstOrDefault();
+            var doesAppExists = _context.Appointments.Where(a => a.StartDateTime == createAppointmentDto.StartDateTime && a.DoctorId == createAppointmentDto.DoctorId && a.Status != AppointmentStatus.Cancelled).FirstOrDefault();
 
             var service = _context.Services.Where(s => s.ServiceID == createAppointmentDto.ServiceId).FirstOrDefault();
 
-            if(doesAppExists != null)
+            if (doesAppExists != null)
             {
                 throw new ArgumentException("Slot is not empty");
             }
 
-            if(service == null)
+            if (service == null)
             {
                 throw new ArgumentException("Invalid Service Id");
             }
@@ -118,14 +118,15 @@ namespace MedFuture.Server.Database.Repositories
 
             // Efficiently filter appointments by ID list using `Where`
             var appointmentsToUpdate = await _context.Appointments
-                .Where(a => appointmentIdList.Contains(a.AppointmentId) && a.Status != newStatus && a.AppointmentDate >= todaysDate )
+                .Where(a => appointmentIdList.Contains(a.AppointmentId) && a.Status != newStatus &&
+                (a.AppointmentDate >= todaysDate || a.Status == AppointmentStatus.Pending))
                 .Include(a => a.Patient)
-                .ThenInclude(p => p.User) 
+                .ThenInclude(p => p.User)
                 .Include(a => a.Service)
-                .Include(a=> a.Doctor)
+                .Include(a => a.Doctor)
                 .ThenInclude(d => d.User)
-                .ToListAsync(); 
-        
+                .ToListAsync();
+
 
             // Update status for all appointments in the list
             foreach (var appointment in appointmentsToUpdate)
@@ -153,10 +154,13 @@ namespace MedFuture.Server.Database.Repositories
 
             if (appointmentSettings == null)
             {
-                appointmentSettings = new AppointmentSettingsM() { 
-                    Id=0, BookingPeriodInDays = 30, MinimumTimeBeforeBookingInDays= 3,
-                MinimumTimeBeforeCancelingInDays = 3,
-                MinimumTimeBeforeReschedulingInDays = 3
+                appointmentSettings = new AppointmentSettingsM()
+                {
+                    Id = 0,
+                    BookingPeriodInDays = 30,
+                    MinimumTimeBeforeBookingInDays = 3,
+                    MinimumTimeBeforeCancelingInDays = 3,
+                    MinimumTimeBeforeReschedulingInDays = 3
                 };
             }
 
@@ -187,7 +191,7 @@ namespace MedFuture.Server.Database.Repositories
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            var holidays = await _context.Holidays.Where(h => (h.StartDate <= today && h.EndDate>= today ) || (h.StartDate>= today && h.EndDate > today) )
+            var holidays = await _context.Holidays.Where(h => (h.StartDate <= today && h.EndDate >= today) || (h.StartDate >= today && h.EndDate > today))
                 .ToListAsync();
 
             return holidays;
@@ -210,15 +214,16 @@ namespace MedFuture.Server.Database.Repositories
 
         public async Task RemoveHoliday(int id)
         {
-            var holiday = _context.Holidays.Where(h=> h.Id == id).FirstOrDefault();
+            var holiday = _context.Holidays.Where(h => h.Id == id).FirstOrDefault();
 
-            if (holiday == null) {
+            if (holiday == null)
+            {
 
                 throw new ArgumentException("Invalid Holiday Id");
             }
-            
-            _context.Holidays.Remove(holiday); 
-            
+
+            _context.Holidays.Remove(holiday);
+
             await _context.SaveChangesAsync();
 
         }
@@ -227,22 +232,22 @@ namespace MedFuture.Server.Database.Repositories
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            var doc = await _context.Doctors.Where(d=> d.UserID == userId).FirstOrDefaultAsync();
+            var doc = await _context.Doctors.Where(d => d.UserID == userId).FirstOrDefaultAsync();
 
-            if(doc == null)
+            if (doc == null)
             {
                 throw new ArgumentException("Invalid User Id");
             }
 
             Console.WriteLine("Doc Id - " + doc.DoctorID);
-            Console.WriteLine("Date - "+ today);
+            Console.WriteLine("Date - " + today);
 
-            var appointments = _context.Appointments.Where(a=> a.DoctorId == doc.DoctorID && a.AppointmentDate == today && a.Status != AppointmentStatus.Cancelled)
-                .Include(a=> a.Service)
-                .Include(a=> a.Doctor)
-                .Include(a=> a.Patient)
+            var appointments = _context.Appointments.Where(a => a.DoctorId == doc.DoctorID && a.AppointmentDate == today && a.Status != AppointmentStatus.Cancelled)
+                .Include(a => a.Service)
+                .Include(a => a.Doctor)
+                .Include(a => a.Patient)
                 .ThenInclude(p => p.User)
-                .ToList();    
+                .ToList();
 
             return appointments;
         }
@@ -250,7 +255,7 @@ namespace MedFuture.Server.Database.Repositories
 
         public async Task<AppointmentM> GetAppointmentDetailsForDoctor(int appId, int userId)
         {
-   
+
             var doc = _context.Doctors.Where(d => d.UserID == userId).FirstOrDefault();
 
             if (doc == null)
@@ -270,12 +275,12 @@ namespace MedFuture.Server.Database.Repositories
                                 .Include(a => a.Patient.reminderMedications)
                                 .FirstOrDefault();
 
-            if(appointment == null)
+            if (appointment == null)
             {
                 throw new ArgumentException("Invalid Appointment Id");
             }
 
-            if(appointment.DoctorId != doc.DoctorID)
+            if (appointment.DoctorId != doc.DoctorID)
             {
                 throw new UnauthorizedAccessException("Access to the resource is unauthorized.");
 
@@ -320,7 +325,7 @@ namespace MedFuture.Server.Database.Repositories
                 throw new ArgumentException("Invalid User Id");
             }
 
-            var appointments = _context.Appointments.Where(a => a.PatientId == patient.PatientID &&  a.Status != AppointmentStatus.Cancelled && a.AppointmentDate >= DateOnly.FromDateTime(startDate) && a.AppointmentDate <= DateOnly.FromDateTime(endDate))
+            var appointments = _context.Appointments.Where(a => a.PatientId == patient.PatientID && a.Status != AppointmentStatus.Cancelled && a.AppointmentDate >= DateOnly.FromDateTime(startDate) && a.AppointmentDate <= DateOnly.FromDateTime(endDate))
                 .Include(a => a.Service)
                 .Include(a => a.Doctor)
                 .ThenInclude(d => d.User)
@@ -340,7 +345,7 @@ namespace MedFuture.Server.Database.Repositories
 
             var appointment = _context.Appointments.Where(a => a.AppointmentId == appId)
                                 .Include(a => a.Service)
-                                .Include (a => a.Patient)
+                                .Include(a => a.Patient)
                                 .ThenInclude(p => p.User)
                                 .Include(a => a.Doctor)
                                 .ThenInclude(d => d.User)

@@ -208,8 +208,9 @@ function DataGridOptions({ rowSelectionModel, setPrevDateRange }) {
                         onChange={handleStatusChange}
                         fullWidth
                     >
-                        <MenuItem value={2}>Cancelled</MenuItem>
                         <MenuItem value={1}>Pending</MenuItem>
+                        <MenuItem value={2}>Cancelled</MenuItem>
+                        <MenuItem value={3}>Missed</MenuItem>
 
                     </TextField>
                     <TextField
