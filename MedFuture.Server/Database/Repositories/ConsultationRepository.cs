@@ -16,9 +16,9 @@ namespace MedFuture.Server.Database.Repositories
 
         public async Task AddOrUpdateConsultationAsync(int userId, ConsultationRequest consultationRequest)
         {
-            var doctor = _context.Doctors.Where(d=> d.UserID == userId).FirstOrDefault();
-            var appointment = _context.Appointments.Where(a=> a.AppointmentId ==  consultationRequest.AppointmentId)
-                .Include(a=> a.Consultation)
+            var doctor = _context.Doctors.Where(d => d.UserID == userId).FirstOrDefault();
+            var appointment = _context.Appointments.Where(a => a.AppointmentId == consultationRequest.AppointmentId)
+                .Include(a => a.Consultation)
                 .ThenInclude(c => c.Medications)
                 .FirstOrDefault();
 
@@ -26,11 +26,11 @@ namespace MedFuture.Server.Database.Repositories
             {
                 throw new ArgumentException("Invalid User ID");
             }
-            if( appointment == null)
+            if (appointment == null)
             {
                 throw new ArgumentException("Invalid Appointment ID");
             }
-            if(appointment.DoctorId != doctor.DoctorID)
+            if (appointment.DoctorId != doctor.DoctorID)
             {
                 throw new UnauthorizedAccessException("Do not have access to the resource.");
             }
@@ -65,13 +65,13 @@ namespace MedFuture.Server.Database.Repositories
                     })
                     .ToList() ?? []
 
-            };
+                };
 
                 appointment.Consultation = consultation;
             }
 
             await _context.SaveChangesAsync();
-  
+
         }
 
 

@@ -147,6 +147,7 @@ const AccountSettings = () => {
             </Card>
           </Grid>
 
+                  {/* 
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -198,7 +199,8 @@ const AccountSettings = () => {
             >
               Deactivate Account
             </Button>
-          </Grid>
+                  </Grid>
+          */}
         </Grid>
       </Box>
     </Container>

@@ -124,8 +124,27 @@ namespace MedFuture.Server.Controllers
         [HttpPost("create-appointment")]
         public async Task<IActionResult> CreateAppointment(CreateAppointmentDto createAppointmentDto)
         {
+
             try
             {
+
+                // Check if date falls under appointment booking schedule
+                DateTime formDateTime = createAppointmentDto.StartDateTime;
+                var app_settings = await _appointmentRepository.GetAppointmentSettings();
+
+                int min_offset_before_booking = app_settings.MinimumTimeBeforeBookingInDays;
+                int booking_period = app_settings.BookingPeriodInDays;
+
+                // Calculate the allowed booking period range
+                DateTime minBookingDate = DateTime.Now.AddDays(min_offset_before_booking);
+                DateTime maxBookingDate = DateTime.Now.AddDays(booking_period);
+
+                // Check if the appointment date is within the allowed range
+                if (formDateTime < minBookingDate || formDateTime > maxBookingDate)
+                {
+                    return BadRequest($"Appointment must be booked at least {min_offset_before_booking} days in advance and within the next {booking_period} days.");
+                }
+
                 var userClaims = User.Claims;
 
                 var userIdClaim = userClaims.FirstOrDefault(c => c.Type == "userIdDb");
@@ -166,7 +185,7 @@ namespace MedFuture.Server.Controllers
                 }
 
                 AppointmentM appointment = await _appointmentRepository.CreateAppointment(createAppointmentDto);
-                var app_settings = await _appointmentRepository.GetAppointmentSettings();
+        
 
                 return Ok(new { data = appointment, message = "Successfully Booked Appointment!", tax = app_settings.AppointmentTaxPercentage });
             }

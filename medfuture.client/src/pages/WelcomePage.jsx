@@ -97,7 +97,7 @@ const WelcomePage = () => {
                 }}
             >
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    <Logo to="/" width={200} height={50} viewBox="0 0 2000 531" />
+                    <Logo to="/" width={200} height={50} viewBox="0 0 1500 531" />
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
                         {!currentUser ? (
                             <>
