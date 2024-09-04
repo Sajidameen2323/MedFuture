@@ -79,7 +79,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter(policyName: "BookingAppointmentLimiter", options =>
     {
-        options.PermitLimit = 3;
+        options.PermitLimit = 10;
         options.Window = TimeSpan.FromHours(24);
         //options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         //options.QueueLimit = 2; //remove this if you want the RejectionStatusCode and the OnRejected to be invoked. 

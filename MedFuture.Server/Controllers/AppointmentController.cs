@@ -136,8 +136,13 @@ namespace MedFuture.Server.Controllers
                 int booking_period = app_settings.BookingPeriodInDays;
 
                 // Calculate the allowed booking period range
-                DateTime minBookingDate = DateTime.Now.AddDays(min_offset_before_booking);
-                DateTime maxBookingDate = DateTime.Now.AddDays(booking_period);
+                DateTime minBookingDate = DateTime.Now.AddDays(min_offset_before_booking).Date;
+                DateTime maxBookingDate = DateTime.Now.AddDays(booking_period).Date;
+
+                Console.WriteLine("----------------------");
+                Console.WriteLine(minBookingDate.ToString());
+                Console.WriteLine(maxBookingDate.ToString());
+                Console.WriteLine(formDateTime.ToString());
 
                 // Check if the appointment date is within the allowed range
                 if (formDateTime < minBookingDate || formDateTime > maxBookingDate)

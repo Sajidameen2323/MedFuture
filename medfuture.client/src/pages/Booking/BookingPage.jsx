@@ -1,11 +1,9 @@
 /* eslint-disable react/prop-types */
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
-import { Datepicker, getJson, Page, setOptions, momentTimezone } from '@mobiscroll/react';
+import { Datepicker, setOptions, momentTimezone } from '@mobiscroll/react';
 import { useCallback, useState } from 'react';
-import dayjs from 'dayjs';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
-import Logo from 'components/Logo';
-import { Card, CardContent, Typography, Button, Box, CardActions } from '@mui/material';
+import { useQuery } from 'react-query';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import moment from 'moment-timezone';
 import { useEffect } from 'react';
 
@@ -28,7 +26,7 @@ const getAppointmentSchedule = async (docId, serviceId) => {
 
 function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
 
-    const { isLoading, isError, data: scheduleData, error } = useQuery(['appointmentScheduleApi', selectedDoctor.doctorID], () => getAppointmentSchedule(selectedDoctor.doctorID, selectedService.serviceID), {
+    const { isLoading, data: scheduleData } = useQuery(['appointmentScheduleApi', selectedDoctor.doctorID], () => getAppointmentSchedule(selectedDoctor.doctorID, selectedService.serviceID), {
         // Optional configuration options for useQuery
         refetchOnWindowFocus: false,
         staleTime: 0, // Fetch data again if it's older than 0 seconds
@@ -57,32 +55,26 @@ function App({ setSelectedDateTime, selectedService, selectedDoctor }) {
     const [datetimeInvalid, setDatetimeInvalid] = useState([]);
  
     useEffect(() => {
+        if (scheduleData?.settings) {
+            const { minimumTimeBeforeBookingInDays = 2, bookingPeriodInDays = 30 } = scheduleData.settings;
 
-        if (scheduleData && scheduleData?.settings) {
-            let num1 = scheduleData?.settings?.minimumTimeBeforeBookingInDays ?? 3;
-            let num2 = scheduleData?.settings?.bookingPeriodInDays ?? 30;
-
-            let today = new Date();
-            let minDateObj = new Date(today.getTime() + num1 * 24 * 60 * 60 * 1000);
-            let maxDateObj = new Date(today.getTime() + num2 * 24 * 60 * 60 * 1000);
+            const today = new Date();
+            const minDateObj = new Date(today.setDate(today.getDate() + minimumTimeBeforeBookingInDays));
+            const maxDateObj = new Date(today.setDate(today.getDate() + bookingPeriodInDays - minimumTimeBeforeBookingInDays));
 
             minDateObj.setUTCHours(0, 0, 0, 0);
-            maxDateObj.setUTCHours(23, 0, 0, 0);
+            maxDateObj.setUTCHours(23, 59, 59, 999);
 
-            let min = minDateObj.toISOString();
-            let max = maxDateObj.toISOString();
+            setMinDate(minDateObj.toISOString());
+            setMaxDate(maxDateObj.toISOString());
 
-            //setMinDate(min);
-            setMaxDate(max);
-
-            console.log("min max date set from db")
+            console.log("min max date set from db");
         }
 
         handlePageLoadingDatetime();
+    }, [scheduleData]);
 
-    }, [scheduleData])
-
-    const handlePageLoadingDatetime = useCallback((args) => {
+    const handlePageLoadingDatetime = useCallback(() => {
 
         const invalid = [];
         const labels = [];
