@@ -28,6 +28,7 @@ const AppointmentStepper = () => {
     const [selectedDoctor, setSelectedDoctor] = useState('');
     const [selectedDateTime, setSelectedDateTime] = useState('');
     const [appointmentDetails, setAppointmentDetails] = useState(null);
+    const [taxRateFromDb, setTaxRateFromDb] = useState(0);
 
     const [processing, setProcessing] = useState(false);
 
@@ -84,9 +85,12 @@ const AppointmentStepper = () => {
             });
             if (response.ok) {
 
-                const { data, message } = await response.json()
+                const { data, message, tax } = await response.json()
                 console.log(data)
                 console.log(message)
+                if(tax){
+                    setTaxRateFromDb(tax);
+                }
                 setAppointmentDetails(data);
                 queryClient.invalidateQueries('appointmentScheduleApi');
                 setActiveStep((prevStep) => prevStep + 1);
@@ -144,7 +148,7 @@ const AppointmentStepper = () => {
                 {activeStep === 0 && <SelectServiceForm selectedService={selectedService} setSelectedService={ setSelectedService } />}
                 {activeStep === 1 && <SelectDoctorForm doctors={selectedService.doctorNames} setSelectedDoctor={setSelectedDoctor} selectedDoctor={selectedDoctor } />}
                 {activeStep === 2 && <BookingPage setSelectedDateTime={setSelectedDateTime} selectedService={selectedService} selectedDoctor={selectedDoctor} />}
-                {activeStep === 3 && <SuccessPage selectedService={selectedService} selectedDoctor={selectedDoctor} appointmentDetails={appointmentDetails} handleReset={ handleReset } />}
+                {activeStep === 3 && <SuccessPage taxRateFromDb={taxRateFromDb} selectedService={selectedService} selectedDoctor={selectedDoctor} appointmentDetails={appointmentDetails} handleReset={ handleReset } />}
             
 
                 {/* Navigation buttons */}

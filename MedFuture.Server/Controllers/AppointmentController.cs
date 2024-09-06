@@ -160,6 +160,8 @@ namespace MedFuture.Server.Controllers
 
                 // object userId;
                 // if (decoded.Claims.TryGetValue("userIdDb", out userId))
+
+
                 if (userIdClaim != null)
                 {
                     string userId = userIdClaim.Value;

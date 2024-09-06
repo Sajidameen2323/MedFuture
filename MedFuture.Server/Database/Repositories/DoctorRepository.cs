@@ -59,7 +59,7 @@ namespace MedFuture.Server.Database.Repositories
             var doctorToDelete = await GetDoctorByIdAsync(id);
             if (doctorToDelete != null)
             {
-                Console.WriteLine("Doctor iraan kallen " + doctorToDelete.User.FirstName);
+                Console.WriteLine("Doctor First Name " + doctorToDelete.User.FirstName);
 
                 await FirebaseAuth.DefaultInstance.DeleteUserAsync(doctorToDelete.User.FirebaseID);
 

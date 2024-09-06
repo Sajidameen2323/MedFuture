@@ -12,9 +12,9 @@ import moment from 'moment';
 
 const SuccessfulBooking = (props) => {
 
-    const { selectedService: service, selectedDoctor: doctor, appointmentDetails, handleReset } = props;
+    const { selectedService: service, selectedDoctor: doctor, appointmentDetails, handleReset, taxRateFromDb } = props;
 
-    const taxRate = 0.1;
+    const taxRate = taxRateFromDb/100;
     const fee = service.serviceCharge;
     const tax = fee * taxRate;
     const total = fee + tax;
@@ -108,7 +108,7 @@ const SuccessfulBooking = (props) => {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <Typography variant="body1">10 %</Typography>
+                            <Typography variant="body1">{taxRate*100} %</Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" fontWeight="bold">

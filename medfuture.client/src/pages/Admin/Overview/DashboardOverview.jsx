@@ -258,11 +258,11 @@ const DashboardDefault = () => {
             </ListItemButton>
             <ListItemButton divider>
               <ListItemText primary="Company Expenses Ratio" />
-              <Typography variant="h5">0.58%</Typography>
+              <Typography variant="h5">N/A</Typography>
             </ListItemButton>
             <ListItemButton>
               <ListItemText primary="Business Risk Cases" />
-              <Typography variant="h5">Low</Typography>
+              <Typography variant="h5">N/A</Typography>
             </ListItemButton>
           </List>
                   <ReportAreaChart idToken={idToken} />

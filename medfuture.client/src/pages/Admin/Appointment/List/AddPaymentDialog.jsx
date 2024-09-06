@@ -43,7 +43,7 @@ const AddPaymentDialog = ({ open, onClose, appointment, onPaymentAdded, isAdding
                     value={additionalCost}
                     onChange={(e) => {
                         console.log(e.target.value)
-                        setAdditionalCost(e.target.value)
+                        setAdditionalCost(Math.abs(e.target.value))
                     }}
                     fullWidth
                 />
